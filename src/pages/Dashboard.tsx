@@ -150,7 +150,7 @@ export default function Dashboard({ onSignOut }: Props) {
     const t = newRoutineTitle.trim();
     if (!t) return;
     try {
-      const palette: string[] = ["blue", "emerald", "amber", "rose", "violet", "cyan"];
+      const palette: string[] = ["emerald", "cyan", "amber", "rose", "violet", "blue"];
       await createRoutine({
         title: t,
         colorKey: palette[(routines?.length ?? 0) % palette.length],
@@ -206,7 +206,7 @@ export default function Dashboard({ onSignOut }: Props) {
         {/* Header */}
         <header className="glass sticky top-4 z-20 mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/25">
+            <div className="grid size-10 place-items-center rounded-xl bg-[oklch(0.72_0.19_122)] text-[oklch(0.22_0.05_130)] shadow-lg shadow-emerald-500/25">
               <ListChecks className="size-5" />
             </div>
             <div>
@@ -229,9 +229,10 @@ export default function Dashboard({ onSignOut }: Props) {
           <div className="glass rounded-2xl p-5">
             <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
               <Flame className="size-4 text-amber-500" />
+              <span className="section-tag">۰۱</span>
               پیشرفت امروز
             </div>
-            <div className="text-3xl font-extrabold tabular-nums text-blue-600">
+            <div className="text-3xl font-extrabold tabular-nums text-emerald-700">
               {toFa(stats?.dayPct ?? 0)}٪
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
@@ -241,6 +242,7 @@ export default function Dashboard({ onSignOut }: Props) {
           <div className="glass rounded-2xl p-5">
             <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
               <span className="size-2 rounded-full bg-emerald-500" />
+              <span className="section-tag">۰۲</span>
               پیشرفت این ماه
             </div>
             <div className="text-3xl font-extrabold tabular-nums text-emerald-600">
@@ -254,6 +256,7 @@ export default function Dashboard({ onSignOut }: Props) {
           <div className="glass rounded-2xl p-5">
             <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
               <span className="size-2 rounded-full bg-violet-500" />
+              <span className="section-tag">۰۳</span>
               پیشرفت امسال
             </div>
             <div className="text-3xl font-extrabold tabular-nums text-violet-600">
@@ -270,7 +273,7 @@ export default function Dashboard({ onSignOut }: Props) {
           <ProgressRing
             pct={stats?.dayPct ?? 0}
             label="کارهای امروز"
-            color="#3b82f6"
+            color="#65a30d"
           />
           <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-right">
             <h2 className="text-xl font-extrabold">کارهای ثابت امروز</h2>

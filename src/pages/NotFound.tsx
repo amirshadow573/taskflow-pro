@@ -13,7 +13,7 @@ export default function NotFound() {
         transition={{ duration: 0.5 }}
         className="glass rounded-3xl px-10 py-12 text-center"
       >
-        <div className="mx-auto mb-5 grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/25">
+        <div className="mx-auto mb-5 grid size-14 place-items-center rounded-2xl bg-[oklch(0.72_0.19_122)] text-[oklch(0.22_0.05_130)] shadow-lg shadow-emerald-500/25">
           <Compass className="size-7" />
         </div>
         <h1 className="text-5xl font-extrabold">۴۰۴</h1>
