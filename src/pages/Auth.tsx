@@ -26,7 +26,7 @@ interface AuthProps {
 
 function resolveRedirectAfterAuth(
   returnTo: string | null,
-  fallback = "/dashboard",
+  fallback = "/onboarding",
 ) {
   if (returnTo?.startsWith("/") && !returnTo.startsWith("//")) {
     return returnTo;
@@ -103,186 +103,174 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   };
 
   return (
-    <div className="app-bg min-h-screen">
-      <div className="flex min-h-screen flex-col">
-        <div className="flex flex-1 items-center justify-center px-4 py-12">
-          <Card className="glass min-w-[350px] rounded-3xl border-white/60 pb-0 shadow-xl">
-            {step === "signIn" ? (
-              <>
-                <CardHeader className="text-center">
-                  <div className="flex justify-center">
-                    <img
-                      src={logo}
-                      alt="لوگو"
-                      width={64}
-                      height={64}
-                      className="mb-4 mt-4 cursor-pointer rounded-lg"
-                      onClick={() => navigate("/")}
-                    />
-                  </div>
-                  <CardTitle className="text-xl">خوش آمدید</CardTitle>
-                  <CardDescription>
-                    ایمیل خود را وارد کنید تا وارد شوید یا ثبت‌نام کنید
-                  </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleEmailSubmit}>
-                  <CardContent>
-                    <div className="relative flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Mail className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          name="email"
-                          placeholder="name@example.com"
-                          type="email"
-                          dir="ltr"
-                          className="glass-row pr-9 text-right"
-                          disabled={isLoading}
-                          required
-                        />
-                      </div>
-                      <Button
-                        type="submit"
-                        variant="outline"
-                        size="icon"
-                        disabled={isLoading}
-                      >
-                        {isLoading ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <ArrowLeft className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                    {error && (
-                      <p className="mt-2 text-sm text-rose-500">{error}</p>
-                    )}
+    <div className="grid min-h-svh place-items-center bg-background px-4 py-10">
+      <div className="w-full max-w-sm">
+        <div className="mb-6 flex items-center justify-center gap-2.5">
+          <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+            <Mail className="size-5" />
+          </span>
+          <span className="text-xl font-extrabold">تسک‌لی</span>
+        </div>
 
-                    <div className="mt-4">
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-transparent px-2 text-muted-foreground">
-                            یا
-                          </span>
-                        </div>
-                      </div>
-
-                      <Button
-                        type="button"
-                        variant="glass"
-                        className="mt-4 w-full"
-                        onClick={handleGuestLogin}
+        <Card className="rounded-2xl border-border elev-2">
+          {step === "signIn" ? (
+            <>
+              <CardHeader className="text-center">
+                <CardTitle className="text-lg">خوش آمدید</CardTitle>
+                <CardDescription>
+                  با ایمیل وارد شوید یا حساب بسازید — بدون رمز عبور
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleEmailSubmit}>
+                <CardContent>
+                  <div className="relative flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <Mail className="absolute end-3 top-3 size-4 text-muted-foreground" />
+                      <Input
+                        name="email"
+                        placeholder="name@example.com"
+                        type="email"
+                        dir="ltr"
+                        className="pe-9 text-end"
                         disabled={isLoading}
-                      >
-                        <UserX className="ml-2 h-4 w-4" />
-                        ورود سریع به عنوان مهمان
-                      </Button>
+                        required
+                      />
                     </div>
-                  </CardContent>
-                </form>
-              </>
-            ) : (
-              <>
-                <CardHeader className="mt-4 text-center">
-                  <CardTitle>ایمیل خود را بررسی کنید</CardTitle>
-                  <CardDescription>
-                    کدی ۶ رقمی به {step.email} فرستادیم
-                  </CardDescription>
-                </CardHeader>
-                <form onSubmit={handleOtpSubmit}>
-                  <CardContent className="pb-4">
-                    <input type="hidden" name="email" value={step.email} />
-                    <input type="hidden" name="code" value={otp} />
-
-                    <div className="flex justify-center" dir="ltr">
-                      <InputOTP
-                        value={otp}
-                        onChange={setOtp}
-                        maxLength={6}
-                        disabled={isLoading}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            otp.length === 6 &&
-                            !isLoading
-                          ) {
-                            const form = (e.target as HTMLElement).closest(
-                              "form",
-                            );
-                            if (form) form.requestSubmit();
-                          }
-                        }}
-                      >
-                        <InputOTPGroup>
-                          {Array.from({ length: 6 }).map((_, index) => (
-                            <InputOTPSlot key={index} index={index} />
-                          ))}
-                        </InputOTPGroup>
-                      </InputOTP>
-                    </div>
-                    {error && (
-                      <p className="mt-2 text-center text-sm text-rose-500">
-                        {error}
-                      </p>
-                    )}
-                    <p className="mt-4 text-center text-sm text-muted-foreground">
-                      کد دریافت نشد؟{" "}
-                      <Button
-                        variant="link"
-                        className="h-auto p-0"
-                        onClick={() => setStep("signIn")}
-                      >
-                        دوباره تلاش کنید
-                      </Button>
-                    </p>
-                  </CardContent>
-                  <CardFooter className="flex-col gap-2">
                     <Button
                       type="submit"
-                      className="w-full"
-                      disabled={isLoading || otp.length !== 6}
+                      variant="outline"
+                      size="icon"
+                      disabled={isLoading}
+                      aria-label="ارسال کد"
                     >
                       {isLoading ? (
-                        <>
-                          <Loader2 className="ml-2 h-4 w-4 animate-spin" />
-                          در حال بررسی…
-                        </>
+                        <Loader2 className="size-4 animate-spin" />
                       ) : (
-                        <>
-                          تأیید کد
-                          <ArrowLeft className="mr-2 h-4 w-4" />
-                        </>
+                        <ArrowLeft className="size-4" />
                       )}
                     </Button>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      onClick={() => setStep("signIn")}
-                      disabled={isLoading}
-                      className="w-full"
-                    >
-                      تغییر ایمیل
-                    </Button>
-                  </CardFooter>
-                </form>
-              </>
-            )}
+                  </div>
+                  {error && (
+                    <p className="mt-2 text-sm text-destructive" role="alert">
+                      {error}
+                    </p>
+                  )}
 
-            <div className="rounded-b-3xl border-t border-white/50 bg-white/40 px-6 py-4 text-center text-xs text-muted-foreground backdrop-blur-sm">
-              امن شده توسط{" "}
-              <a
-                href="https://freebuff.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="transition-colors underline hover:text-primary"
-              >
-                freebuff.com
-              </a>
-            </div>
-          </Card>
-        </div>
+                  <div className="my-4 flex items-center gap-3">
+                    <span className="h-px flex-1 bg-border" />
+                    <span className="text-xs text-muted-foreground">یا</span>
+                    <span className="h-px flex-1 bg-border" />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full"
+                    onClick={handleGuestLogin}
+                    disabled={isLoading}
+                  >
+                    <UserX className="size-4" />
+                    ورود سریع به عنوان مهمان
+                  </Button>
+                </CardContent>
+              </form>
+            </>
+          ) : (
+            <>
+              <CardHeader className="text-center">
+                <CardTitle className="text-lg">کد تأیید را وارد کنید</CardTitle>
+                <CardDescription>
+                  کدی ۶ رقمی به {step.email} فرستادیم
+                </CardDescription>
+              </CardHeader>
+              <form onSubmit={handleOtpSubmit}>
+                <CardContent className="pb-4">
+                  <input type="hidden" name="email" value={step.email} />
+                  <input type="hidden" name="code" value={otp} />
+
+                  <div className="flex justify-center" dir="ltr">
+                    <InputOTP
+                      value={otp}
+                      onChange={setOtp}
+                      maxLength={6}
+                      disabled={isLoading}
+                      onKeyDown={(e) => {
+                        if (
+                          e.key === "Enter" &&
+                          otp.length === 6 &&
+                          !isLoading
+                        ) {
+                          const form = (e.target as HTMLElement).closest("form");
+                          if (form) form.requestSubmit();
+                        }
+                      }}
+                    >
+                      <InputOTPGroup>
+                        {Array.from({ length: 6 }).map((_, index) => (
+                          <InputOTPSlot key={index} index={index} />
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  {error && (
+                    <p className="mt-2 text-center text-sm text-destructive" role="alert">
+                      {error}
+                    </p>
+                  )}
+                  <p className="mt-4 text-center text-sm text-muted-foreground">
+                    کد دریافت نشد؟{" "}
+                    <Button
+                      variant="link"
+                      className="size-auto p-0"
+                      onClick={() => setStep("signIn")}
+                    >
+                      دوباره تلاش کنید
+                    </Button>
+                  </p>
+                </CardContent>
+                <CardFooter className="flex-col gap-2">
+                  <Button
+                    type="submit"
+                    className="w-full"
+                    disabled={isLoading || otp.length !== 6}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="ml-2 size-4 animate-spin" />
+                        در حال بررسی…
+                      </>
+                    ) : (
+                      <>
+                        تأیید و ورود
+                        <ArrowLeft className="size-4" />
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setStep("signIn")}
+                    disabled={isLoading}
+                    className="w-full"
+                  >
+                    تغییر ایمیل
+                  </Button>
+                </CardFooter>
+              </form>
+            </>
+          )}
+        </Card>
+
+        <p className="mt-5 text-center text-xs text-muted-foreground">
+          با ورود، <button className="underline">شرایط استفاده</button> و{" "}
+          <button className="underline">حریم خصوصی</button> را می‌پذیرید.
+        </p>
+        <button
+          onClick={() => navigate("/")}
+          className="mt-3 block w-full text-center text-xs text-muted-foreground transition hover:text-foreground"
+        >
+          برگشت به صفحه اصلی
+        </button>
       </div>
     </div>
   );

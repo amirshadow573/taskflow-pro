@@ -13,18 +13,50 @@ export default defineSchema({
     isAnonymous: v.optional(v.boolean()),
   }).index("email", ["email"]),
 
-  // A named set of daily routine tasks ("برنامه روتین"), e.g. "روتین صبح"
+  // Projects group tasks together
+  projects: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    description: v.optional(v.string()),
+    color: v.string(), // hex
+    deadline: v.optional(v.string()), // YYYY-MM-DD
+    status: v.string(), // active | paused | completed
+    createdAt: v.number(),
+    archived: v.boolean(),
+  }).index("by_user", ["userId"]),
+
+  // Unified task model: inbox capture, today lists, projects, kanban, subtasks
+  tasks: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    status: v.string(), // inbox | todo | in_progress | review | done
+    priority: v.string(), // low | medium | high | urgent
+    dueDate: v.optional(v.string()), // YYYY-MM-DD (local)
+    dueTime: v.optional(v.string()), // HH:mm
+    projectId: v.optional(v.id("projects")),
+    tags: v.array(v.string()),
+    parentId: v.optional(v.id("tasks")), // subtask of another task
+    estimateMinutes: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    sortOrder: v.number(),
+    createdAt: v.number(),
+    archived: v.boolean(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_parent", ["parentId"]),
+
+  // Daily fixed routines ("برنامه روتین") — used by the Planning page
   routines: defineTable({
     userId: v.id("users"),
     title: v.string(),
-    colorKey: v.string(), // one of COLOR_KEYS (see src/lib/colors.ts)
+    colorKey: v.string(),
     sortOrder: v.number(),
     archived: v.optional(v.boolean()),
   })
     .index("by_user", ["userId", "archived"])
     .index("by_user_order", ["userId", "sortOrder"]),
 
-  // One fixed task inside a routine
   routineItems: defineTable({
     userId: v.id("users"),
     routineId: v.id("routines"),
@@ -35,13 +67,10 @@ export default defineSchema({
     .index("by_routine", ["routineId", "archived"])
     .index("by_user", ["userId"]),
 
-  // A check-in record for one routine item on one day.
-  // Only rows for days the user actually checked (or explicitly unchecked)
-  // are stored; absence means "not done".
   checkins: defineTable({
     userId: v.id("users"),
     itemId: v.id("routineItems"),
-    day: v.string(), // YYYY-MM-DD (Gregorian, local)
+    day: v.string(),
     done: v.boolean(),
   })
     .index("by_user_day", ["userId", "day"])

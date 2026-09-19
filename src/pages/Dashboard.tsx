@@ -1,459 +1,314 @@
 import { useAuth } from "@/hooks/use-auth";
-import {
-  toFa,
-  clampPercent,
-  formatJalaliFull,
-  dateKey,
-  toJalaliDate,
-  JALALI_MONTHS,
-} from "@/lib/persian";
-import {
-  CheckCircle2,
-  Circle,
-  Flame,
-  ListChecks,
-  Plus,
-  RotateCcw,
-  Trash2,
-} from "lucide-react";
-import { useMemo, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import type { Id } from "@/convex/_generated/dataModel";
+import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { TaskRow } from "@/components/tasks/TaskRow";
+import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { COLOR_HEX, COLOR_BG, colorOf, nextColorKey } from "@/lib/colors";
+import { toFa, toJalaliDate, formatJalaliFull, JALALI_MONTHS } from "@/lib/persian";
+import { todayKey, isOverdue } from "@/lib/task-utils";
+import { Link } from "react-router";
+import {
+  ArrowLeft,
+  Inbox,
+  ListTodo,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
 
-interface Props {
-  onSignOut?: () => void;
-}
-
-/** Progress ring with animated stroke. */
-function ProgressRing({
-  pct,
-  size = 168,
-  stroke = 14,
-  color = "#3b82f6",
-  label,
-}: {
-  pct: number;
-  size?: number;
-  stroke?: number;
-  color?: string;
-  label: string;
-}) {
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const p = clampPercent(pct);
-  return (
-    <div
-      className="relative grid place-items-center"
-      style={{ width: size, height: size }}
-    >
-      <svg width={size} height={size} className="-rotate-90">
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke="oklch(0.6 0.1 250 / 12%)"
-          strokeWidth={stroke}
-        />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c - (p / 100) * c}
-          style={{
-            transition: "stroke-dashoffset 0.7s cubic-bezier(.22,1,.36,1)",
-          }}
-        />
-      </svg>
-      <div className="absolute inset-0 grid place-items-center text-center">
-        <div>
-          <div
-            className="text-4xl font-extrabold tabular-nums"
-            style={{ color }}
-          >
-            {toFa(p)}
-            <span className="text-xl">٪</span>
-          </div>
-          <div className="mt-1 text-xs font-medium text-muted-foreground">
-            {label}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function Dashboard({ onSignOut }: Props) {
+export default function Dashboard() {
+  const { tasks, projects, toggleDone, deleteTask, openTask, createTask } =
+    useWorkspace();
   const { user } = useAuth();
-  const today = useMemo(() => new Date(), []);
-  const todayKey = dateKey(today);
 
-  const routines = useQuery(api.routines.listRoutines, {});
-  const items = useQuery(api.routines.listAllItems, {});
-  const dayCheckins = useQuery(api.routines.listCheckinsForDay, {
-    day: todayKey,
-  });
-  const stats = useQuery(api.routines.getStats, {
-    day: todayKey,
-    monthPrefix: todayKey.slice(0, 7),
-    yearPrefix: todayKey.slice(0, 4),
-  });
+  const tKey = todayKey();
+  const root = tasks.filter((t) => !t.parentId);
+  const todayTasks = root
+    .filter((t) => t.dueDate === tKey && t.status !== "done")
+    .sort((a, b) => (a.dueTime ?? "").localeCompare(b.dueTime ?? ""));
+  const overdue = root.filter((t) => isOverdue(t));
+  const inbox = root.filter((t) => t.status === "inbox");
 
-  const createRoutine = useMutation(api.routines.createRoutine);
-  const deleteRoutine = useMutation(api.routines.deleteRoutine);
-  const setRoutineColor = useMutation(api.routines.setRoutineColor);
-  const createItem = useMutation(api.routines.createItem);
-  const deleteItem = useMutation(api.routines.deleteItem);
-  const toggleCheckin = useMutation(api.routines.toggleCheckin);
+  // counts for overview
+  const allToday = root.filter((t) => t.dueDate === tKey);
+  const completed = allToday.filter((t) => t.status === "done").length;
+  const inProgress = allToday.filter((t) => t.status === "in_progress").length;
+  const remaining = allToday.length - completed - inProgress;
+  const pct = allToday.length
+    ? Math.round((completed / allToday.length) * 100)
+    : 0;
 
-  const [newRoutineTitle, setNewRoutineTitle] = useState("");
-  const [newItemTitles, setNewItemTitles] = useState<Record<string, string>>({});
-
-  const loading =
-    routines === undefined ||
-    items === undefined ||
-    dayCheckins === undefined ||
-    stats === undefined;
-
-  if (loading) {
-    return (
-      <div className="app-bg grid min-h-screen place-items-center">
-        <div className="glass rounded-2xl px-8 py-6 text-sm text-muted-foreground">
-          در حال بارگذاری…
-        </div>
-      </div>
-    );
+  // subtask rollups
+  const subtotals = new Map<string, { total: number; done: number }>();
+  for (const t of tasks) {
+    if (!t.parentId) continue;
+    const cur = subtotals.get(t.parentId) ?? { total: 0, done: 0 };
+    cur.total += 1;
+    if (t.status === "done") cur.done += 1;
+    subtotals.set(t.parentId, cur);
   }
 
-  const itemsByRoutine = new Map<string, typeof items>();
-  for (const it of items ?? []) {
-    const arr = itemsByRoutine.get(it.routineId) ?? [];
-    arr.push(it);
-    itemsByRoutine.set(it.routineId, arr);
-  }
-  const doneSet = new Set(
-    (dayCheckins ?? []).filter((c) => c.done).map((c) => c.itemId),
-  );
+  const projectOf = (id?: string) => projects.find((p) => p._id === id);
 
-  const handleAddRoutine = async () => {
-    const t = newRoutineTitle.trim();
-    if (!t) return;
-    try {
-      const palette: string[] = ["emerald", "cyan", "amber", "rose", "violet", "blue"];
-      await createRoutine({
-        title: t,
-        colorKey: palette[(routines?.length ?? 0) % palette.length],
-      });
-      setNewRoutineTitle("");
-      toast.success("مجموعه ساخته شد");
-    } catch {
-      toast.error("خطا در ساخت مجموعه");
-    }
-  };
-
-  const handleAddItem = async (routineId: Id<"routines">) => {
-    const t = (newItemTitles[routineId] ?? "").trim();
-    if (!t) return;
-    await createItem({ routineId, title: t });
-    setNewItemTitles((s) => ({ ...s, [routineId]: "" }));
-  };
-
-  const handleToggle = async (itemId: Id<"routineItems">, done: boolean) => {
-    try {
-      await toggleCheckin({ itemId, day: todayKey, done });
-    } catch {
-      toast.error("در ثبت وضعیت خطایی رخ داد");
-    }
-  };
-
-  const handleResetDay = async () => {
-    try {
-      for (const c of dayCheckins ?? []) {
-        if (c.done) {
-          await toggleCheckin({ itemId: c.itemId, day: todayKey, done: false });
-        }
-      }
-      toast.success("امروز از نو شروع شد");
-    } catch {
-      toast.error("خطا در بازنشانی");
-    }
-  };
-
-  const hour = today.getHours();
+  const hour = new Date().getHours();
   const greeting =
-    hour < 5
-      ? "شب بخیر"
-      : hour < 12
-        ? "صبح بخیر"
-        : hour < 17
-          ? "وقت بخیر"
-          : "شب بخیر";
+    hour < 5 ? "شب بخیر" : hour < 12 ? "صبح بخیر" : hour < 17 ? "وقت بخیر" : "شب بخیر";
+
+  const nextUp = root
+    .filter(
+      (t) =>
+        t.status !== "done" &&
+        t.status !== "inbox" &&
+        (!t.dueDate || t.dueDate > tKey),
+    )
+    .sort((a, b) => (a.dueDate ?? "9999").localeCompare(b.dueDate ?? "9999"))
+    .slice(0, 4);
+
+  const j = toJalaliDate(new Date());
 
   return (
-    <div className="app-bg min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-        {/* Header */}
-        <header className="glass sticky top-4 z-20 mb-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-xl bg-[oklch(0.72_0.19_122)] text-[oklch(0.22_0.05_130)] shadow-lg shadow-emerald-500/25">
-              <ListChecks className="size-5" />
-            </div>
-            <div>
-              <h1 className="text-lg font-extrabold">روتین‌یار</h1>
-              <p className="text-xs text-muted-foreground">
-                {greeting}
-                {user?.name ? `، ${user.name}` : ""} — {formatJalaliFull(today)}
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="glass-outline" size="sm" onClick={onSignOut}>
-              خروج
-            </Button>
-          </div>
-        </header>
+    <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
+      {/* Greeting */}
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-extrabold tracking-tight">
+            {greeting}{user?.name ? `، ${user.name}` : ""}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            امروز چه کاری می‌خواهی انجام بدهی؟ — {formatJalaliFull(new Date())}
+          </p>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          {JALALI_MONTHS[j.jm - 1]} {toFa(j.jy)}
+        </div>
+      </header>
 
-        {/* Stats row */}
-        <section className="mb-8 grid gap-4 sm:grid-cols-3">
-          <div className="glass rounded-2xl p-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-              <Flame className="size-4 text-amber-500" />
-              <span className="section-tag">۰۱</span>
-              پیشرفت امروز
-            </div>
-            <div className="text-3xl font-extrabold tabular-nums text-emerald-700">
-              {toFa(stats?.dayPct ?? 0)}٪
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              از {toFa(items?.length ?? 0)} کار ثابت
-            </p>
+      {/* Compact today overview */}
+      <section className="rounded-2xl border border-border bg-card p-4 elev-1 md:p-5">
+        <div className="flex flex-wrap items-center gap-5">
+          {/* Ring */}
+          <div className="relative grid size-20 place-items-center">
+            <svg viewBox="0 0 80 80" className="size-20 -rotate-90">
+              <circle cx="40" cy="40" r="34" fill="none" stroke="var(--muted)" strokeWidth="8" />
+              <circle
+                cx="40"
+                cy="40"
+                r="34"
+                fill="none"
+                stroke="var(--primary)"
+                strokeWidth="8"
+                strokeLinecap="round"
+                strokeDasharray={2 * Math.PI * 34}
+                strokeDashoffset={2 * Math.PI * 34 * (1 - pct / 100)}
+                style={{ transition: "stroke-dashoffset .6s cubic-bezier(.22,1,.36,1)" }}
+              />
+            </svg>
+            <span className="absolute text-sm font-extrabold tabular-nums">{toFa(pct)}٪</span>
           </div>
-          <div className="glass rounded-2xl p-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-              <span className="size-2 rounded-full bg-emerald-500" />
-              <span className="section-tag">۰۲</span>
-              پیشرفت این ماه
-            </div>
-            <div className="text-3xl font-extrabold tabular-nums text-emerald-600">
-              {toFa(stats?.monthPct ?? 0)}٪
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {JALALI_MONTHS[toJalaliDate(today).jm - 1]}{" "}
-              {toFa(toJalaliDate(today).jy)}
-            </p>
-          </div>
-          <div className="glass rounded-2xl p-5">
-            <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
-              <span className="size-2 rounded-full bg-violet-500" />
-              <span className="section-tag">۰۳</span>
-              پیشرفت امسال
-            </div>
-            <div className="text-3xl font-extrabold tabular-nums text-violet-600">
-              {toFa(stats?.yearPct ?? 0)}٪
-            </div>
-            <p className="mt-1 text-xs text-muted-foreground">
-              سال {toFa(toJalaliDate(today).jy)}
-            </p>
-          </div>
-        </section>
 
-        {/* Progress ring + intro */}
-        <section className="mb-8 flex flex-col items-center gap-4 rounded-2xl sm:flex-row sm:justify-between">
-          <ProgressRing
-            pct={stats?.dayPct ?? 0}
-            label="کارهای امروز"
-            color="#65a30d"
-          />
-          <div className="flex flex-col items-center gap-3 text-center sm:items-start sm:text-right">
-            <h2 className="text-xl font-extrabold">کارهای ثابت امروز</h2>
-            <p className="max-w-md text-sm leading-6 text-muted-foreground">
-              هر روز که وارد شوی، همین کارها منتظرت هستند. تیک بزن، پیشرفتت را
-              ببین و روندت را حفظ کن.
-            </p>
-            <Button variant="glass" size="sm" onClick={handleResetDay}>
-              <RotateCcw className="size-4" />
-              شروع دوباره امروز
-            </Button>
-          </div>
-        </section>
-
-        {/* Routine sets */}
-        <section className="space-y-5">
-          {(routines ?? []).map((r) => {
-            const ck = colorOf(r.colorKey);
-            const hex = COLOR_HEX[ck];
-            const rItems = itemsByRoutine.get(r._id) ?? [];
-            const doneCount = rItems.filter((i) => doneSet.has(i._id)).length;
-            const pct = clampPercent(
-              rItems.length === 0 ? 0 : (doneCount / rItems.length) * 100,
-            );
-            return (
-              <div key={r._id} className="glass overflow-hidden rounded-2xl">
-                <div
-                  className="flex flex-wrap items-center justify-between gap-3 border-b border-white/50 px-5 py-4"
-                  style={{
-                    background: `linear-gradient(90deg, ${hex}14, transparent 60%)`,
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="size-3 rounded-full"
-                      style={{ background: hex }}
-                    />
-                    <h3 className="font-bold">{r.title}</h3>
-                    <span className="text-xs text-muted-foreground">
-                      {toFa(doneCount)} از {toFa(rItems.length)}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="h-2 w-24 overflow-hidden rounded-full bg-black/5">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${pct}%`, background: hex }}
-                      />
-                    </div>
-                    <span
-                      className="w-10 text-left text-xs font-bold tabular-nums"
-                      style={{ color: hex }}
-                    >
-                      {toFa(pct)}٪
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      title="تغییر رنگ"
-                      onClick={() =>
-                        setRoutineColor({
-                          id: r._id,
-                          colorKey: nextColorKey(r.colorKey),
-                        })
-                      }
-                    >
-                      <span
-                        className={cn(
-                          "size-4 rounded-full ring-2 ring-white/70",
-                          COLOR_BG[ck],
-                        )}
-                      />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      title="حذف مجموعه"
-                      onClick={() => {
-                        if (confirm(`حذف «${r.title}» و همه کارهایش؟`)) {
-                          deleteRoutine({ id: r._id });
-                        }
-                      }}
-                    >
-                      <Trash2 className="size-4 text-rose-500" />
-                    </Button>
-                  </div>
+          <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { label: "کار امروز", value: allToday.length, color: "text-foreground" },
+              { label: "انجام شده", value: completed, color: "text-emerald-600" },
+              { label: "در حال انجام", value: inProgress, color: "text-blue-600" },
+              { label: "باقی‌مانده", value: Math.max(0, remaining), color: "text-amber-600" },
+            ].map((s) => (
+              <div key={s.label}>
+                <div className={`text-2xl font-extrabold tabular-nums ${s.color}`}>
+                  {toFa(s.value)}
                 </div>
-
-                <ul className="space-y-1 px-2 py-2">
-                  {rItems.length === 0 && (
-                    <li className="px-3 py-4 text-sm text-muted-foreground">
-                      هنوز کاری اضافه نشده است.
-                    </li>
-                  )}
-                  {rItems.map((it) => {
-                    const done = doneSet.has(it._id);
-                    return (
-                      <li
-                        key={it._id}
-                        className="glass-row group flex items-center gap-3 rounded-xl px-3 py-2.5"
-                      >
-                        <button
-                          onClick={() => handleToggle(it._id, !done)}
-                          className="grid size-6 shrink-0 place-items-center rounded-full border transition-all"
-                          style={{
-                            borderColor: done
-                              ? hex
-                              : "oklch(0.6 0.05 250 / 35%)",
-                            background: done ? hex : "transparent",
-                          }}
-                          aria-pressed={done}
-                        >
-                          {done ? (
-                            <CheckCircle2 className="size-4 text-white" />
-                          ) : (
-                            <Circle className="size-3.5 text-muted-foreground/50" />
-                          )}
-                        </button>
-                        <span
-                          className={cn(
-                            "flex-1 text-sm",
-                            done && "text-muted-foreground line-through decoration-2",
-                          )}
-                        >
-                          {it.title}
-                        </span>
-                        <button
-                          onClick={() => deleteItem({ id: it._id })}
-                          className="opacity-0 transition-opacity group-hover:opacity-100"
-                          title="حذف"
-                        >
-                          <Trash2 className="size-4 text-rose-400 hover:text-rose-600" />
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-
-                <div className="flex gap-2 px-4 pb-4">
-                  <Input
-                    value={newItemTitles[r._id] ?? ""}
-                    onChange={(e) =>
-                      setNewItemTitles((s) => ({ ...s, [r._id]: e.target.value }))
-                    }
-                    onKeyDown={(e) => e.key === "Enter" && handleAddItem(r._id)}
-                    placeholder="کار جدید…"
-                    className="glass-row border-0"
-                  />
-                  <Button
-                    variant="glass"
-                    size="icon"
-                    onClick={() => handleAddItem(r._id)}
-                  >
-                    <Plus className="size-4" />
-                  </Button>
-                </div>
+                <div className="text-xs text-muted-foreground">{s.label}</div>
               </div>
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-2">
+            {(overdue.length > 0 || inbox.length > 0) && (
+              <div className="flex flex-wrap gap-2">
+                {overdue.length > 0 && (
+                  <Link to="/tasks?filter=overdue">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1.5 text-xs font-bold text-red-700 transition-colors hover:bg-red-100 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
+                      <TriangleAlert className="size-3.5" />
+                      {toFa(overdue.length)} کار عقب‌افتاده
+                    </span>
+                  </Link>
+                )}
+                {inbox.length > 0 && (
+                  <Link to="/inbox">
+                    <span className="inline-flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-bold text-amber-700 transition-colors hover:bg-amber-100 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">
+                      <Inbox className="size-3.5" />
+                      {toFa(inbox.length)} در صندوق ورودی
+                    </span>
+                  </Link>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Quick add */}
+      <SmartTaskInput
+        onCreate={(p) =>
+          createTask({
+            title: p.title,
+            dueDate: p.dueDate,
+            dueTime: p.dueTime,
+            priority: p.priority,
+            tags: p.tags,
+          })
+        }
+      />
+
+      {/* Today's tasks */}
+      <section className="rounded-2xl border border-border bg-card elev-1">
+        <div className="flex items-center justify-between px-4 py-3">
+          <h2 className="flex items-center gap-2 text-sm font-bold">
+            <ListTodo className="size-4 text-primary" />
+            کارهای امروز
+          </h2>
+          <Link to="/today">
+            <Button variant="ghost" size="sm">
+              همه
+              <ArrowLeft className="size-3.5" />
+            </Button>
+          </Link>
+        </div>
+        {todayTasks.length === 0 && allToday.length === 0 ? (
+          <div className="px-4 py-10 text-center">
+            <p className="text-sm font-semibold">کار داری!</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              روزت خالی است. می‌توانی برنامه‌ریزی کنی یا یک کار جدید بسازی.
+            </p>
+            <Button size="sm" className="mt-4" onClick={() => window.dispatchEvent(new CustomEvent("quick-add-task"))}>
+              + ساخت کار
+            </Button>
+          </div>
+        ) : (
+          <ul>
+            {allToday.map((t) => (
+              <TaskRow
+                key={t._id}
+                task={t}
+                project={projectOf(t.projectId)}
+                subtaskTotal={subtotals.get(t._id)?.total}
+                subtaskDone={subtotals.get(t._id)?.done}
+                onToggle={(done) => toggleDone(t, done)}
+                onOpen={() => openTask(t._id)}
+                onDelete={() => deleteTask(t._id)}
+              />
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* Overdue + Next up */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {overdue.length > 0 && (
+          <section className="rounded-2xl border border-border bg-card elev-1">
+            <div className="flex items-center justify-between px-4 py-3">
+              <h2 className="flex items-center gap-2 text-sm font-bold text-destructive">
+                <TriangleAlert className="size-4" />
+                عقب‌افتاده
+              </h2>
+              <Link to="/tasks?filter=overdue">
+                <Button variant="ghost" size="sm">
+                  همه
+                  <ArrowLeft className="size-3.5" />
+                </Button>
+              </Link>
+            </div>
+            <ul>
+              {overdue.slice(0, 4).map((t) => (
+                <TaskRow
+                  key={t._id}
+                  task={t}
+                  project={projectOf(t.projectId)}
+                  onToggle={(done) => toggleDone(t, done)}
+                  onOpen={() => openTask(t._id)}
+                  compact
+                />
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {nextUp.length > 0 && (
+          <section className="rounded-2xl border border-border bg-card elev-1">
+            <div className="flex items-center justify-between px-4 py-3">
+              <h2 className="flex items-center gap-2 text-sm font-bold">
+                <Sparkles className="size-4 text-primary" />
+                پیشنهاد بعدی
+              </h2>
+              <Link to="/planning">
+                <Button variant="ghost" size="sm">
+                  برنامه‌ریزی
+                  <ArrowLeft className="size-3.5" />
+                </Button>
+              </Link>
+            </div>
+            <ul>
+              {nextUp.map((t) => (
+                <TaskRow
+                  key={t._id}
+                  task={t}
+                  project={projectOf(t.projectId)}
+                  onToggle={(done) => toggleDone(t, done)}
+                  onOpen={() => openTask(t._id)}
+                  compact
+                />
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      {/* Project snapshots */}
+      <section>
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="text-sm font-bold">پروژه‌های فعال</h2>
+          <Link to="/projects">
+            <Button variant="ghost" size="sm">
+              همه پروژه‌ها
+              <ArrowLeft className="size-3.5" />
+            </Button>
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.slice(0, 3).map((p) => {
+            const pts = tasks.filter((t) => t.projectId === p._id && !t.parentId);
+            const doneN = pts.filter((t) => t.status === "done").length;
+            const pctP = pts.length ? Math.round((doneN / pts.length) * 100) : 0;
+            return (
+              <Link key={p._id} to={`/projects/${p._id}`}>
+                <div className="rounded-2xl border border-border bg-card p-4 transition-all elev-1 hover:elev-2">
+                  <div className="flex items-center gap-2">
+                    <span className="size-2.5 rounded-sm" style={{ background: p.color }} />
+                    <span className="truncate text-sm font-bold">{p.name}</span>
+                  </div>
+                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${pctP}%`, background: p.color }}
+                    />
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                    <span>
+                      {toFa(doneN)} از {toFa(pts.length)} کار
+                    </span>
+                    <span className="font-bold" style={{ color: p.color }}>
+                      {toFa(pctP)}٪
+                    </span>
+                  </div>
+                </div>
+              </Link>
             );
           })}
-
-          {/* New routine card */}
-          <div className="glass-soft flex flex-wrap items-center gap-2 rounded-2xl p-4">
-            <Input
-              value={newRoutineTitle}
-              onChange={(e) => setNewRoutineTitle(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddRoutine()}
-              placeholder="مجموعه جدید، مثلاً «روتین صبح»…"
-              className="glass-row flex-1 border-0"
-            />
-            <Button onClick={handleAddRoutine}>
-              <Plus className="size-4" />
-              افزودن مجموعه
-            </Button>
-          </div>
-        </section>
-
-        <footer className="mt-12 pb-6 text-center text-xs text-muted-foreground">
-          روتین‌یار — نسخه ۱ · پیگیری کارهای ثابت روزانه
-        </footer>
-      </div>
+          {projects.length === 0 && (
+            <p className="col-span-full rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              هنوز پروژه‌ای نداری. اولین پروژه‌ات را بساز!
+            </p>
+          )}
+        </div>
+      </section>
     </div>
   );
 }
