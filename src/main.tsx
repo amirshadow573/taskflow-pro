@@ -6,7 +6,7 @@ import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
 import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes, useLocation, Navigate, Outlet } from "react-router";
+import { BrowserRouter, Route, Routes, useLocation, Navigate } from "react-router";
 import "./index.css";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
@@ -157,10 +157,11 @@ function QuickAddModalHost() {
   return <QuickAddModal open={open} onOpenChange={setOpen} />;
 }
 
-/** Preserves ?query across the friendly top-level → /app redirects. */
-function WorkspaceRedirect({ to }: { to: string }) {
-  const { search, hash } = useLocation();
-  return <Navigate to={`${to}${search}${hash}`} replace />;
+/** /app/... → /... — keeps legacy workspace URLs working, preserving query + hash. */
+function AppPrefixRedirect() {
+  const { pathname, search, hash } = useLocation();
+  const rest = pathname.replace(/^\/app\/?/, "/");
+  return <Navigate to={`${rest}${search}${hash}`} replace />;
 }
 
 /** Silent error boundary — if VlyToolbar crashes it renders nothing instead of
@@ -244,22 +245,26 @@ function RouteSyncer() {
   return null;
 }
 
-const workspaceRoutes = (
-  <>
-    <Route path="/dashboard" element={<Dashboard />} />
-    <Route path="/today" element={<Today />} />
-    <Route path="/inbox" element={<InboxPage />} />
-    <Route path="/tasks" element={<MyTasks />} />
-    <Route path="/projects" element={<Projects />} />
-    <Route path="/projects/:id" element={<ProjectDetail />} />
-    <Route path="/calendar" element={<CalendarPage />} />
-    <Route path="/planning" element={<Planning />} />
-    <Route path="/progress" element={<ProgressPage />} />
-    <Route path="/archive" element={<ArchivePage />} />
-    <Route path="/settings" element={<SettingsPage />} />
-    <Route path="/help" element={<Help />} />
-  </>
-);
+/**
+ * Workspace pages live at friendly top-level URLs (/dashboard, /today, …).
+ * Each page is wrapped in the shared auth guard + workspace shell. Routes are
+ * deliberately FLAT: React Router forbids absolute child paths under a nested
+ * parent route ("/dashboard" inside "/app" is invalid).
+ */
+const WORKSPACE_PAGES = [
+  { path: "/dashboard", Page: Dashboard },
+  { path: "/today", Page: Today },
+  { path: "/inbox", Page: InboxPage },
+  { path: "/tasks", Page: MyTasks },
+  { path: "/projects", Page: Projects },
+  { path: "/projects/:id", Page: ProjectDetail },
+  { path: "/calendar", Page: CalendarPage },
+  { path: "/planning", Page: Planning },
+  { path: "/progress", Page: ProgressPage },
+  { path: "/archive", Page: ArchivePage },
+  { path: "/settings", Page: SettingsPage },
+  { path: "/help", Page: Help },
+] as const;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -281,29 +286,23 @@ createRoot(document.getElementById("root")!).render(
                   </WorkspaceData>
                 </RequireAuth>
               } />
-              <Route
-                path="/app"
-                element={
-                  <RequireAuth>
-                    <Workspace>
-                      <Outlet />
-                    </Workspace>
-                  </RequireAuth>
-                }
-              >
-                <Route index element={<Navigate to="/dashboard" replace />} />
-                {workspaceRoutes}
-              </Route>
-              {/* Friendly top-level redirects into the workspace (preserve ?query) */}
-              {["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning", "/progress", "/archive", "/settings", "/help"].map(
-                (p) => (
-                  <Route
-                    key={p}
-                    path={p}
-                    element={<WorkspaceRedirect to={`/app${p}`} />}
-                  />
-                ),
-              )}
+              {/* Workspace pages at friendly top-level URLs */}
+              {WORKSPACE_PAGES.map(({ path, Page }) => (
+                <Route
+                  key={path}
+                  path={path}
+                  element={
+                    <RequireAuth>
+                      <Workspace>
+                        <Page />
+                      </Workspace>
+                    </RequireAuth>
+                  }
+                />
+              ))}
+              {/* Legacy /app/* URLs → friendly top-level URLs */}
+              <Route path="/app" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/app/*" element={<AppPrefixRedirect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
