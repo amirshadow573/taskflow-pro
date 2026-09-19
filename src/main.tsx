@@ -157,6 +157,12 @@ function QuickAddModalHost() {
   return <QuickAddModal open={open} onOpenChange={setOpen} />;
 }
 
+/** Preserves ?query across the friendly top-level → /app redirects. */
+function WorkspaceRedirect({ to }: { to: string }) {
+  const { search, hash } = useLocation();
+  return <Navigate to={`${to}${search}${hash}`} replace />;
+}
+
 /** Silent error boundary — if VlyToolbar crashes it renders nothing instead of
  *  crashing the whole app (e.g. hook errors in WebContainer environment). */
 class ToolbarErrorBoundary extends React.Component<
@@ -266,12 +272,15 @@ createRoot(document.getElementById("root")!).render(
           <RouteSyncer />
           <Suspense fallback={<RouteLoading />}>
             <Routes>
-              <Route path="/" element={<Landing />} />
+              <Route path="/" element={<Landing />} />              <Route path="/auth" element={<AuthPage redirectAfterAuth="/onboarding" />} />
               <Route
-                path="/auth"
-                element={<AuthPage redirectAfterAuth="/onboarding" />}
-              />
-              <Route path="/onboarding" element={<Onboarding />} />
+                path="/onboarding" element={
+                <RequireAuth>
+                  <WorkspaceData chrome={false}>
+                    <Onboarding />
+                  </WorkspaceData>
+                </RequireAuth>
+              } />
               <Route
                 path="/app"
                 element={
@@ -285,15 +294,13 @@ createRoot(document.getElementById("root")!).render(
                 <Route index element={<Navigate to="/dashboard" replace />} />
                 {workspaceRoutes}
               </Route>
-              {/* Friendly top-level redirects into the workspace */}
+              {/* Friendly top-level redirects into the workspace (preserve ?query) */}
               {["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning", "/progress", "/archive", "/settings", "/help"].map(
                 (p) => (
                   <Route
                     key={p}
                     path={p}
-                    element={
-                      <Navigate to={`/app${p}`} replace />
-                    }
+                    element={<WorkspaceRedirect to={`/app${p}`} />}
                   />
                 ),
               )}

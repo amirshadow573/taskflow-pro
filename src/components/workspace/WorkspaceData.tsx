@@ -78,7 +78,14 @@ export function useWorkspace() {
   return ctx;
 }
 
-export function WorkspaceData({ children }: { children: React.ReactNode }) {
+export function WorkspaceData({
+  children,
+  chrome = true,
+}: {
+  children: React.ReactNode;
+  /** When false, renders children without the app shell (used by onboarding). */
+  chrome?: boolean;
+}) {
   const tasks = useQuery(api.tasks.list, {});
   const projects = useQuery(api.projects.list, {});
 
@@ -97,6 +104,8 @@ export function WorkspaceData({ children }: { children: React.ReactNode }) {
   // Global Ctrl+K
   const [paletteOpen, setPaletteOpen] = useState(false);
   useEffect(() => {
+    const openPalette = () => setPaletteOpen(true);
+    window.addEventListener("open-command-palette", openPalette);
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
@@ -110,7 +119,10 @@ export function WorkspaceData({ children }: { children: React.ReactNode }) {
       }
     };
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
+    return () => {
+      window.removeEventListener("keydown", handler);
+      window.removeEventListener("open-command-palette", openPalette);
+    };
   }, []);
 
   const wrap = async (fn: () => Promise<unknown>, okMsg?: string) => {
@@ -199,29 +211,37 @@ export function WorkspaceData({ children }: { children: React.ReactNode }) {
     return list;
   }, [overdue, dueToday]);
 
+  const palette = (
+    <CommandPalette
+      open={paletteOpen}
+      onOpenChange={setPaletteOpen}
+      tasks={(tasks ?? []).filter((t) => !t.parentId)}
+      projects={projects ?? []}
+      onOpenTask={(id) => setOpenTaskId(id as Id<"tasks">)}
+      onQuickAdd={(title) => {
+        if (title) void ctx.createTask({ title, status: "inbox" });
+      }}
+    />
+  );
+
   return (
     <Ctx.Provider value={ctx}>
-      <AppShell
-        inboxCount={(tasks ?? []).filter((t) => t.status === "inbox" && !t.parentId).length}
-        overdueCount={overdue.length}
-        notifications={notifications}
-      >
-        {loading ? (
-          <PageSkeleton />
-        ) : (
-          children
-        )}
-      </AppShell>
-      <CommandPalette
-        open={paletteOpen}
-        onOpenChange={setPaletteOpen}
-        tasks={(tasks ?? []).filter((t) => !t.parentId)}
-        projects={projects ?? []}
-        onOpenTask={(id) => setOpenTaskId(id as Id<"tasks">)}
-        onQuickAdd={(title) => {
-          if (title) void ctx.createTask({ title, status: "inbox" });
-        }}
-      />
+      {chrome ? (
+        <>
+          <AppShell
+            inboxCount={(tasks ?? []).filter((t) => t.status === "inbox" && !t.parentId).length}
+            overdueCount={overdue.length}
+            notifications={notifications}
+          >
+            {loading ? <PageSkeleton /> : children}
+          </AppShell>
+          {palette}
+        </>
+      ) : loading ? (
+        <PageSkeleton />
+      ) : (
+        children
+      )}
     </Ctx.Provider>
   );
 }

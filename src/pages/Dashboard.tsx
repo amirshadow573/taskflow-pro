@@ -174,9 +174,9 @@ export default function Dashboard() {
         </div>
         {todayTasks.length === 0 && allToday.length === 0 ? (
           <div className="px-4 py-10 text-center">
-            <p className="text-sm font-semibold">کار داری!</p>
+            <p className="text-sm font-semibold">روزت خالی است!</p>
             <p className="mt-1 text-xs text-muted-foreground">
-              روزت خالی است. می‌توانی برنامه‌ریزی کنی یا یک کار جدید بسازی.
+              می‌توانی برنامه‌ریزی کنی یا یک کار جدید بسازی.
             </p>
             <Button size="sm" className="mt-4" onClick={() => window.dispatchEvent(new CustomEvent("quick-add-task"))}>
               + ساخت کار
