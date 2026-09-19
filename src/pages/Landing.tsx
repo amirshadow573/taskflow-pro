@@ -355,12 +355,13 @@ export default function Landing() {
 
       {/* ─────────────────── HERO ─────────────────── */}
       <section className="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
-        {/* Background layers */}
-        <div className="pointer-events-none absolute inset-0" style={{ background: "radial-gradient(60rem 40rem at 65% 10%, rgba(79,70,229,0.07), transparent 60%), radial-gradient(40rem 30rem at 20% 80%, rgba(99,102,241,0.04), transparent 50%)" }} />
-        {/* Floating geometric accents */}
-        <div className="pointer-events-none absolute top-32 start-[10%] size-64 rounded-full border border-primary/[0.06] opacity-60" />
-        <div className="pointer-events-none absolute top-48 end-[8%] size-40 rounded-2xl border border-primary/[0.06] opacity-40 rotate-12" />
-        <div className="pointer-events-none absolute bottom-20 start-[25%] size-20 rounded-full bg-primary/[0.03]" />
+        {/* Ambient light orbs */}
+        <div className="orb orb-blue animate-float pointer-events-none absolute -start-40 -top-20 size-[500px] opacity-80" />
+        <div className="orb orb-cyan animate-float-slow pointer-events-none absolute -end-32 top-20 size-[400px] opacity-70" />
+        <div className="orb orb-lavender animate-float pointer-events-none absolute bottom-0 start-1/3 size-[300px] opacity-50" />
+        {/* Geometric accents */}
+        <div className="pointer-events-none absolute top-32 start-[10%] size-64 rounded-full border border-white/30 opacity-60" />
+        <div className="pointer-events-none absolute top-48 end-[8%] size-40 rounded-2xl border border-white/20 opacity-40 rotate-12" />
 
         <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
           <div className="mx-auto max-w-3xl text-center">

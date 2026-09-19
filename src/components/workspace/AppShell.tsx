@@ -121,22 +121,21 @@ export function AppShell({
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "hidden shrink-0 flex-col border-e border-border bg-sidebar transition-[width] duration-200 md:flex",
+          "hidden shrink-0 flex-col border-e border-white/30 bg-white/40 backdrop-blur-xl transition-[width] duration-200 md:flex shadow-[1px_0_8px_rgba(79,70,229,0.04)]",
           collapsed ? "w-16" : "w-60",
         )}
-      >
-        <div className={cn("flex h-14 items-center gap-2 border-b border-border px-4", collapsed && "justify-center px-0")}>
-          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
+      >          <div className={cn("flex h-14 items-center gap-2 border-b border-white/30 px-4", collapsed && "justify-center px-0")}>
+          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-md shadow-primary/20">
             <ListChecks className="size-4" />
           </div>
-          {!collapsed && <span className="text-base font-extrabold">تسک‌لی</span>}
+          {!collapsed && <span className="text-base font-extrabold bg-gradient-to-l from-primary to-[#5B5FE6] bg-clip-text text-transparent">تسک‌لی</span>}
         </div>
 
         <div className="flex-1 overflow-y-auto py-3">
           <NavLinks items={withCounts} compact={collapsed} />
         </div>
 
-        <div className="space-y-1 border-t border-border p-2">
+        <div className="space-y-1 border-t border-white/30 p-2">
           <NavLink
             to="/help"
             className={({ isActive }) =>
@@ -198,7 +197,7 @@ export function AppShell({
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-border bg-card/80 px-4 backdrop-blur">
+        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/30 bg-white/50 px-4 backdrop-blur-xl shadow-[0_1px_4px_rgba(79,70,229,0.04)]">
           <Link to="/dashboard" className="flex items-center gap-2 md:hidden">
             <div className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <ListChecks className="size-4" />
@@ -241,7 +240,7 @@ export function AppShell({
                 <div
                   role="dialog"
                   aria-label="مرکز اعلان‌ها"
-                  className="absolute end-0 top-11 z-50 w-80 rounded-xl border border-border bg-popover p-2 elev-3"
+                  className="absolute end-0 top-11 z-50 w-80 rounded-xl border border-white/40 bg-white/80 backdrop-blur-xl p-2 shadow-xl shadow-primary/5"
                 >
                   <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground">
                     اعلان‌ها
@@ -289,7 +288,7 @@ export function AppShell({
 
         {/* Mobile bottom nav */}
         <nav
-          className="flex shrink-0 items-stretch justify-around border-t border-border bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
+          className="flex shrink-0 items-stretch justify-around border-t border-white/30 bg-white/60 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] md:hidden"
           aria-label="ناوبری موبایل"
         >
           {MOBILE_NAV.map((item) => (
