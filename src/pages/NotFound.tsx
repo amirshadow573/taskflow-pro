@@ -1,26 +1,29 @@
 import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Compass } from "lucide-react";
+import { useNavigate } from "react-router";
 
 export default function NotFound() {
+  const navigate = useNavigate();
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="min-h-screen flex flex-col"
-    >
-
-      
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center">
-        <div className="max-w-5xl mx-auto relative px-4">
-          <div className="flex items-center justify-center min-h-[200px]">
-            <div className="text-center">
-              <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-              <p className="text-lg text-gray-600">Page Not Found</p>
-            </div>
-          </div>
+    <div className="app-bg grid min-h-screen place-items-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="glass rounded-3xl px-10 py-12 text-center"
+      >
+        <div className="mx-auto mb-5 grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-lg shadow-blue-500/25">
+          <Compass className="size-7" />
         </div>
-      </div>
-    </motion.div>
+        <h1 className="text-5xl font-extrabold">۴۰۴</h1>
+        <p className="mt-3 text-muted-foreground">
+          صفحه‌ای که دنبالش بودی پیدا نشد.
+        </p>
+        <Button className="mt-6" onClick={() => navigate("/")}>
+          بازگشت به خانه
+        </Button>
+      </motion.div>
+    </div>
   );
 }
