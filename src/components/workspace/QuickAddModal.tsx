@@ -119,3 +119,6 @@ export function MobileFab({ onClick }: { onClick: () => void }) {
     </button>
   );
 }
+
+// MobileFab is implemented in main.tsx (MobileFabHost); kept for API parity.
+void MobileFab;

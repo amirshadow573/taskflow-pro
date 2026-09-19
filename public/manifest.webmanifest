@@ -1,16 +1,18 @@
 {
-  "name": "freebuff.com application",
-  "short_name": "freebuff.com",
-  "description": "freebuff.com application",
+  "name": "تسک‌لی — فضای کاری مدیریت کارها",
+  "short_name": "تسک‌لی",
+  "description": "مدیریت کارهای روزانه، پروژه‌ها، تقویم و پیشرفت شخصی در یک فضای کاری",
+  "lang": "fa",
+  "dir": "rtl",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#f7f8fa",
+  "theme_color": "#4f46e5",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/logo.svg",
       "sizes": "any",
-      "type": "image/png",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

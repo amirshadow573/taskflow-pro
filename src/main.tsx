@@ -8,6 +8,8 @@ import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation, Navigate, Outlet } from "react-router";
 import "./index.css";
+import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
 
 // Lazy load route components for better code splitting
 const Landing = lazy(() => import("./pages/Landing.tsx"));
@@ -50,49 +52,104 @@ function Workspace({ children }: { children: React.ReactNode }) {
     <WorkspaceData>
       <div className="flex h-full">
         <div className="min-w-0 flex-1">{children}</div>
-        <TaskDetailPanelHost />
+        <TaskDetailHost />
       </div>
       <QuickAddModalHost />
+      <MobileFabHost />
     </WorkspaceData>
+  );
+}
+
+function MobileFabHost() {
+  return (
+    <button
+      onClick={() => window.dispatchEvent(new CustomEvent("quick-add-task"))}
+      aria-label="افزودن کار جدید"
+      className="fixed bottom-20 end-4 z-40 grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform active:scale-95 md:hidden"
+    >
+      <Plus className="size-6" />
+    </button>
   );
 }
 
 /** Mounted once; reads openTaskId from workspace context. */
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { useState } from "react";
-function TaskDetailPanelHost() {
+import { X } from "lucide-react";
+
+function TaskDetailHost() {
   const { tasks, projects, openTaskId, openTask, updateTask, toggleDone, deleteTask, createTask } =
     useWorkspace();
   const task = tasks.find((t) => t._id === openTaskId);
+  const [mobileOpen, setMobileOpen] = useState(false);
+
   if (!task) return null;
   const project = projects.find((p) => p._id === task.projectId);
   const subtasks = tasks.filter((t) => t.parentId === openTaskId);
-  return (
-    <div className="hidden w-[360px] shrink-0 border-s border-border lg:block">
-      <TaskDetailPanel
-        task={task}
-        project={project}
-        subtasks={subtasks}
-        onClose={() => openTask(null)}
-        onUpdate={(patch) => updateTask(task._id, patch)}
-        onToggleDone={(done) => toggleDone(task, done)}
-        onDelete={() => deleteTask(task._id)}
-        onAddSubtask={(title) =>
-          createTask({
-            title,
-            parentId: task._id,
-            projectId: task.projectId,
-            status: "todo",
-          })
-        }
-        onToggleSubtask={(id, done) => {
-          const t = tasks.find((x) => x._id === id);
-          if (t) void toggleDone(t, done);
-        }}
-        onDeleteSubtask={(id) => deleteTask(id)}
-      />
-    </div>
+
+  const panel = (
+    <TaskDetailPanel
+      task={task}
+      project={project}
+      subtasks={subtasks}
+      onClose={() => openTask(null)}
+      onUpdate={(patch) => updateTask(task._id, patch)}
+      onToggleDone={(done) => toggleDone(task, done)}
+      onDelete={() => {
+        deleteTask(task._id);
+        setMobileOpen(false);
+      }}
+      onAddSubtask={(title) =>
+        createTask({
+          title,
+          parentId: task._id,
+          projectId: task.projectId,
+          status: "todo",
+        })
+      }
+      onToggleSubtask={(id, done) => {
+        const t = tasks.find((x) => x._id === id);
+        if (t) void toggleDone(t, done);
+      }}
+      onDeleteSubtask={(id) => deleteTask(id)}
+    />
   );
+
+  return (
+    <>
+      {/* Desktop: persistent side panel */}
+      <div className="hidden w-[360px] shrink-0 border-s border-border lg:block">{panel}</div>
+      {/* Mobile/tablet: full-screen overlay sheet */}
+      <div
+        className={cn(
+          "fixed inset-0 z-[60] bg-background transition-transform duration-300 lg:hidden",
+          mobileOpen ? "translate-y-0" : "translate-y-full pointer-events-none",
+        )}
+      >
+        <div className="flex h-12 items-center justify-between border-b border-border px-3">
+          <button
+            onClick={() => setMobileOpen(false)}
+            aria-label="بستن جزئیات"
+            className="grid size-9 place-items-center rounded-lg hover:bg-muted"
+          >
+            <X className="size-4.5" />
+          </button>
+          <span className="text-xs font-bold text-muted-foreground">جزئیات کار</span>
+        </div>
+        <div className="h-[calc(100%-3rem)] overflow-hidden">{panel}</div>
+      </div>
+      {/* Open trigger — clicking a task sets openTaskId; on mobile we show the sheet */}
+      <MobileOpenEffect onOpen={() => setMobileOpen(true)} taskId={openTaskId} />
+    </>
+  );
+}
+
+function MobileOpenEffect({ taskId, onOpen }: { taskId: string | null; onOpen: () => void }) {
+  useEffect(() => {
+    if (taskId && window.innerWidth < 1024) onOpen();
+    if (!taskId) return;
+  }, [taskId, onOpen]);
+  return null;
 }
 
 function QuickAddModalHost() {

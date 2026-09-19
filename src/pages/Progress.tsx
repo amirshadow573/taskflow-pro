@@ -1,5 +1,5 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
-import { toFa } from "@/lib/persian";
+import { toFa, JALALI_MONTHS, toJalaliDate } from "@/lib/persian";
 import { todayKey, addDaysKey } from "@/lib/task-utils";
 import {
   LineChart,
@@ -39,14 +39,15 @@ export default function ProgressPage() {
       });
     }
 
-    // last 6 months completion
+    // last 6 months completion (labeled in Persian)
     const months: Array<{ label: string; count: number }> = [];
     const now = new Date();
     for (let i = 5; i >= 0; i--) {
       const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const prefix = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const jd = toJalaliDate(d);
       months.push({
-        label: prefix,
+        label: JALALI_MONTHS[jd.jm - 1],
         count: done.filter((t) => t.dueDate?.startsWith(prefix)).length,
       });
     }
@@ -75,11 +76,7 @@ export default function ProgressPage() {
     };
   }, [root, done]);
 
-  const monthLabel = (prefix: string) => {
-    const [, m] = prefix.split("-");
-    const names = ["ژانویه","فوریه","مارس","آوریل","مه","ژوئن","ژوئیه","اوت","سپتامبر","اکتبر","نوامبر","دسامبر"];
-    return names[Number(m) - 1];
-  };
+
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
@@ -150,7 +147,7 @@ export default function ProgressPage() {
           <h2 className="mb-4 text-sm font-bold">روند ماهانه</h2>
           <div className="h-48" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={stats.months.map((m) => ({ ...m, label: monthLabel(m.label) }))}>
+              <BarChart data={stats.months}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis dataKey="label" tick={{ fontSize: 10, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fontSize: 11, fill: "var(--muted-foreground)" }} axisLine={false} tickLine={false} allowDecimals={false} />

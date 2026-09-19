@@ -1,4 +1,4 @@
-import { toFa } from "@/lib/persian";
+import { toFa, toJalaliDate, JALALI_MONTHS } from "@/lib/persian";
 
 /* ------------------------------------------------------------------ */
 /* Priority & status maps                                              */
@@ -161,7 +161,7 @@ export function formatDueFa(key: string): string {
   if (key === addDaysKey(1)) return "فردا";
   if (key === addDaysKey(-1)) return "دیروز";
   const d = new Date(key + "T00:00:00");
-  return toFa(key);
+  return toFa(`${toJalaliDate(d).jd} ${JALALI_MONTHS[toJalaliDate(d).jm - 1]}`);
 }
 
 export function monthKeysOf(year: number, month: number): string[] {

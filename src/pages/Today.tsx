@@ -2,7 +2,7 @@ import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { Button } from "@/components/ui/button";
-import { formatJalaliFull, toFa, WEEKDAYS } from "@/lib/persian";
+import { formatJalaliFull, toFa } from "@/lib/persian";
 import { todayKey } from "@/lib/task-utils";
 import { CalendarCheck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -140,6 +140,3 @@ export default function Today() {
     </div>
   );
 }
-
-// Avoid unused import warning for WEEKDAYS
-void WEEKDAYS;
