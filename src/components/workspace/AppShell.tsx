@@ -284,7 +284,11 @@ export function AppShell({
         </header>
 
         {/* Scrollable content */}
-        <main className="flex-1 overflow-y-auto">{children}</main>
+        <main className="relative flex-1 overflow-y-auto">
+          <div className="bg-ref-light bg-ref-fade pointer-events-none absolute inset-0 dark:hidden" />
+          <div className="bg-ref-dark pointer-events-none absolute inset-0 hidden dark:block" />
+          {children}
+        </main>
 
         {/* Mobile bottom nav */}
         <nav

@@ -355,6 +355,16 @@ export default function Landing() {
 
       {/* ─────────────────── HERO ─────────────────── */}
       <section className="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
+        {/* Reference background layer: fine grid + dual radial lighting */}
+        <div className="bg-ref-light bg-ref-fade pointer-events-none absolute inset-0 dark:hidden" />
+        <div className="bg-ref-dark pointer-events-none absolute inset-0 hidden dark:block" />
+        {/* Living-origami animated geometry — dark mode only */}
+        <div className="pointer-events-none absolute inset-0 hidden overflow-hidden dark:block">
+          <div className="origami origami-a -start-20 top-10 size-[420px]" />
+          <div className="origami origami-b -end-16 top-40 size-[380px]" />
+          <div className="origami origami-c bottom-0 start-1/3 size-[300px]" />
+          <div className="origami-lines" />
+        </div>
         {/* Ambient light orbs */}
         <div className="orb orb-blue animate-float pointer-events-none absolute -start-40 -top-20 size-[500px] opacity-80" />
         <div className="orb orb-cyan animate-float-slow pointer-events-none absolute -end-32 top-20 size-[400px] opacity-70" />
@@ -392,7 +402,30 @@ export default function Landing() {
             </Anim>
           </div>
           {/* Hero product preview */}
-          <Anim delay={0.3} className="mx-auto mt-12 max-w-4xl">
+          <Anim delay={0.3} className="relative mx-auto mt-12 max-w-4xl">
+            {/* Floating glass stat chips — reference hero composition */}
+            <div className="glass absolute -top-6 -end-3 z-10 hidden animate-float rounded-2xl px-4 py-3 elev-2 sm:block lg:-end-10">
+              <div className="flex items-center gap-2.5">
+                <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 text-white shadow-md shadow-emerald-500/25">
+                  <CheckCircle2 className="size-4.5" />
+                </span>
+                <span>
+                  <span className="block text-sm font-extrabold tabular-nums">۷ از ۱۲</span>
+                  <span className="block text-[10px] text-muted-foreground">انجام‌شده امروز</span>
+                </span>
+              </div>
+            </div>
+            <div className="glass absolute -bottom-5 -start-3 z-10 hidden animate-float-slow rounded-2xl px-4 py-3 elev-2 sm:block lg:-start-10">
+              <div className="flex items-center gap-2.5">
+                <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-md shadow-primary/25">
+                  <TrendingUp className="size-4.5" />
+                </span>
+                <span>
+                  <span className="block text-sm font-extrabold tabular-nums">۹۸٪ پیشرفت</span>
+                  <span className="block text-[10px] text-muted-foreground">روتین این هفته</span>
+                </span>
+              </div>
+            </div>
             <DashboardMockup />
           </Anim>
         </div>
