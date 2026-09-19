@@ -347,6 +347,25 @@
   mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
 }
 
+/* ── Interactive infinite-grid layer (used by InteractiveGrid) ──
+   Oversized so ±18px mouse parallax never exposes an edge.
+   Very light gray lines + faint blue/violet tint → stays bright. */
+.grid-lines {
+  background-image:
+    linear-gradient(to left, rgba(100, 116, 139, 0.09) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.09) 1px, transparent 1px),
+    radial-gradient(circle 480px at 20% 80%, rgba(139, 92, 246, 0.07), transparent),
+    radial-gradient(circle 480px at 80% 20%, rgba(59, 130, 246, 0.08), transparent);
+  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
+}
+.dark .grid-lines {
+  background-image:
+    linear-gradient(to left, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    radial-gradient(circle 480px at 20% 80%, rgba(139, 92, 246, 0.10), transparent),
+    radial-gradient(circle 480px at 80% 20%, rgba(59, 130, 246, 0.12), transparent);
+}
+
 /* ────────────────────────────────────────────────────────────────
    GLOBAL page canvas — ONE continuous environment behind the whole
    homepage (header → hero → sections → CTA → footer).
@@ -356,28 +375,24 @@
 .bg-page-light {
   background-color: transparent;
   background-image:
-    linear-gradient(to left, rgba(229, 231, 235, 0.8) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(229, 231, 235, 0.8) 1px, transparent 1px),
     radial-gradient(circle 700px at 14% 4%, rgba(139, 92, 246, 0.14), transparent),
     radial-gradient(circle 700px at 86% 10%, rgba(59, 130, 246, 0.16), transparent),
     radial-gradient(circle 800px at 12% 30%, rgba(59, 130, 246, 0.09), transparent),
     radial-gradient(circle 800px at 88% 48%, rgba(139, 92, 246, 0.09), transparent),
     radial-gradient(circle 800px at 18% 68%, rgba(59, 130, 246, 0.08), transparent),
     radial-gradient(circle 700px at 82% 88%, rgba(139, 92, 246, 0.07), transparent);
-  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 .bg-page-dark {
   background-color: transparent;
   background-image:
-    linear-gradient(to left, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
     radial-gradient(circle 700px at 14% 4%, rgba(139, 92, 246, 0.12), transparent),
     radial-gradient(circle 700px at 86% 10%, rgba(59, 130, 246, 0.13), transparent),
     radial-gradient(circle 800px at 12% 30%, rgba(59, 130, 246, 0.08), transparent),
     radial-gradient(circle 800px at 88% 48%, rgba(139, 92, 246, 0.08), transparent),
     radial-gradient(circle 800px at 18% 68%, rgba(59, 130, 246, 0.07), transparent),
     radial-gradient(circle 700px at 82% 88%, rgba(139, 92, 246, 0.06), transparent);
-  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 
 /* ────────────────────────────────────────────────────────────────

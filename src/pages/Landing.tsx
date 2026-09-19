@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import { Link, useNavigate } from "react-router";
 import { toFa } from "@/lib/persian";
+import { InteractiveGrid } from "@/components/landing/InteractiveGrid";
 
 /* ------------------------------------------------------------------ */
 /*  Animation helpers                                                  */
@@ -322,6 +323,8 @@ export default function Landing() {
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
         <div className="bg-page-light absolute inset-0 dark:hidden" />
         <div className="bg-page-dark absolute inset-0 hidden dark:block" />
+        {/* Interactive infinite grid — mouse parallax + cursor glow */}
+        <InteractiveGrid />
         {/* Soft top light + atmospheric orbs floating above the canvas */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-white/60 to-transparent dark:from-[#0c1222]/80" />
       </div>
@@ -711,6 +714,102 @@ export default function Landing() {
               </details>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ─────────────────── PRICING ─────────────────── */}
+      <section id="pricing" className="py-20 sm:py-28">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <Anim className="mx-auto mb-14 max-w-2xl text-center">
+            <SectionLabel>تعرفه‌ها</SectionLabel>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">ساده شروع کن، هر وقت خواستی ارتقا بده</h2>
+            <p className="mt-4 text-sm leading-7 text-muted-foreground">
+              نسخه رایگان برای استفاده شخصی کامل است؛ هیچ محدودیت واقعی روی کارهای روزانه‌ات نیست.
+            </p>
+          </Anim>
+
+          <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
+            {/* ── Free plan ── */}
+            <Anim delay={0.05}>
+              <div className="group relative h-full rounded-3xl border border-border/60 bg-card/90 p-8 elev-1 transition-all duration-300 hover:-translate-y-1 hover:elev-3">
+                <h3 className="text-lg font-extrabold">رایگان</h3>
+                <p className="mt-1 text-xs text-muted-foreground">برای شروع و استفاده شخصی</p>
+                <div className="mt-6 flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold tracking-tight">۰</span>
+                  <span className="text-sm font-bold text-muted-foreground">تومان / همیشه</span>
+                </div>
+                <ul className="mt-6 space-y-3">
+                  {[
+                    "کارها و پروژه‌های نامحدود",
+                    "ثبت کار با یک جمله (هوشمند)",
+                    "تخته Kanban و تقویم شمسی",
+                    "گزارش پیشرفت و زنجیره روزها",
+                    "روتین‌های تکراری روزانه",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-emerald-500" />
+                      <span className="text-muted-foreground">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/auth" className="mt-8 block">
+                  <Button variant="outline" className="h-11 w-full text-sm" onClick={startCta}>
+                    شروع رایگان
+                    <ArrowLeft className="me-1 size-4" />
+                  </Button>
+                </Link>
+              </div>
+            </Anim>
+
+            {/* ── Pro plan — highlighted ── */}
+            <Anim delay={0.12}>
+              <div className="relative h-full rounded-3xl p-[1.5px] elev-2 transition-all duration-300 hover:-translate-y-1 hover:elev-3"
+                style={{ background: "linear-gradient(160deg, rgba(59,130,246,0.55), rgba(139,92,246,0.4) 55%, rgba(59,130,246,0.15))" }}
+              >
+                {/* Popular badge */}
+                <span className="absolute -top-3.5 start-1/2 z-10 -translate-x-1/2 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-4 py-1 text-[11px] font-bold text-white shadow-lg shadow-primary/25">
+                  پیشنهاد ما
+                </span>
+                <div className="relative h-full rounded-[calc(1.5rem-1px)] bg-card/95 p-8 backdrop-blur-sm">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-extrabold">حرفه‌ای</h3>
+                    <Sparkles className="size-4.5 text-primary" />
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">برای قدرت‌گرفتن از هر روز</p>
+                  <div className="mt-6 flex items-baseline gap-2">
+                    <span className="text-4xl font-extrabold tracking-tight">۷۹</span>
+                    <span className="text-sm font-bold text-muted-foreground">هزار تومان / ماهانه</span>
+ </div>
+                <ul className="mt-6 space-y-3">
+                  {[
+                    "همه امکانات پلن رایگان",
+                    "گزارش‌های بهره‌وری پیشرفته",
+                    "اولویت‌بندی هوشمند و پیشنهاد کار بعدی",
+                    "پشتیبانی سریع‌تر",
+                    "دسترسی زودتر به امکانات جدید",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-2.5 text-sm">
+                      <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
+                      <span className="text-muted-foreground">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link to="/auth" className="mt-8 block">
+                  <Button className="h-11 w-full text-sm" onClick={startCta}>
+                    ارتقا به حرفه‌ای
+                    <ArrowLeft className="me-1 size-4" />
+                  </Button>
+                </Link>
+                </div>
+              </div>
+            </Anim>
+          </div>
+
+          <Anim delay={0.2} className="mt-10 text-center">
+            <p className="text-xs text-muted-foreground">
+              بدون کارت بانکی · لغو در هر زمان · اطلاعات تو فقط برای خودت
+            </p>
+          </Anim>
         </div>
       </section>
 
