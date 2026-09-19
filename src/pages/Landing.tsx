@@ -314,7 +314,20 @@ export default function Landing() {
   ];
 
   return (
-    <div className="min-h-svh bg-background" dir="rtl">
+    <div className="relative min-h-svh" dir="rtl">
+      {/* ═══════════════ GLOBAL BACKGROUND CANVAS ═══════════════
+          ONE continuous layer behind header → hero → sections →
+          CTA → footer. Fixed so the grid never scrolls/restarts;
+          radial glows distributed across the full page height. */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
+        <div className="bg-page-light absolute inset-0 dark:hidden" />
+        <div className="bg-page-dark absolute inset-0 hidden dark:block" />
+        {/* Soft top light + atmospheric orbs floating above the canvas */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-white/60 to-transparent dark:from-[#0c1222]/80" />
+      </div>
+
+      {/* Content layer — paints above the global background */}
+      <div className="relative z-10">
       {/* ─────────────────── HEADER ─────────────────── */}
       <header className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "border-b border-border/60 bg-background/80 backdrop-blur-xl shadow-sm" : "bg-transparent"}`}>
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
@@ -355,16 +368,7 @@ export default function Landing() {
 
       {/* ─────────────────── HERO ─────────────────── */}
       <section className="relative overflow-hidden pt-24 pb-16 sm:pt-32 sm:pb-24">
-        {/* Reference background layer: fine grid + dual radial lighting */}
-        <div className="bg-ref-light bg-ref-fade pointer-events-none absolute inset-0 dark:hidden" />
-        <div className="bg-ref-dark pointer-events-none absolute inset-0 hidden dark:block" />
-        {/* Living-origami animated geometry — dark mode only */}
-        <div className="pointer-events-none absolute inset-0 hidden overflow-hidden dark:block">
-          <div className="origami origami-a -start-20 top-10 size-[420px]" />
-          <div className="origami origami-b -end-16 top-40 size-[380px]" />
-          <div className="origami origami-c bottom-0 start-1/3 size-[300px]" />
-          <div className="origami-lines" />
-        </div>
+        {/* Local hero atmosphere that blends into the global canvas */}
         {/* Ambient light orbs */}
         <div className="orb orb-blue animate-float pointer-events-none absolute -start-40 -top-20 size-[500px] opacity-80" />
         <div className="orb orb-cyan animate-float-slow pointer-events-none absolute -end-32 top-20 size-[400px] opacity-70" />
@@ -432,7 +436,7 @@ export default function Landing() {
       </section>
 
       {/* ─────────────────── STATS STRIP ─────────────────── */}
-      <section className="border-y border-border bg-muted/30">
+      <section className="border-y border-border/50">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-8 px-4 py-6 sm:justify-between sm:px-6">
           {[
             { value: "۱۲۰۰+", label: "کاربر فعال" },
@@ -468,7 +472,7 @@ export default function Landing() {
       </section>
 
       {/* ─────────────────── PROBLEM → SOLUTION ─────────────────── */}
-      <section className="border-y border-border bg-muted/30 py-20 sm:py-28">
+      <section className="border-y border-border/50 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Anim className="mx-auto max-w-2xl text-center">
             <SectionLabel>مشکل</SectionLabel>
@@ -606,7 +610,7 @@ export default function Landing() {
       </section>
 
       {/* ─────────────────── HOW IT WORKS ─────────────────── */}
-      <section id="how" className="border-y border-border bg-muted/30 py-20 sm:py-28">
+      <section id="how" className="border-y border-border/50 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Anim className="mx-auto mb-14 max-w-2xl text-center">
             <SectionLabel>نحوه کار</SectionLabel>
@@ -660,7 +664,7 @@ export default function Landing() {
       </section>
 
       {/* ─────────────────── TESTIMONIALS ─────────────────── */}
-      <section className="border-y border-border bg-muted/30 py-20 sm:py-28">
+      <section className="border-y border-border/50 py-20 sm:py-28">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Anim className="mx-auto mb-12 max-w-2xl text-center">
             <SectionLabel>نظرات کاربران</SectionLabel>
@@ -727,7 +731,7 @@ export default function Landing() {
       </section>
 
       {/* ─────────────────── FOOTER ─────────────────── */}
-      <footer className="border-t border-border bg-muted/30">
+      <footer className="border-t border-border/50">
         <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
             {/* Brand */}
@@ -775,6 +779,7 @@ export default function Landing() {
           </div>
         </div>
       </footer>
+      </div>{/* /content layer */}
     </div>
   );
 }
