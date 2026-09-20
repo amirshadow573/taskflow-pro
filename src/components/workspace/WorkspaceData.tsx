@@ -1,21 +1,32 @@
 import { AppShell } from "./AppShell";
 import { CommandPalette } from "./CommandPalette";
+import { ProgressProvider, emitProgressionEvent } from "@/components/progress/ProgressProvider";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
-/** Seeds realistic Persian sample data once per fresh account. */
-function useDemoSeed(enabled: boolean) {
+/**
+ * Seeds realistic Persian sample data once per fresh account.
+ * Returns true once any seeding attempt has settled, so the progression
+ * bootstrap can wait and rebuild history from the seeded work.
+ */
+function useDemoSeed(enabled: boolean): boolean {
   const seed = useMutation(api.tasks.seedDemo);
+  const [settled, setSettled] = useState(false);
   useEffect(() => {
-    if (enabled && !localStorage.getItem("taskly-seeded")) {
-      seed()
-        .then(() => localStorage.setItem("taskly-seeded", "1"))
-        .catch(() => void 0);
+    if (!enabled) return;
+    if (localStorage.getItem("taskly-seeded")) {
+      setSettled(true);
+      return;
     }
+    seed()
+      .then(() => localStorage.setItem("taskly-seeded", "1"))
+      .catch(() => void 0)
+      .finally(() => setSettled(true));
   }, [enabled, seed]);
+  return settled;
 }
 
 export interface TaskDoc {
@@ -99,7 +110,7 @@ export function WorkspaceData({
 
   const [openTaskId, setOpenTaskId] = useState<Id<"tasks"> | null>(null);
 
-  useDemoSeed(tasks !== undefined);
+  const seedSettled = useDemoSeed(tasks !== undefined);
 
   // Global Ctrl+K
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -145,8 +156,16 @@ export function WorkspaceData({
     updateTask: (id, patch) => wrap(() => updateTaskMut({ id, ...patch })),
     toggleDone: (task, done) =>
       wrap(async () => {
-        await toggleMut({ id: task._id, done });
+        // The mutation returns progression info (XP, level-up, achievements).
+        const result = await toggleMut({ id: task._id, done });
         if (done) toast.success(`«${task.title}» انجام شد ✓`);
+        if (result && (result.levelUp || result.unlocked.length > 0)) {
+          emitProgressionEvent({
+            levelUp: result.levelUp,
+            unlocked: result.unlocked,
+            xp: result.xp,
+          });
+        }
       }),
     deleteTask: (id) =>
       wrap(async () => {
@@ -226,22 +245,24 @@ export function WorkspaceData({
 
   return (
     <Ctx.Provider value={ctx}>
-      {chrome ? (
-        <>
-          <AppShell
-            inboxCount={(tasks ?? []).filter((t) => t.status === "inbox" && !t.parentId).length}
-            overdueCount={overdue.length}
-            notifications={notifications}
-          >
-            {loading ? <PageSkeleton /> : children}
-          </AppShell>
-          {palette}
-        </>
-      ) : loading ? (
-        <PageSkeleton />
-      ) : (
-        children
-      )}
+      <ProgressProvider ready={seedSettled && !loading}>
+        {chrome ? (
+          <>
+            <AppShell
+              inboxCount={(tasks ?? []).filter((t) => t.status === "inbox" && !t.parentId).length}
+              overdueCount={overdue.length}
+              notifications={notifications}
+            >
+              {loading ? <PageSkeleton /> : children}
+            </AppShell>
+            {palette}
+          </>
+        ) : loading ? (
+          <PageSkeleton />
+        ) : (
+          children
+        )}
+      </ProgressProvider>
     </Ctx.Provider>
   );
 }

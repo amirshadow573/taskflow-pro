@@ -25,7 +25,9 @@ const Projects = lazy(() => import("./pages/Projects.tsx"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail.tsx"));
 const CalendarPage = lazy(() => import("./pages/Calendar.tsx"));
 const Planning = lazy(() => import("./pages/Planning.tsx"));
-const ProgressPage = lazy(() => import("./pages/Progress.tsx"));
+const AnalyticsPage = lazy(() => import("./pages/Progress.tsx"));
+const MyProgress = lazy(() => import("./pages/MyProgress.tsx"));
+const GrowthPathDetail = lazy(() => import("./pages/GrowthPathDetail.tsx"));
 const ArchivePage = lazy(() => import("./pages/Archive.tsx"));
 const SettingsPage = lazy(() => import("./pages/Settings.tsx"));
 const Help = lazy(() => import("./pages/Help.tsx"));
@@ -260,7 +262,11 @@ const WORKSPACE_PAGES = [
   { path: "/projects/:id", Page: ProjectDetail },
   { path: "/calendar", Page: CalendarPage },
   { path: "/planning", Page: Planning },
-  { path: "/progress", Page: ProgressPage },
+  // پیشرفت من — level-up / missions / growth paths
+  { path: "/progress", Page: MyProgress },
+  { path: "/progress/paths/:pathKey", Page: GrowthPathDetail },
+  // تحلیل — historical productivity analytics
+  { path: "/analytics", Page: AnalyticsPage },
   { path: "/archive", Page: ArchivePage },
   { path: "/settings", Page: SettingsPage },
   { path: "/help", Page: Help },

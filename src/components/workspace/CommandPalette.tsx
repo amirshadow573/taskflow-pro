@@ -9,8 +9,10 @@ import {
   FolderKanban,
   ListTree,
   Plus,
+  Route as RouteIcon,
   Search,
   Tag,
+  Trophy,
 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
@@ -61,7 +63,19 @@ export function CommandPalette({
       { id: "act-today", label: "برو به امروز", icon: CircleDot, run: () => navigate("/today") },
       { id: "act-inbox", label: "برو به صندوق ورودی", icon: ListTree, run: () => navigate("/inbox") },
       { id: "act-projects", label: "برو به پروژه‌ها", icon: FolderKanban, run: () => navigate("/projects") },
-      { id: "act-progress", label: "برو به پیشرفت", icon: ListTree, run: () => navigate("/progress") },
+      { id: "act-progress", label: "برو به پیشرفت من", icon: Trophy, run: () => navigate("/progress") },
+      {
+        id: "act-paths",
+        label: "برو به مسیرهای رشد",
+        icon: RouteIcon,
+        run: () => navigate("/progress?tab=paths"),
+      },
+      {
+        id: "act-analytics",
+        label: "برو به تحلیل و بهره‌وری",
+        icon: ListTree,
+        run: () => navigate("/analytics"),
+      },
     ],
     [navigate, onQuickAdd, query],
   );

@@ -1,6 +1,7 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
+import { TodayPathMissions } from "@/components/progress/TodayPathMissions";
 import { Button } from "@/components/ui/button";
 import { formatJalaliFull, toFa } from "@/lib/persian";
 import { todayKey } from "@/lib/task-utils";
@@ -69,6 +70,9 @@ export default function Today() {
           })
         }
       />
+
+      {/* Growth-path missions for right now */}
+      <TodayPathMissions />
 
       {/* Day summary strip */}
       <div className="ui-surface flex items-center gap-4 rounded-xl px-4 py-3">

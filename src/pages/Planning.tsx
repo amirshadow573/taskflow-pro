@@ -4,6 +4,7 @@ import { TaskRow } from "@/components/tasks/TaskRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { emitProgressionEvent } from "@/components/progress/ProgressProvider";
 import { useAuth } from "@/hooks/use-auth";
 import {
   toFa,
@@ -161,7 +162,20 @@ function PlanningPage() {
                           role="checkbox"
                           aria-checked={done}
                           aria-label={`تکمیل ${it.title}`}
-                          onClick={() => void toggleCheckin({ itemId: it._id, day: tKey, done: !done })}
+                          onClick={async () => {
+                            const result = await toggleCheckin({
+                              itemId: it._id,
+                              day: tKey,
+                              done: !done,
+                            });
+                            if (result && (result.levelUp || result.unlocked.length > 0)) {
+                              emitProgressionEvent({
+                                levelUp: result.levelUp,
+                                unlocked: result.unlocked,
+                                xp: result.xp,
+                              });
+                            }
+                          }}
                           className={cn(
                             "grid size-5 shrink-0 place-items-center rounded-full border-2",
                             done && "task-pop",

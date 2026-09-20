@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleRoutineToggle } from "./gamification";
 
 /* ------------------------------------------------------------------ */
 /* Queries                                                             */
@@ -245,7 +246,10 @@ export const deleteItem = mutation({
   },
 });
 
-/** Toggle (or set) the done state of an item for a day. */
+/**
+ * Toggle (or set) the done state of an item for a day.
+ * Also feeds the progression system: XP, streak, missions, achievements.
+ */
 export const toggleCheckin = mutation({
   args: { itemId: v.id("routineItems"), day: v.string(), done: v.boolean() },
   handler: async (ctx, { itemId, day, done }) => {
@@ -265,5 +269,8 @@ export const toggleCheckin = mutation({
     } else {
       await ctx.db.insert("checkins", { userId, itemId, day, done });
     }
+
+    // Returns { level, levelUp, unlocked, xp } so the UI can celebrate.
+    return await handleRoutineToggle(ctx, userId, item.title, day, done);
   },
 });

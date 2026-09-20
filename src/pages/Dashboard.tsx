@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
+import { ProgressSnapshot } from "@/components/progress/ProgressSnapshot";
 import { Button } from "@/components/ui/button";
 import { toFa, toJalaliDate, formatJalaliFull, JALALI_MONTHS } from "@/lib/persian";
 import { todayKey, isOverdue } from "@/lib/task-utils";
@@ -83,6 +84,9 @@ export default function Dashboard() {
           {JALALI_MONTHS[j.jm - 1]} {toFa(j.jy)}
         </div>
       </header>
+
+      {/* Progress snapshot — level, XP, streak, daily score, missions */}
+      <ProgressSnapshot />
 
       {/* Compact today overview */}
       <section className="ui-surface ui-accent-top rounded-2xl p-4 md:p-5">

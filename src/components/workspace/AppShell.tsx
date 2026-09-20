@@ -20,6 +20,7 @@ import {
   Settings,
   Sun,
   HelpCircle,
+  Trophy,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
@@ -39,7 +40,9 @@ const PRIMARY_NAV: NavItem[] = [
   { to: "/projects", label: "پروژه‌ها", icon: FolderKanban },
   { to: "/calendar", label: "تقویم", icon: CalendarDays },
   { to: "/planning", label: "برنامه‌ریزی", icon: Clock },
-  { to: "/progress", label: "پیشرفت", icon: LineChart },
+  // پیشرفت من = level / XP / missions / growth paths (single nav entry)
+  { to: "/progress", label: "پیشرفت من", icon: Trophy },
+  { to: "/analytics", label: "تحلیل", icon: LineChart },
   { to: "/archive", label: "بایگانی", icon: Archive },
   { to: "/settings", label: "تنظیمات", icon: Settings },
 ];
@@ -47,9 +50,9 @@ const PRIMARY_NAV: NavItem[] = [
 const MOBILE_NAV: NavItem[] = [
   { to: "/dashboard", label: "داشبورد", icon: LayoutDashboard },
   { to: "/today", label: "امروز", icon: ListChecks },
+  { to: "/progress", label: "پیشرفت من", icon: Trophy },
   { to: "/tasks", label: "کارها", icon: CircleDot },
   { to: "/projects", label: "پروژه‌ها", icon: FolderKanban },
-  { to: "/settings", label: "تنظیمات", icon: Settings },
 ];
 
 /** Theme controller stored on <html class="dark">. */

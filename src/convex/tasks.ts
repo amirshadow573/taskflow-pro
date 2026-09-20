@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleTaskToggle } from "./gamification";
 
 function dayKey(offsetDays = 0): string {
   const d = new Date();
@@ -98,7 +99,10 @@ export const update = mutation({
   },
 });
 
-/** Complete / reopen a task (micro-interaction friendly). */
+/**
+ * Complete / reopen a task (micro-interaction friendly).
+ * Also feeds the progression system: XP, streak, missions, achievements.
+ */
 export const toggleDone = mutation({
   args: { id: v.id("tasks"), done: v.boolean() },
   handler: async (ctx, { id, done }) => {
@@ -114,6 +118,10 @@ export const toggleDone = mutation({
         completedAt: undefined,
       });
     }
+    const updated = await ctx.db.get(id);
+    if (!updated) return null;
+    // Returns { level, levelUp, unlocked, xp } so the UI can celebrate.
+    return await handleTaskToggle(ctx, updated, done);
   },
 });
 
