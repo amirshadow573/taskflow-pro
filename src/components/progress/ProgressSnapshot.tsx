@@ -23,7 +23,7 @@ export function ProgressSnapshot() {
       : 0;
 
   return (
-    <section className="ui-surface ui-accent-top rounded-2xl p-4 md:p-5">
+    <section className="ui-surface rounded-2xl p-4 md:p-5">
       <div className="flex flex-wrap items-start gap-5">
         {/* Level + XP */}
         <div className="flex min-w-[240px] flex-1 items-center gap-4">

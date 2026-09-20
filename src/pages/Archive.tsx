@@ -1,6 +1,13 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { toFa, formatJalaliShort } from "@/lib/persian";
 import { Archive, RotateCcw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -53,15 +60,17 @@ export default function ArchivePage() {
           ))}
         </div>
       ) : archived.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border p-14 text-center">
-          <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-accent">
-            <Archive className="size-6 text-accent-foreground" />
-          </div>
-          <p className="text-sm font-semibold">بایگانی خالی است.</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            کارهایی که دیگر لازم نداری را از صندوق ورودی بایگانی کن.
-          </p>
-        </div>
+        <Empty className="p-12">
+          <EmptyMedia variant="icon">
+            <Archive />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle>بایگانی خالی است.</EmptyTitle>
+            <EmptyDescription>
+              کارهایی که دیگر لازم نداری را از صندوق ورودی بایگانی کن.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <section className="ui-surface overflow-hidden rounded-2xl">
           <ul>

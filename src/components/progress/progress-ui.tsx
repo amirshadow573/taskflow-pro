@@ -6,7 +6,6 @@
 import { cn } from "@/lib/utils";
 import { toFa } from "@/lib/persian";
 import { formatJalaliShort } from "@/lib/persian";
-import { Progress } from "@/components/ui/progress";
 import {
   Award,
   BookOpenCheck,
@@ -198,37 +197,6 @@ export function ScoreRing({
           {sub && <div className="text-[10px] text-muted-foreground">{sub}</div>}
         </div>
       </div>
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* XP bar                                                              */
-/* ------------------------------------------------------------------ */
-
-export function XpBar({
-  xp,
-  max,
-  className,
-  showLabels = true,
-}: {
-  xp: number;
-  max: number;
-  className?: string;
-  showLabels?: boolean;
-}) {
-  const pct = max > 0 ? Math.min(100, Math.round((xp / max) * 100)) : 0;
-  return (
-    <div className={className}>
-      <Progress value={pct} className="h-2.5" />
-      {showLabels && (
-        <div className="mt-1.5 flex items-center justify-between text-[11px] font-semibold text-muted-foreground">
-          <span className="tabular-nums">
-            {toFa(xp.toLocaleString("en-US"))} / {toFa(max.toLocaleString("en-US"))} XP
-          </span>
-          <span className="tabular-nums">{toFa(pct)}٪</span>
-        </div>
-      )}
     </div>
   );
 }

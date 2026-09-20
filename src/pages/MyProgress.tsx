@@ -80,7 +80,7 @@ export default function MyProgress() {
 
   if (!p) {
     return (
-      <div className="mx-auto max-w-6xl space-y-5 p-4 md:p-8">
+      <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
         <div className="skeleton h-10 w-56" />
         <div className="skeleton h-40 rounded-2xl" />
         <div className="skeleton h-64 rounded-2xl" />
@@ -116,7 +116,7 @@ export default function MyProgress() {
   };
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 p-4 md:p-8">
+    <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
       {/* Header */}
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
@@ -215,7 +215,7 @@ export default function MyProgress() {
                 </div>
 
                 {/* Level ladder dots */}
-                <ul className="mt-4 flex items-center gap-1.5" aria-label="نردبان سطح‌ها">
+                <ul className="mt-4 flex flex-wrap items-center gap-x-1.5 gap-y-2" aria-label="نردبان سطح‌ها">
                   {(ladder ?? []).map((l) => (
                     <li key={l.level} className="flex items-center gap-1.5">
                       <span
@@ -774,8 +774,8 @@ function Row({
 function ScoreLine({ label, value, toneKey }: { label: string; value: number; toneKey: Tone }) {
   return (
     <div className="flex items-center gap-2">
-      <span className="w-16 text-muted-foreground">{label}</span>
-      <span className="w-24">
+      <span className="w-14 text-muted-foreground">{label}</span>
+      <span className="w-16">
         <Bar pct={value} toneKey={toneKey} className="h-1.5" />
       </span>
       <span className="font-bold tabular-nums">{toFa(value)}٪</span>

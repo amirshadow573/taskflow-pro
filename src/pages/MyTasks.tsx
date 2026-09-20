@@ -1,6 +1,14 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { PRIORITIES, type PriorityKey } from "@/components/ui/badge";
 import { toFa } from "@/lib/persian";
 import { todayKey, addDaysKey, isOverdue } from "@/lib/task-utils";
@@ -84,7 +92,7 @@ export default function MyTasks() {
   const hasFilters = quick !== "all" || projectId || priority || tag || search;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-5 p-4 md:p-8">
+    <div className="mx-auto max-w-5xl space-y-6 p-4 md:p-8">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight">
@@ -95,11 +103,12 @@ export default function MyTasks() {
             {toFa(filtered.length)} کار {hasFilters ? "(فیلترشده)" : ""}
           </p>
         </div>
-        <input
+        <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="جست‌وجو در کارها…"
-          className="h-9 w-full max-w-56 rounded-lg border border-input bg-card px-3 text-sm outline-none focus:ring-2 focus:ring-ring/30"
+          aria-label="جست‌وجو در کارها"
+          className="h-9 w-full max-w-56"
         />
       </header>
 
@@ -111,8 +120,8 @@ export default function MyTasks() {
             onClick={() => setQuick(f.key)}
             className={
               quick === f.key
-                ? "rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white"
-                : "rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted"
+                ? "rounded-lg bg-gradient-to-l from-primary to-[#5B5FE6] px-3 py-1.5 text-xs font-bold text-white shadow-[0_8px_20px_-12px_rgba(37,99,235,0.95)]"
+                : "ui-field rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
             }
           >
             {f.label}
@@ -199,12 +208,17 @@ export default function MyTasks() {
 
       {/* Grouped lists */}
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-          <p className="text-sm font-semibold">کاری با این فیلترها پیدا نشد.</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            فیلترها را تغییر بده یا کار جدیدی بساز.
-          </p>
-        </div>
+        <Empty className="p-12">
+          <EmptyMedia variant="icon">
+            <CircleDot />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle>کاری با این فیلترها پیدا نشد.</EmptyTitle>
+            <EmptyDescription>
+              فیلترها را تغییر بده یا کار جدیدی بساز.
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : groupBy === "none" ? (
         <section className="ui-surface overflow-hidden rounded-2xl">
           <TaskList items={filtered} />

@@ -3,6 +3,8 @@ import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { ProgressSnapshot } from "@/components/progress/ProgressSnapshot";
+import { ActivePathsStrip } from "@/components/progress/ActivePathsStrip";
+import { TodayRoutines } from "@/components/workspace/TodayRoutines";
 import { Button } from "@/components/ui/button";
 import { toFa, toJalaliDate, formatJalaliFull, JALALI_MONTHS } from "@/lib/persian";
 import { todayKey, isOverdue } from "@/lib/task-utils";
@@ -85,9 +87,6 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Progress snapshot — level, XP, streak, daily score, missions */}
-      <ProgressSnapshot />
-
       {/* Compact today overview */}
       <section className="ui-surface ui-accent-top rounded-2xl p-4 md:p-5">
         <div className="flex flex-wrap items-center gap-5">
@@ -126,7 +125,7 @@ export default function Dashboard() {
             ].map((s) => (
               <div
                 key={s.label}
-                className="rounded-xl border border-border/60 bg-white/60 p-2.5 transition-colors hover:border-primary/30 hover:bg-white/80 dark:bg-white/5"
+                className="rounded-xl border border-border/60 bg-muted/40 p-2.5 transition-colors hover:border-primary/30 hover:bg-muted/60 dark:bg-white/5"
               >
                 <div className="flex items-center gap-2">
                   <span className="ui-icon-tile size-7 shrink-0">
@@ -289,6 +288,22 @@ export default function Dashboard() {
           </section>
         )}
       </div>
+
+      {/*
+       * Dashboard hierarchy:
+       *   today's overview → what to do now → today's tasks → what needs
+       *   attention → current progress (level / XP / streak / score) →
+       *   routines → growth paths → projects.
+       */}
+
+      {/* Current progress — level, XP, streak, daily score, missions */}
+      <ProgressSnapshot />
+
+      {/* Active routines / habits for today */}
+      <TodayRoutines />
+
+      {/* Active growth paths */}
+      <ActivePathsStrip />
 
       {/* Project snapshots */}
       <section>

@@ -321,30 +321,46 @@
 }
 
 /* ────────────────────────────────────────────────────────────────
-   Reference background system — fine grid + radial lighting
-   (light mode: layered geometric structure + atmospheric color)
+   AUTHENTICATED APP CANVAS
+
+   The signed-in workspace uses NO grid / graph-paper / square
+   pattern at all. It is a calm, almost flat surface: a near-white
+   base in light mode, deep navy in dark mode, with only two soft
+   corner whispers of ambient light (top-left and bottom-right) so
+   nothing sits underneath text, tasks, cards, charts or forms.
+
+   It is painted on the scroll container ITSELF (never as an
+   absolutely positioned overlay), so no decorative layer can ever
+   end up stacked above UI content.
    ──────────────────────────────────────────────────────────────── */
-.bg-ref-light {
+.app-canvas {
+  background-color: #fbfcff;
   background-image:
-    linear-gradient(to left, rgba(229, 231, 235, 0.7) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(229, 231, 235, 0.7) 1px, transparent 1px),
-    radial-gradient(circle 600px at 18% 78%, rgba(139, 92, 246, 0.14), transparent),
-    radial-gradient(circle 600px at 82% 18%, rgba(59, 130, 246, 0.16), transparent);
-  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
+    radial-gradient(1200px 560px at 92% -10%, rgba(59, 130, 246, 0.07), transparent 68%),
+    radial-gradient(900px 480px at 4% 104%, rgba(139, 92, 246, 0.055), transparent 68%);
+  background-repeat: no-repeat;
 }
-.bg-ref-dark {
+.dark .app-canvas {
+  background-color: #0a1120;
   background-image:
-    linear-gradient(to left, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(148, 163, 184, 0.06) 1px, transparent 1px),
-    radial-gradient(circle 700px at 18% 78%, rgba(139, 92, 246, 0.12), transparent),
-    radial-gradient(circle 700px at 82% 18%, rgba(56, 130, 246, 0.14), transparent);
-  background-size: 48px 48px, 48px 48px, 100% 100%, 100% 100%;
+    radial-gradient(1200px 560px at 92% -10%, rgba(59, 130, 246, 0.12), transparent 68%),
+    radial-gradient(900px 480px at 4% 104%, rgba(139, 92, 246, 0.10), transparent 68%);
+  background-repeat: no-repeat;
 }
 
-/* Fade grid out toward the bottom so sections stay readable */
-.bg-ref-fade {
-  -webkit-mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
-  mask-image: linear-gradient(to bottom, black 0%, black 55%, transparent 100%);
+/* ────────────────────────────────────────────────────────────────
+   APP CHROME — sidebar, topbar and mobile nav share one surface so
+   the frame reads as a single, crisp layer above the canvas.
+   ──────────────────────────────────────────────────────────────── */
+.app-chrome {
+  background-color: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+.dark .app-chrome {
+  background-color: rgba(10, 17, 32, 0.88);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
 }
 
 /* ── Interactive infinite-grid layer (used by InteractiveGrid) ──
@@ -395,57 +411,6 @@
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 
-/* ────────────────────────────────────────────────────────────────
-   "Living origami" — abstract animated geometric environment
-   for dark mode. CSS-only: translucent polygons drifting/rotating
-   over deep navy with soft glows. Respects reduced motion above.
-   ──────────────────────────────────────────────────────────────── */
-@keyframes origami-drift-a {
-  0%, 100% { transform: rotate(0deg) translate(0, 0) scale(1); }
-  50% { transform: rotate(14deg) translate(2%, -3%) scale(1.06); }
-}
-@keyframes origami-drift-b {
-  0%, 100% { transform: rotate(0deg) translate(0, 0) scale(1); }
-  50% { transform: rotate(-11deg) translate(-3%, 2%) scale(0.95); }
-}
-@keyframes origami-drift-c {
-  0%, 100% { transform: rotate(8deg) translate(0, 0); opacity: 0.55; }
-  50% { transform: rotate(-6deg) translate(1.5%, 1.5%); opacity: 0.85; }
-}
-.origami {
-  position: absolute;
-  pointer-events: none;
-  will-change: transform, opacity;
-}
-.origami-a {
-  clip-path: polygon(0 18%, 62% 0, 100% 44%, 78% 100%, 12% 88%);
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.16), rgba(139, 92, 246, 0.1) 55%, transparent);
-  filter: blur(28px);
-  animation: origami-drift-a 38s ease-in-out infinite;
-}
-.origami-b {
-  clip-path: polygon(28% 0, 100% 22%, 82% 82%, 20% 100%, 0 52%);
-  background: linear-gradient(315deg, rgba(6, 182, 212, 0.14), rgba(59, 130, 246, 0.08) 60%, transparent);
-  filter: blur(32px);
-  animation: origami-drift-b 46s ease-in-out infinite;
-}
-.origami-c {
-  clip-path: polygon(12% 30%, 55% 0, 100% 28%, 88% 90%, 30% 100%, 0 70%);
-  background: linear-gradient(175deg, rgba(139, 92, 246, 0.12), transparent 70%);
-  filter: blur(24px);
-  animation: origami-drift-c 30s ease-in-out infinite;
-}
-/* Thin geometric facet lines — origami edges */
-.origami-lines {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.5;
-  background:
-    linear-gradient(115deg, transparent 46%, rgba(148, 163, 184, 0.07) 47%, rgba(148, 163, 184, 0.07) 47.4%, transparent 48%),
-    linear-gradient(65deg, transparent 30%, rgba(148, 163, 184, 0.06) 31%, rgba(148, 163, 184, 0.06) 31.3%, transparent 32%),
-    linear-gradient(150deg, transparent 62%, rgba(148, 163, 184, 0.05) 63%, rgba(148, 163, 184, 0.05) 63.3%, transparent 64%);
-}
 
 /* ── Slow float animation ── */
 @keyframes gentle-float {

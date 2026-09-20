@@ -2,6 +2,14 @@ import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "@/components/ui/empty";
 import { toFa, formatJalaliShort } from "@/lib/persian";
 import { isOverdue } from "@/lib/task-utils";
 import {
@@ -109,7 +117,7 @@ export default function Projects() {
             role="dialog"
             aria-label="ساخت پروژه جدید"
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-md rounded-2xl border border-border bg-popover p-5 elev-3"
+            className="ui-popover w-full max-w-md rounded-2xl p-5"
           >
             <h2 className="mb-4 text-base font-bold">پروژه جدید</h2>
             <div className="space-y-3">
@@ -164,20 +172,24 @@ export default function Projects() {
       )}
 
       {projects.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border p-14 text-center">
-          <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-accent">
-            <FolderKanban className="size-6 text-accent-foreground" />
-          </div>
-          <p className="text-sm font-semibold">هنوز پروژه‌ای نداری.</p>
-          <p className="mx-auto mt-1 max-w-sm text-xs leading-5 text-muted-foreground">
-            پروژه‌ها جای دسته‌بندی کارهای بزرگ‌تر هستند؛ مثلاً «بازطراحی سایت» یا
-            «پروژه دانشگاه».
-          </p>
-          <Button className="mt-4" onClick={() => setCreating(true)}>
-            <Plus className="size-4" />
-            ساخت اولین پروژه
-          </Button>
-        </div>
+        <Empty className="p-12">
+          <EmptyMedia variant="icon">
+            <FolderKanban />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle>هنوز پروژه‌ای نداری.</EmptyTitle>
+            <EmptyDescription>
+              پروژه‌ها جای دسته‌بندی کارهای بزرگ‌تر هستند؛ مثلاً «بازطراحی سایت» یا
+              «پروژه دانشگاه».
+            </EmptyDescription>
+          </EmptyHeader>
+          <EmptyContent>
+            <Button onClick={() => setCreating(true)}>
+              <Plus className="size-4" />
+              ساخت اولین پروژه
+            </Button>
+          </EmptyContent>
+        </Empty>
       ) : view === "grid" ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => {

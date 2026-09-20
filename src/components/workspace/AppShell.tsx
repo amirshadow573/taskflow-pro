@@ -100,7 +100,7 @@ export function AppShell({
               compact && "justify-center px-0",
               isActive
                 ? "ui-nav-active"
-                : "text-muted-foreground hover:bg-white/60 hover:text-foreground dark:hover:bg-white/5",
+                : "text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-white/5",
             )
           }
         >
@@ -125,10 +125,10 @@ export function AppShell({
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "hidden shrink-0 flex-col border-e border-white/30 bg-white/40 backdrop-blur-xl transition-[width] duration-200 md:flex shadow-[1px_0_8px_rgba(79,70,229,0.04)]",
+          "app-chrome hidden shrink-0 flex-col border-e border-border/60 transition-[width] duration-200 md:flex",
           collapsed ? "w-16" : "w-60",
         )}
-      >          <div className={cn("flex h-14 items-center gap-2 border-b border-white/30 px-4", collapsed && "justify-center px-0")}>
+      >          <div className={cn("flex h-14 items-center gap-2 border-b border-border/60 px-4", collapsed && "justify-center px-0")}>
           <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-md shadow-primary/20">
             <ListChecks className="size-4" />
           </div>
@@ -139,7 +139,7 @@ export function AppShell({
           <NavLinks items={withCounts} compact={collapsed} />
         </div>
 
-        <div className="space-y-1 border-t border-white/30 p-2">
+        <div className="space-y-1 border-t border-border/60 p-2">
           <NavLink
             to="/help"
             className={({ isActive }) =>
@@ -148,7 +148,7 @@ export function AppShell({
                 collapsed && "justify-center px-0",
                 isActive
                   ? "ui-nav-active"
-                  : "text-muted-foreground hover:bg-white/60 hover:text-foreground dark:hover:bg-white/5",
+                  : "text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-white/5",
               )
             }
             title={collapsed ? "راهنما" : undefined}
@@ -159,7 +159,7 @@ export function AppShell({
           <button
             onClick={toggle}
             className={cn(
-              "flex w-full items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-semibold text-muted-foreground transition-all duration-200 hover:bg-white/60 hover:text-foreground dark:hover:bg-white/5",
+              "flex w-full items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-semibold text-muted-foreground transition-all duration-200 hover:bg-primary/10 hover:text-foreground dark:hover:bg-white/5",
               collapsed && "justify-center px-0",
             )}
             title={collapsed ? (dark ? "حالت روشن" : "حالت تیره") : undefined}
@@ -167,7 +167,7 @@ export function AppShell({
             {dark ? <Sun className="size-4.5 shrink-0" /> : <Moon className="size-4.5 shrink-0" />}
             {!collapsed && (dark ? "حالت روشن" : "حالت تیره")}
           </button>
-          <div className={cn("flex items-center gap-2 rounded-xl border border-white/40 bg-white/50 px-2 py-2 dark:border-white/10 dark:bg-white/5", collapsed && "justify-center px-0")}>
+          <div className={cn("flex items-center gap-2 rounded-xl border border-border/60 bg-primary/5 px-2 py-2", collapsed && "justify-center px-0")}>
             <div className="grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-[#5B5FE6] text-xs font-bold text-white shadow-[0_4px_12px_-6px_rgba(37,99,235,0.9)]">
               {(user?.name ?? "کاربر").slice(0, 1)}
             </div>
@@ -189,7 +189,7 @@ export function AppShell({
           <button
             onClick={() => setCollapsed((c) => !c)}
             className={cn(
-              "hidden w-full items-center gap-3 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-white/60 hover:text-foreground md:flex dark:hover:bg-white/5",
+              "hidden w-full items-center gap-3 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-primary/10 hover:text-foreground md:flex dark:hover:bg-white/5",
               collapsed && "justify-center px-0",
             )}
             aria-label={collapsed ? "باز کردن منو" : "جمع کردن منو"}
@@ -203,7 +203,7 @@ export function AppShell({
       {/* Main column */}
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar */}
-        <header className="flex h-14 shrink-0 items-center gap-2 border-b border-white/30 bg-white/50 px-4 backdrop-blur-xl shadow-[0_1px_4px_rgba(79,70,229,0.04)]">
+        <header className="app-chrome flex h-14 shrink-0 items-center gap-2 border-b border-border/60 px-4">
           <Link to="/dashboard" className="flex items-center gap-2 md:hidden">
             <div className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
               <ListChecks className="size-4" />
@@ -289,16 +289,20 @@ export function AppShell({
           </div>
         </header>
 
-        {/* Scrollable content */}
-        <main className="relative flex-1 overflow-y-auto">
-          <div className="bg-ref-light bg-ref-fade pointer-events-none absolute inset-0 dark:hidden" />
-          <div className="bg-ref-dark pointer-events-none absolute inset-0 hidden dark:block" />
-          {children}
+        {/*
+         * Scrollable content.
+         *
+         * The canvas (clean off-white / deep navy, no grid) is painted on the
+         * scroll container itself, and the page tree is lifted one layer above
+         * it — so nothing decorative can ever be stacked on top of UI content.
+         */}
+        <main className="app-canvas relative flex-1 overflow-y-auto">
+          <div className="relative z-10">{children}</div>
         </main>
 
         {/* Mobile bottom nav */}
         <nav
-          className="flex shrink-0 items-stretch justify-around border-t border-white/30 bg-white/60 backdrop-blur-xl pb-[env(safe-area-inset-bottom)] md:hidden"
+          className="app-chrome flex shrink-0 items-stretch justify-around border-t border-border/60 pb-[env(safe-area-inset-bottom)] md:hidden"
           aria-label="ناوبری موبایل"
         >
           {MOBILE_NAV.map((item) => (
