@@ -101,7 +101,7 @@ export default function SettingsPage() {
       </header>
 
       {/* Profile */}
-      <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+      <section className="ui-surface rounded-2xl p-5">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-bold">
           <User className="size-4 text-primary" />
           پروفایل
@@ -123,7 +123,7 @@ export default function SettingsPage() {
       </section>
 
       {/* Appearance */}
-      <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+      <section className="ui-surface rounded-2xl p-5">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-bold">
           <Palette className="size-4 text-primary" />
           ظاهر
@@ -206,7 +206,7 @@ export default function SettingsPage() {
       </section>
 
       {/* Notifications */}
-      <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+      <section className="ui-surface rounded-2xl p-5">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-bold">
           <Bell className="size-4 text-primary" />
           اعلان‌ها

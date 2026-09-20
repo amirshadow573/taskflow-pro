@@ -28,7 +28,7 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="input-otp-group"
-      className={cn("flex items-center", className)}
+      className={cn("flex items-center gap-2", className)}
       {...props}
     />
   )
@@ -49,7 +49,9 @@ function InputOTPSlot({
       data-slot="input-otp-slot"
       data-active={isActive}
       className={cn(
-        "data-[active=true]:border-ring data-[active=true]:ring-ring/50 data-[active=true]:aria-invalid:ring-destructive/20 dark:data-[active=true]:aria-invalid:ring-destructive/40 aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive dark:bg-input/30 border-input relative flex h-9 w-9 items-center justify-center border-y border-r text-sm shadow-xs transition-all outline-none first:rounded-l-md first:border-l last:rounded-r-md data-[active=true]:z-10 data-[active=true]:ring-[3px]",
+        "relative flex size-11 items-center justify-center rounded-xl border border-input/70 bg-white/70 text-base font-bold shadow-[inset_0_1px_2px_rgba(30,64,175,0.05)] outline-none transition-all duration-200 dark:bg-slate-800/60",
+        "data-[active=true]:border-primary/70 data-[active=true]:bg-white data-[active=true]:ring-[3px] data-[active=true]:ring-primary/15 data-[active=true]:z-10",
+        "aria-invalid:border-destructive data-[active=true]:aria-invalid:border-destructive aria-invalid:ring-destructive/20",
         className
       )}
       {...props}
@@ -57,7 +59,7 @@ function InputOTPSlot({
       {char}
       {hasFakeCaret && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="animate-caret-blink bg-foreground h-4 w-px duration-1000" />
+          <div className="animate-caret-blink bg-primary h-4 w-px duration-1000" />
         </div>
       )}
     </div>

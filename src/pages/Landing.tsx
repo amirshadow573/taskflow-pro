@@ -491,7 +491,7 @@ export default function Landing() {
               { icon: SquareCheckBig, t: "پیشرفت نامرئی", d: "بدون داشبورد و گزارش، نمی‌دانی واقعاً چقدر پیشرفت کرده‌ای." },
             ].map((p, i) => (
               <Anim key={p.t} delay={i * 0.06}>
-                <div className="rounded-2xl border border-border bg-card p-5 elev-1">
+                <div className="ui-surface rounded-2xl p-5">
                   <p.icon className="mb-3 size-5 text-destructive/70" />
                   <p className="text-sm font-bold">{p.t}</p>
                   <p className="mt-1 text-xs leading-5 text-muted-foreground">{p.d}</p>
@@ -519,7 +519,7 @@ export default function Landing() {
 
           {/* Feature 1: Large — Smart Input */}
           <Anim className="mb-6">
-            <div className="grid items-center gap-6 rounded-2xl border border-border bg-card p-6 elev-1 sm:p-8 lg:grid-cols-2">
+            <div className="ui-surface grid items-center gap-6 rounded-2xl p-6 sm:p-8 lg:grid-cols-2">
               <div>
                 <span className="mb-2 inline-block rounded-lg bg-accent px-2.5 py-1 text-[10px] font-bold text-accent-foreground">۰۱</span>
                 <h3 className="mt-2 text-xl font-extrabold">ثبت کار با یک جمله</h3>
@@ -537,7 +537,7 @@ export default function Landing() {
           {/* Feature 2+3: Side by side */}
           <div className="mb-6 grid gap-6 lg:grid-cols-2">
             <Anim delay={0.05}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 elev-1">
+              <div className="ui-surface h-full rounded-2xl p-6">
                 <span className="mb-2 inline-block rounded-lg bg-accent px-2.5 py-1 text-[10px] font-bold text-accent-foreground">۰۲</span>
                 <h3 className="mt-2 text-lg font-extrabold">پروژه‌ها و تیم‌ها</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">کارهای بزرگ را به پروژه بشکن؛ پیشرفت هر پروژه را زنده ببین و عقب‌افتاده‌ها را نگیر.</p>
@@ -552,7 +552,7 @@ export default function Landing() {
               </div>
             </Anim>
             <Anim delay={0.1}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 elev-1">
+              <div className="ui-surface h-full rounded-2xl p-6">
                 <span className="mb-2 inline-block rounded-lg bg-accent px-2.5 py-1 text-[10px] font-bold text-accent-foreground">۰۳</span>
                 <h3 className="mt-2 text-lg font-extrabold">تقویم شمسی</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">کارها را بکش و روی روز دلخواه رها کن؛ جابه‌جایی برنامه‌ها در چند ثانیه انجام می‌شود.</p>
@@ -565,7 +565,7 @@ export default function Landing() {
 
           {/* Feature 4: Large — Kanban */}
           <Anim className="mb-6">
-            <div className="rounded-2xl border border-border bg-card p-6 elev-1 sm:p-8">
+            <div className="ui-surface rounded-2xl p-6 sm:p-8">
               <div className="mb-6 max-w-lg">
                 <span className="mb-2 inline-block rounded-lg bg-accent px-2.5 py-1 text-[10px] font-bold text-accent-foreground">۰۴</span>
                 <h3 className="mt-2 text-xl font-extrabold"> مدیریت پروژه با تخته Kanban</h3>
@@ -578,7 +578,7 @@ export default function Landing() {
           {/* Feature 5+6: Side by side */}
           <div className="grid gap-6 lg:grid-cols-2">
             <Anim delay={0.05}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 elev-1">
+              <div className="ui-surface h-full rounded-2xl p-6">
                 <span className="mb-2 inline-block rounded-lg bg-accent px-2.5 py-1 text-[10px] font-bold text-accent-foreground">۰۵</span>
                 <h3 className="mt-2 text-lg font-extrabold">پیشرفتت را ببین</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">نرخ تکمیل، زنجیره روزها و روند هفتگی؛ فقط عددی که به کارت می‌آید.</p>
@@ -588,7 +588,7 @@ export default function Landing() {
               </div>
             </Anim>
             <Anim delay={0.1}>
-              <div className="h-full rounded-2xl border border-border bg-card p-6 elev-1">
+              <div className="ui-surface h-full rounded-2xl p-6">
                 <span className="mb-2 inline-block rounded-lg bg-accent px-2.5 py-1 text-[10px] font-bold text-accent-foreground">۰۶</span>
                 <h3 className="mt-2 text-lg font-extrabold">جستجوی سریع</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">با Ctrl+K هر کاری را پیدا کن، هر دستوری را اجرا کن — بدون برداشتن دست از کیبورد.</p>
@@ -629,7 +629,7 @@ export default function Landing() {
             ].map((s, i) => (
               <Anim key={s.n} delay={i * 0.1}>
                 <div className="relative text-center">
-                  <div className="mx-auto mb-4 grid size-16 place-items-center rounded-2xl border-2 border-border bg-card text-2xl font-extrabold text-primary elev-2">{s.n}</div>
+                  <div className="ui-icon-tile mx-auto mb-4 size-16 rounded-2xl text-2xl font-extrabold text-primary">{s.n}</div>
                   <s.icon className="mx-auto mb-2 size-5 text-primary/60" />
                   <h3 className="text-lg font-extrabold">{s.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">{s.desc}</p>
@@ -655,7 +655,7 @@ export default function Landing() {
               { icon: Sparkles, title: "افزایش تمرکز", desc: "روش‌های عملی برای حذف حواس‌پرتی.", color: "#8b5cf6" },
             ].map((c, i) => (
               <Anim key={c.title} delay={i * 0.06}>
-                <article className="group rounded-2xl border border-border bg-card p-5 transition-all elev-1 hover:-translate-y-0.5 hover:elev-2">
+                <article className="group ui-surface ui-surface-hover rounded-2xl p-5">
                   <span className="mb-3 grid size-10 place-items-center rounded-xl" style={{ background: `${c.color}12` }}><c.icon className="size-5" style={{ color: c.color }} /></span>
                   <h3 className="text-sm font-extrabold">{c.title}</h3>
                   <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{c.desc}</p>
@@ -680,7 +680,7 @@ export default function Landing() {
               { quote: "بخش پیشرفت انگیزه‌ام را عوض کرد. دیدن زنجیره روزها باعث شد سه ماه پیوسته ورزش روزانه‌ام را انجام بدهم.", name: "نگار کریمی", role: "طراح محصول" },
             ].map((t, i) => (
               <Anim key={t.name} delay={i * 0.08}>
-                <figure className="h-full rounded-2xl border border-border bg-card p-6 elev-1">
+                <figure className="ui-surface h-full rounded-2xl p-6">
                   <div className="mb-3 flex gap-0.5">{[1,2,3,4,5].map((s) => <span key={s} className="text-amber-400">★</span>)}</div>
                   <blockquote className="text-sm leading-7 text-foreground">«{t.quote}»</blockquote>
                   <figcaption className="mt-4 flex items-center gap-3">
@@ -708,7 +708,7 @@ export default function Landing() {
               ["روی گوشی هم خوب کار می‌کند؟", "بله. رابط کاملاً واکنش‌گراست و برای موبایل نوار ناوبری پایین و دکمه شناور افزودن کار دارد."],
               ["امکان استفاده رایگان هست؟", "بله؛ نسخه رایگان برای استفاده شخصی کاملاً کامل است و محدودیت واقعی روی کارهای روزانه ندارد."],
             ].map(([q, a]) => (
-              <details key={q} className="group rounded-xl border border-border bg-card px-5 py-4 elev-1">
+              <details key={q} className="ui-surface group rounded-2xl px-5 py-4">
                 <summary className="cursor-pointer list-none text-sm font-bold marker:hidden">{q}<span className="float-start text-muted-foreground transition-transform group-open:rotate-45">+</span></summary>
                 <p className="mt-3 text-sm leading-7 text-muted-foreground">{a}</p>
               </details>
@@ -731,7 +731,7 @@ export default function Landing() {
           <div className="mx-auto grid max-w-4xl gap-6 md:grid-cols-2">
             {/* ── Free plan ── */}
             <Anim delay={0.05}>
-              <div className="group relative h-full rounded-3xl border border-border/60 bg-card/90 p-8 elev-1 transition-all duration-300 hover:-translate-y-1 hover:elev-3">
+              <div className="group ui-surface ui-surface-hover relative h-full rounded-3xl p-8">
                 <h3 className="text-lg font-extrabold">رایگان</h3>
                 <p className="mt-1 text-xs text-muted-foreground">برای شروع و استفاده شخصی</p>
                 <div className="mt-6 flex items-baseline gap-2">
@@ -763,14 +763,12 @@ export default function Landing() {
 
             {/* ── Pro plan — highlighted ── */}
             <Anim delay={0.12}>
-              <div className="relative h-full rounded-3xl p-[1.5px] elev-2 transition-all duration-300 hover:-translate-y-1 hover:elev-3"
-                style={{ background: "linear-gradient(160deg, rgba(59,130,246,0.55), rgba(139,92,246,0.4) 55%, rgba(59,130,246,0.15))" }}
-              >
+              <div className="ui-frame-gradient relative h-full rounded-3xl shadow-[0_18px_44px_-22px_rgba(37,99,235,0.5)] transition-transform duration-300 hover:-translate-y-1">
                 {/* Popular badge */}
                 <span className="absolute -top-3.5 start-1/2 z-10 -translate-x-1/2 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-4 py-1 text-[11px] font-bold text-white shadow-lg shadow-primary/25">
                   پیشنهاد ما
                 </span>
-                <div className="relative h-full rounded-[calc(1.5rem-1px)] bg-card/95 p-8 backdrop-blur-sm">
+                <div className="ui-surface relative h-full rounded-[calc(1.5rem-1.5px)] p-8">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-extrabold">حرفه‌ای</h3>
                     <Sparkles className="size-4.5 text-primary" />

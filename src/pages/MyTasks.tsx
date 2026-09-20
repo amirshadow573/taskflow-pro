@@ -121,7 +121,7 @@ export default function MyTasks() {
       </div>
 
       {/* Advanced filters row */}
-      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-card p-2 elev-1">
+      <div className="ui-field flex flex-wrap items-center gap-2 rounded-xl p-2">
         <span className="flex items-center gap-1 ps-1 text-xs font-bold text-muted-foreground">
           <Filter className="size-3.5" />
           فیلترها:
@@ -206,7 +206,7 @@ export default function MyTasks() {
           </p>
         </div>
       ) : groupBy === "none" ? (
-        <section className="rounded-2xl border border-border bg-card elev-1">
+        <section className="ui-surface overflow-hidden rounded-2xl">
           <TaskList items={filtered} />
         </section>
       ) : (
@@ -232,7 +232,7 @@ export default function MyTasks() {
               const color =
                 groupBy === "project" ? projectOf(key)?.color : undefined;
               return (
-                <section key={key} className="rounded-2xl border border-border bg-card elev-1">
+                <section key={key} className="ui-surface overflow-hidden rounded-2xl">
                   <div className="flex items-center gap-2 border-b border-border/70 px-4 py-2.5">
                     {color && <span className="size-2.5 rounded-sm" style={{ background: color }} />}
                     <h2 className="text-sm font-bold">{label}</h2>

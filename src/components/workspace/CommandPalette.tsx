@@ -115,25 +115,27 @@ export function CommandPalette({
 
   return (
     <div
-      className="fixed inset-0 z-[80] flex items-start justify-center bg-black/30 p-4 pt-[12vh] backdrop-blur-sm"
+      className="fixed inset-0 z-[80] flex items-start justify-center bg-slate-900/30 p-4 pt-[12vh] backdrop-blur-[3px]"
       onClick={() => onOpenChange(false)}
     >
       <div
         role="dialog"
         aria-label="جست‌وجوی سریع"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg overflow-hidden rounded-2xl border border-border bg-popover elev-3"
+        className="ui-popover w-full max-w-lg overflow-hidden rounded-2xl"
       >
-        <div className="flex items-center gap-2 border-b border-border px-4">
-          <Search className="size-4 text-muted-foreground" />
+        <div className="flex items-center gap-2.5 border-b border-border/60 px-3.5">
+          <span className="ui-icon-tile size-7 shrink-0">
+            <Search className="size-3.5 text-primary" />
+          </span>
           <input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="جست‌وجو در کارها، پروژه‌ها… یا اجرای دستور"
-            className="h-12 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/70"
+            className="h-13 flex-1 bg-transparent text-sm font-medium outline-none placeholder:text-muted-foreground/70"
           />
-          <kbd className="rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+          <kbd className="rounded-md border border-border/70 bg-white/70 px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground dark:bg-slate-800/60">
             Esc
           </kbd>
         </div>
@@ -161,8 +163,10 @@ export function CommandPalette({
                 }}
                 onMouseEnter={() => setIndex(gi)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-start text-sm",
-                  gi === index ? "bg-accent text-accent-foreground" : "hover:bg-muted",
+                  "flex w-full items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-start text-sm font-medium transition-colors",
+                  gi === index
+                    ? "border-primary/25 bg-accent/80"
+                    : "hover:bg-white/60 dark:hover:bg-white/5",
                 )}
               >
                 <a.icon className="size-4 text-muted-foreground" />
@@ -190,8 +194,10 @@ export function CommandPalette({
                 }}
                 onMouseEnter={() => setIndex(gi)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-start text-sm",
-                  gi === index ? "bg-accent text-accent-foreground" : "hover:bg-muted",
+                  "flex w-full items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-start text-sm font-medium transition-colors",
+                  gi === index
+                    ? "border-primary/25 bg-accent/80"
+                    : "hover:bg-white/60 dark:hover:bg-white/5",
                 )}
               >
                 <CircleDot className="size-4 text-muted-foreground" />
@@ -217,8 +223,10 @@ export function CommandPalette({
                 }}
                 onMouseEnter={() => setIndex(gi)}
                 className={cn(
-                  "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-start text-sm",
-                  gi === index ? "bg-accent text-accent-foreground" : "hover:bg-muted",
+                  "flex w-full items-center gap-3 rounded-xl border border-transparent px-3 py-2.5 text-start text-sm font-medium transition-colors",
+                  gi === index
+                    ? "border-primary/25 bg-accent/80"
+                    : "hover:bg-white/60 dark:hover:bg-white/5",
                 )}
               >
                 <FolderKanban className="size-4 text-muted-foreground" />
@@ -229,7 +237,7 @@ export function CommandPalette({
           })}
         </div>
 
-        <div className="flex items-center justify-between border-t border-border px-4 py-2 text-[10px] text-muted-foreground">
+        <div className="flex items-center justify-between border-t border-border/60 px-4 py-2.5 text-[10px] font-medium text-muted-foreground">
           <span className="flex items-center gap-1">
             <Tag className="size-3" />
             {toFa(tasks.length)} کار در فضای کاری

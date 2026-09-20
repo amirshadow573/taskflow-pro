@@ -37,17 +37,22 @@ export function QuickAddModal({
 
   return (
     <div
-      className="fixed inset-0 z-[70] flex items-start justify-center bg-black/30 p-4 pt-[14vh] backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-start justify-center bg-slate-900/30 p-4 pt-[14vh] backdrop-blur-[3px]"
       onClick={() => onOpenChange(false)}
     >
       <div
         role="dialog"
         aria-label="افزودن سریع کار"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-xl rounded-2xl border border-border bg-popover p-4 elev-3"
+        className="ui-popover w-full max-w-xl rounded-2xl p-5"
       >
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-bold">افزودن کار جدید</h2>
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-sm font-bold">
+            <span className="ui-icon-tile size-7">
+              <Plus className="size-3.5 text-primary" />
+            </span>
+            افزودن کار جدید
+          </h2>
           <Button variant="ghost" size="icon-sm" onClick={() => onOpenChange(false)} aria-label="بستن">
             <X className="size-4" />
           </Button>
@@ -70,12 +75,12 @@ export function QuickAddModal({
         />
 
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <label className="text-xs font-semibold text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             پروژه
             <select
               value={projectId}
               onChange={(e) => setProjectId(e.target.value)}
-              className="mt-1 h-9 w-full rounded-lg border border-input bg-card px-2 text-sm font-normal text-foreground outline-none"
+              className="ui-field mt-1.5 h-10 w-full appearance-none rounded-xl px-3 text-sm font-medium text-foreground outline-none"
             >
               <option value="">بدون پروژه</option>
               {projects.map((p) => (
@@ -85,12 +90,12 @@ export function QuickAddModal({
               ))}
             </select>
           </label>
-          <label className="text-xs font-semibold text-muted-foreground">
+          <label className="text-xs font-bold text-muted-foreground">
             وضعیت
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="mt-1 h-9 w-full rounded-lg border border-input bg-card px-2 text-sm font-normal text-foreground outline-none"
+              className="ui-field mt-1.5 h-10 w-full appearance-none rounded-xl px-3 text-sm font-medium text-foreground outline-none"
             >
               <option value="todo">انجام نشده</option>
               <option value="in_progress">در حال انجام</option>
@@ -98,7 +103,7 @@ export function QuickAddModal({
             </select>
           </label>
         </div>
-        <p className="mt-3 text-[11px] leading-5 text-muted-foreground">
+        <p className="mt-4 rounded-xl border border-border/60 bg-white/50 px-3 py-2 text-[11px] leading-5 text-muted-foreground dark:bg-white/5">
           می‌توانی تاریخ (امروز/فردا/شنبه)، ساعت، اولویت (#فوری / مهم) و #تگ را
           داخل همان جمله بنویسی.
         </p>
@@ -113,7 +118,7 @@ export function MobileFab({ onClick }: { onClick: () => void }) {
     <button
       onClick={onClick}
       aria-label="افزودن کار جدید"
-      className="fixed bottom-20 end-4 z-40 grid size-13 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform active:scale-95 md:hidden"
+      className="fixed bottom-20 end-4 z-40 grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-[0_14px_30px_-10px_rgba(37,99,235,0.85)] transition-transform hover:scale-105 active:scale-95 md:hidden"
     >
       <Plus className="size-6" />
     </button>

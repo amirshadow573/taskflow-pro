@@ -16,6 +16,7 @@ import {
   LineChart,
   ListChecks,
   Moon,
+  Search,
   Settings,
   Sun,
   HelpCircle,
@@ -92,11 +93,11 @@ export function AppShell({
           title={compact ? item.label : undefined}
           className={({ isActive }) =>
             cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-semibold transition-all duration-200",
               compact && "justify-center px-0",
               isActive
-                ? "bg-accent text-accent-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                ? "ui-nav-active"
+                : "text-muted-foreground hover:bg-white/60 hover:text-foreground dark:hover:bg-white/5",
             )
           }
         >
@@ -105,7 +106,7 @@ export function AppShell({
             <>
               <span className="flex-1 truncate">{item.label}</span>
               {item.badge !== undefined && item.badge > 0 && (
-                <span className="rounded-full bg-primary px-1.5 min-w-5 text-center text-[10px] font-bold leading-5 text-white">
+                <span className="min-w-5 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-1.5 text-center text-[10px] font-bold leading-5 text-white shadow-[0_3px_10px_-4px_rgba(37,99,235,0.9)]">
                   {toFa(item.badge)}
                 </span>
               )}
@@ -140,9 +141,11 @@ export function AppShell({
             to="/help"
             className={({ isActive }) =>
               cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                "flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-semibold transition-all duration-200",
                 collapsed && "justify-center px-0",
-                isActive ? "bg-accent text-accent-foreground" : "text-muted-foreground hover:bg-muted",
+                isActive
+                  ? "ui-nav-active"
+                  : "text-muted-foreground hover:bg-white/60 hover:text-foreground dark:hover:bg-white/5",
               )
             }
             title={collapsed ? "راهنما" : undefined}
@@ -153,7 +156,7 @@ export function AppShell({
           <button
             onClick={toggle}
             className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted",
+              "flex w-full items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-semibold text-muted-foreground transition-all duration-200 hover:bg-white/60 hover:text-foreground dark:hover:bg-white/5",
               collapsed && "justify-center px-0",
             )}
             title={collapsed ? (dark ? "حالت روشن" : "حالت تیره") : undefined}
@@ -161,8 +164,8 @@ export function AppShell({
             {dark ? <Sun className="size-4.5 shrink-0" /> : <Moon className="size-4.5 shrink-0" />}
             {!collapsed && (dark ? "حالت روشن" : "حالت تیره")}
           </button>
-          <div className={cn("flex items-center gap-2 rounded-lg px-2 py-2", collapsed && "justify-center px-0")}>
-            <div className="grid size-8 shrink-0 place-items-center rounded-full bg-accent text-xs font-bold text-accent-foreground">
+          <div className={cn("flex items-center gap-2 rounded-xl border border-white/40 bg-white/50 px-2 py-2 dark:border-white/10 dark:bg-white/5", collapsed && "justify-center px-0")}>
+            <div className="grid size-8 shrink-0 place-items-center rounded-full bg-gradient-to-br from-primary to-[#5B5FE6] text-xs font-bold text-white shadow-[0_4px_12px_-6px_rgba(37,99,235,0.9)]">
               {(user?.name ?? "کاربر").slice(0, 1)}
             </div>
             {!collapsed && (
@@ -183,7 +186,7 @@ export function AppShell({
           <button
             onClick={() => setCollapsed((c) => !c)}
             className={cn(
-              "hidden w-full items-center gap-3 rounded-lg px-3 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-muted md:flex",
+              "hidden w-full items-center gap-3 rounded-xl px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:bg-white/60 hover:text-foreground md:flex dark:hover:bg-white/5",
               collapsed && "justify-center px-0",
             )}
             aria-label={collapsed ? "باز کردن منو" : "جمع کردن منو"}
@@ -207,14 +210,14 @@ export function AppShell({
           <Button
             variant="outline"
             size="sm"
-            className="ms-auto h-9 w-full max-w-xs justify-start gap-2 text-muted-foreground md:ms-0"
+            className="ms-auto h-9 w-full max-w-xs justify-start gap-2 font-medium text-muted-foreground md:ms-0"
             onClick={() =>
               window.dispatchEvent(new CustomEvent("open-command-palette"))
             }
           >
-            <CircleDot className="size-3.5" />
+            <Search className="size-3.5" />
             <span className="flex-1 text-start">جست‌وجو…</span>
-            <kbd className="hidden rounded border border-border bg-muted px-1.5 text-[10px] font-semibold md:inline">
+            <kbd className="hidden rounded-md border border-border/70 bg-white/70 px-1.5 py-0.5 text-[10px] font-bold text-muted-foreground md:inline dark:bg-slate-800/60">
               Ctrl K
             </kbd>
           </Button>
@@ -240,7 +243,7 @@ export function AppShell({
                 <div
                   role="dialog"
                   aria-label="مرکز اعلان‌ها"
-                  className="absolute end-0 top-11 z-50 w-80 rounded-xl border border-white/40 bg-white/80 backdrop-blur-xl p-2 shadow-xl shadow-primary/5"
+                  className="ui-popover absolute end-0 top-12 z-50 w-80 rounded-2xl p-2"
                 >
                   <div className="px-2 py-1.5 text-xs font-bold text-muted-foreground">
                     اعلان‌ها
@@ -252,7 +255,7 @@ export function AppShell({
                   ) : (
                     <ul className="max-h-72 space-y-1 overflow-y-auto">
                       {overdueCount > 0 && (
-                        <li className="rounded-lg bg-red-50 px-3 py-2 text-xs dark:bg-red-500/10">
+                        <li className="rounded-xl border border-red-200/70 bg-red-50 px-3 py-2 text-xs dark:border-red-500/20 dark:bg-red-500/10">
                           <span className="font-bold text-red-700 dark:text-red-300">
                             {toFa(overdueCount)} کار عقب‌افتاده
                           </span>
@@ -265,10 +268,10 @@ export function AppShell({
                         <li
                           key={n.id}
                           className={cn(
-                            "rounded-lg px-3 py-2 text-xs",
-                            n.tone === "danger" && "bg-red-50 dark:bg-red-500/10",
-                            n.tone === "warning" && "bg-amber-50 dark:bg-amber-500/10",
-                            n.tone === "info" && "bg-accent",
+                            "rounded-xl border px-3 py-2 text-xs",
+                            n.tone === "danger" && "border-red-200/70 bg-red-50 dark:border-red-500/20 dark:bg-red-500/10",
+                            n.tone === "warning" && "border-amber-200/70 bg-amber-50 dark:border-amber-500/20 dark:bg-amber-500/10",
+                            n.tone === "info" && "border-primary/20 bg-accent/70",
                           )}
                         >
                           <span className="font-bold">{n.title}</span>
@@ -301,8 +304,10 @@ export function AppShell({
               to={item.to}
               className={({ isActive }) =>
                 cn(
-                  "flex min-w-16 flex-col items-center gap-0.5 px-2 py-2 text-[10px] font-semibold",
-                  isActive ? "text-primary" : "text-muted-foreground",
+                  "relative flex min-w-16 flex-col items-center gap-0.5 px-2 py-2 text-[10px] font-bold transition-colors",
+                  isActive
+                    ? "text-primary after:absolute after:inset-x-4 after:top-0 after:h-[3px] after:rounded-full after:bg-gradient-to-l after:from-primary after:to-[#5B5FE6] after:content-['']"
+                    : "text-muted-foreground hover:text-foreground",
                 )
               }
             >

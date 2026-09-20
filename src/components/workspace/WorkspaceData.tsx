@@ -253,13 +253,13 @@ export function PageSkeleton() {
       <div className="skeleton h-9 w-56" />
       <div className="grid gap-4 md:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-border bg-card p-4">
+          <div key={i} className="ui-surface rounded-xl p-4">
             <div className="skeleton mb-3 h-4 w-20" />
             <div className="skeleton h-7 w-14" />
           </div>
         ))}
       </div>
-      <div className="rounded-xl border border-border bg-card">
+      <div className="ui-surface overflow-hidden rounded-xl">
         {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="flex items-center gap-3 border-b border-border/60 px-4 py-3 last:border-0">
             <div className="skeleton size-5 rounded-full" />

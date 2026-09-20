@@ -122,7 +122,7 @@ function PlanningPage() {
             const doneN = rItems.filter((it) => doneSet.has(it._id)).length;
             const pct = rItems.length ? Math.round((doneN / rItems.length) * 100) : 0;
             return (
-              <div key={r._id} className="overflow-hidden rounded-2xl border border-border bg-card elev-1">
+              <div key={r._id} className="ui-surface overflow-hidden rounded-2xl">
                 <div className="flex items-center justify-between border-b border-border/70 px-4 py-2.5">
                   <div className="flex items-center gap-2">
                     <span
@@ -227,7 +227,7 @@ function PlanningPage() {
             </div>
           )}
           {upcoming.map((g) => (
-            <div key={g.key} className="overflow-hidden rounded-2xl border border-border bg-card elev-1">
+            <div key={g.key} className="ui-surface overflow-hidden rounded-2xl">
               <div className="border-b border-border/70 px-4 py-2 text-xs font-bold text-muted-foreground">
                 {g.label}
                 <span className="ms-2 text-[10px]">

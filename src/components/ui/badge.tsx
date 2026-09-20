@@ -23,19 +23,24 @@ export const STATUSES = {
 export type StatusKey = keyof typeof STATUSES
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold leading-4",
+  "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold leading-4 whitespace-nowrap transition-colors [&_svg]:size-3 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "border-transparent bg-secondary text-secondary-foreground",
-        outline: "border-border text-muted-foreground",
-        accent: "border-transparent bg-accent text-accent-foreground",
+        default:
+          "border-white/50 bg-white/70 text-secondary-foreground shadow-[inset_0_1px_0_rgba(255,255,255,0.6)] dark:border-white/10 dark:bg-slate-800/60",
+        outline: "border-border/70 bg-transparent text-muted-foreground",
+        accent:
+          "border-primary/20 bg-primary/10 text-primary shadow-[inset_0_1px_0_rgba(255,255,255,0.5)]",
+        info: "border-sky-200 bg-sky-50 text-sky-700 dark:border-sky-500/20 dark:bg-sky-500/10 dark:text-sky-300",
         success:
           "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300",
         warning:
           "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300",
         danger:
           "border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300",
+        gradient:
+          "border-transparent bg-gradient-to-l from-primary to-[#5B5FE6] text-white shadow-[0_4px_12px_-6px_rgba(37,99,235,0.8)]",
       },
     },
     defaultVariants: { variant: "default" },

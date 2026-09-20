@@ -184,7 +184,7 @@ export default function Projects() {
             const s = statsOf(p._id);
             return (
               <Link key={p._id} to={`/projects/${p._id}`}>
-                <article className="group h-full rounded-2xl border border-border bg-card p-5 transition-all elev-1 hover:-translate-y-0.5 hover:elev-2">
+                <article className="group ui-surface ui-surface-hover h-full rounded-2xl p-5">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2.5">
                       <span
@@ -248,7 +248,7 @@ export default function Projects() {
           })}
         </div>
       ) : (
-        <section className="overflow-hidden rounded-2xl border border-border bg-card elev-1">
+        <section className="ui-surface overflow-hidden rounded-2xl">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-start text-xs text-muted-foreground">

@@ -45,7 +45,7 @@ export function LogoDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48">
         <DropdownMenuItem onClick={handleGoHome} className="cursor-pointer">
-          <Home className="mr-2 h-4 w-4" />
+          <Home className="me-2 h-4 w-4" />
           Landing Page
         </DropdownMenuItem>
         {isAuthenticated && (
@@ -55,7 +55,7 @@ export function LogoDropdown() {
               onClick={handleSignOut}
               className="cursor-pointer text-destructive focus:text-destructive"
             >
-              <LogOut className="mr-2 h-4 w-4" />
+              <LogOut className="me-2 h-4 w-4" />
               Sign Out
             </DropdownMenuItem>
           </>

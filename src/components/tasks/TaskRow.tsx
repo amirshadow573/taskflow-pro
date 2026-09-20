@@ -1,9 +1,8 @@
 import { TaskCheckbox } from "./TaskCheckbox";
-import { Badge, PRIORITIES, type PriorityKey } from "@/components/ui/badge";
+import { PRIORITIES, type PriorityKey } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Clock,
-  FolderOpen,
   GripVertical,
   ListTree,
   MoreHorizontal,
@@ -66,11 +65,21 @@ export function TaskRow({
         if (e.key === "Enter") onOpen?.();
       }}
       className={cn(
-        "group flex w-full cursor-pointer items-center gap-3 border-b border-border/70 px-3 transition-colors last:border-0 hover:bg-muted/60",
+        "group relative flex w-full cursor-pointer items-center gap-3 border-b border-border/50 px-3 transition-colors last:border-0",
+        "hover:bg-white/70 dark:hover:bg-white/5",
         compact ? "py-2" : "py-2.5",
         done && "opacity-60",
       )}
     >
+      {/* Hover accent rail */}
+      <span
+        aria-hidden
+        className={cn(
+          "absolute inset-y-1.5 start-0 w-[3px] rounded-full bg-gradient-to-b opacity-0 transition-opacity duration-200 group-hover:opacity-100",
+          overdue ? "from-destructive to-red-400" : "from-primary to-[#5B5FE6]",
+        )}
+      />
+
       <GripVertical className="size-3.5 shrink-0 text-transparent transition-colors group-hover:text-muted-foreground/40" />
       <TaskCheckbox
         checked={done}
@@ -82,7 +91,7 @@ export function TaskRow({
         <div className="flex items-center gap-2">
           <span
             className={cn(
-              "strike-reveal truncate text-sm font-medium",
+              "strike-reveal truncate text-sm font-semibold",
               done && "text-muted-foreground",
             )}
             data-done={done}
@@ -90,17 +99,17 @@ export function TaskRow({
             {task.title}
           </span>
           {subtaskTotal !== undefined && subtaskTotal > 0 && (
-            <span className="inline-flex shrink-0 items-center gap-0.5 rounded bg-muted px-1 text-[10px] font-semibold text-muted-foreground">
+            <span className="ui-chip shrink-0 px-1.5">
               <ListTree className="size-3" />
               {toFa(subtaskDone ?? 0)}/{toFa(subtaskTotal)}
             </span>
           )}
         </div>
-        <div className="mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+        <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[11px] text-muted-foreground">
           {project && (
-            <span className="inline-flex items-center gap-1">
+            <span className="inline-flex items-center gap-1.5 font-medium">
               <span
-                className="size-2 rounded-sm"
+                className="size-2 rounded-full shadow-[0_0_0_2px_rgba(255,255,255,0.7)]"
                 style={{ background: project.color }}
               />
               {project.name}
@@ -110,7 +119,7 @@ export function TaskRow({
             <span
               className={cn(
                 "inline-flex items-center gap-1",
-                overdue && "font-semibold text-destructive",
+                overdue && "font-bold text-destructive",
               )}
             >
               <Clock className="size-3" />
@@ -126,7 +135,7 @@ export function TaskRow({
             </span>
           )}
           {task.tags.map((t) => (
-            <span key={t} className="text-primary/80">
+            <span key={t} className="font-medium text-primary/80">
               #{t}
             </span>
           ))}
@@ -134,7 +143,7 @@ export function TaskRow({
       </div>
 
       <span
-        className="hidden shrink-0 items-center gap-1.5 rounded-md border px-1.5 py-0.5 text-[11px] font-semibold sm:inline-flex"
+        className="hidden shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-bold shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] sm:inline-flex"
         style={{
           color: prio.color,
           borderColor: `${prio.color}33`,

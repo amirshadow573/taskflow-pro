@@ -86,7 +86,7 @@ export default function CalendarPage() {
 
       <div className="grid gap-5 lg:grid-cols-[1fr_320px]">
         {/* Month grid */}
-        <section className="overflow-hidden rounded-2xl border border-border bg-card elev-1">
+        <section className="ui-surface overflow-hidden rounded-2xl">
           <div className="grid grid-cols-7 border-b border-border text-center">
             {WEEKDAYS_SHORT.map((w) => (
               <div key={w} className="py-2 text-xs font-bold text-muted-foreground">
@@ -164,7 +164,7 @@ export default function CalendarPage() {
         </section>
 
         {/* Day detail */}
-        <aside className="rounded-2xl border border-border bg-card p-4 elev-1">
+        <aside className="ui-surface rounded-2xl p-4">
           <h2 className="text-sm font-bold">
             {formatJalaliFull(new Date(selectedDay + "T00:00:00"))}
           </h2>

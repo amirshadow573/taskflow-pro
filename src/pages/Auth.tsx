@@ -106,13 +106,13 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     <div className="grid min-h-svh place-items-center bg-background px-4 py-10">
       <div className="w-full max-w-sm">
         <div className="mb-6 flex items-center justify-center gap-2.5">
-          <span className="grid size-10 place-items-center rounded-xl bg-primary text-primary-foreground">
+          <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-[0_8px_20px_-10px_rgba(37,99,235,0.9)]">
             <Mail className="size-5" />
           </span>
-          <span className="text-xl font-extrabold">تسک‌لی</span>
+          <span className="ui-text-gradient text-xl font-extrabold">تسک‌لی</span>
         </div>
 
-        <Card className="rounded-2xl border-border elev-2">
+        <Card className="overflow-hidden pt-6">
           {step === "signIn" ? (
             <>
               <CardHeader className="text-center">
@@ -156,10 +156,10 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                     </p>
                   )}
 
-                  <div className="my-4 flex items-center gap-3">
-                    <span className="h-px flex-1 bg-border" />
-                    <span className="text-xs text-muted-foreground">یا</span>
-                    <span className="h-px flex-1 bg-border" />
+                  <div className="my-5 flex items-center gap-3">
+                    <span className="ui-divider flex-1" />
+                    <span className="text-[11px] font-bold text-muted-foreground">یا</span>
+                    <span className="ui-divider flex-1" />
                   </div>
 
                   <Button

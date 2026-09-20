@@ -46,7 +46,7 @@ export default function Help() {
         </p>
       </header>
 
-      <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+      <section className="ui-surface rounded-2xl p-5">
         <h2 className="mb-3 flex items-center gap-2 text-sm font-bold">
           <MousePointerClick className="size-4 text-primary" />
           شروع سریع
@@ -59,7 +59,7 @@ export default function Help() {
         </ol>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+      <section className="ui-surface rounded-2xl p-5">
         <h2 className="mb-3 flex items-center gap-2 text-sm font-bold">
           <Keyboard className="size-4 text-primary" />
           کلیدهای میان‌بر
@@ -76,7 +76,7 @@ export default function Help() {
         </ul>
       </section>
 
-      <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+      <section className="ui-surface rounded-2xl p-5">
         <h2 className="mb-2 text-sm font-bold">سؤال‌های پرتکرار</h2>
         <Accordion type="single" collapsible>
           {FAQ.map(([q, a]) => (

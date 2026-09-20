@@ -65,7 +65,7 @@ function MobileFabHost() {
     <button
       onClick={() => window.dispatchEvent(new CustomEvent("quick-add-task"))}
       aria-label="افزودن کار جدید"
-      className="fixed bottom-20 end-4 z-40 grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30 transition-transform active:scale-95 md:hidden"
+      className="fixed bottom-20 end-4 z-40 grid size-14 place-items-center rounded-2xl bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-[0_14px_30px_-10px_rgba(37,99,235,0.85)] transition-transform hover:scale-105 active:scale-95 md:hidden"
     >
       <Plus className="size-6" />
     </button>
@@ -118,19 +118,19 @@ function TaskDetailHost() {
   return (
     <>
       {/* Desktop: persistent side panel */}
-      <div className="hidden w-[360px] shrink-0 border-s border-border lg:block">{panel}</div>
+      <div className="hidden w-[360px] shrink-0 border-s border-border/60 lg:block">{panel}</div>
       {/* Mobile/tablet: full-screen overlay sheet */}
       <div
         className={cn(
-          "fixed inset-0 z-[60] bg-background transition-transform duration-300 lg:hidden",
+          "fixed inset-0 z-[60] bg-background/95 backdrop-blur-xl transition-transform duration-300 lg:hidden",
           mobileOpen ? "translate-y-0" : "translate-y-full pointer-events-none",
         )}
       >
-        <div className="flex h-12 items-center justify-between border-b border-border px-3">
+        <div className="flex h-12 items-center justify-between border-b border-border/60 px-3">
           <button
             onClick={() => setMobileOpen(false)}
             aria-label="بستن جزئیات"
-            className="grid size-9 place-items-center rounded-lg hover:bg-muted"
+            className="grid size-9 place-items-center rounded-xl border border-border/60 bg-white/70 transition-colors hover:bg-white dark:bg-white/5"
           >
             <X className="size-4.5" />
           </button>

@@ -98,16 +98,18 @@ export default function ProgressPage() {
           { icon: TrendingUp, label: "نرخ تکمیل", value: `${stats.completionRate}٪`, color: "text-primary" },
           { icon: Flame, label: "زنجیره روزها", value: stats.streak, color: "text-amber-600" },
         ].map((k) => (
-          <div key={k.label} className="rounded-2xl border border-border bg-card p-4 elev-1">
-            <k.icon className={`mb-2 size-4 ${k.color}`} />
-            <div className="text-2xl font-extrabold tabular-nums">{toFa(k.value)}</div>
-            <div className="mt-0.5 text-xs text-muted-foreground">{k.label}</div>
+          <div key={k.label} className="ui-surface ui-surface-hover rounded-2xl p-4">
+            <span className="ui-icon-tile size-9">
+              <k.icon className={`size-4 ${k.color}`} />
+            </span>
+            <div className="mt-3 text-2xl font-extrabold tabular-nums">{toFa(k.value)}</div>
+            <div className="mt-0.5 text-xs font-medium text-muted-foreground">{k.label}</div>
           </div>
         ))}
       </div>
 
       {/* Weekly chart */}
-      <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+      <section className="ui-surface rounded-2xl p-5">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-bold">بهره‌وری هفتگی</h2>
           <span className="text-[11px] text-muted-foreground">۷ روز گذشته</span>
@@ -143,7 +145,7 @@ export default function ProgressPage() {
 
       {/* Monthly + overdue */}
       <div className="grid gap-5 lg:grid-cols-2">
-        <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+        <section className="ui-surface rounded-2xl p-5">
           <h2 className="mb-4 text-sm font-bold">روند ماهانه</h2>
           <div className="h-48" dir="ltr">
             <ResponsiveContainer width="100%" height="100%">
@@ -166,7 +168,7 @@ export default function ProgressPage() {
         </section>
 
         <section className="space-y-3">
-          <div className="rounded-2xl border border-border bg-card p-5 elev-1">
+          <div className="ui-surface rounded-2xl p-5">
             <div className="flex items-center gap-2">
               <TriangleAlert className="size-4 text-destructive" />
               <h2 className="text-sm font-bold">کارهای عقب‌افتاده</h2>
@@ -182,7 +184,7 @@ export default function ProgressPage() {
           </div>
 
           {/* Per-project breakdown */}
-          <div className="rounded-2xl border border-border bg-card p-5 elev-1">
+          <div className="ui-surface rounded-2xl p-5">
             <h2 className="mb-3 text-sm font-bold">پیشرفت پروژه‌ها</h2>
             <ul className="space-y-3">
               {projects.map((p) => {
@@ -193,7 +195,7 @@ export default function ProgressPage() {
                   <li key={p._id}>
                     <div className="mb-1 flex items-center justify-between text-xs">
                       <span className="flex items-center gap-1.5 font-semibold">
-                        <span className="size-2 rounded-sm" style={{ background: p.color }} />
+                        <span className="size-2 rounded-full" style={{ background: p.color }} />
                         {p.name}
                       </span>
                       <span className="tabular-nums text-muted-foreground">
@@ -203,7 +205,11 @@ export default function ProgressPage() {
                     <div className="h-1.5 overflow-hidden rounded-full bg-muted">
                       <div
                         className="h-full rounded-full transition-all duration-500"
-                        style={{ width: `${pct}%`, background: p.color }}
+                        style={{
+                          width: `${pct}%`,
+                          background: `linear-gradient(90deg, ${p.color}, ${p.color}bb)`,
+                          boxShadow: `0 0 12px -3px ${p.color}`,
+                        }}
                       />
                     </div>
                   </li>

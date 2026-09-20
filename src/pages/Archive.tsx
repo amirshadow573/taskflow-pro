@@ -63,7 +63,7 @@ export default function ArchivePage() {
           </p>
         </div>
       ) : (
-        <section className="overflow-hidden rounded-2xl border border-border bg-card elev-1">
+        <section className="ui-surface overflow-hidden rounded-2xl">
           <ul>
             {archived.map((t) => {
               const p = projectOf(t.projectId);

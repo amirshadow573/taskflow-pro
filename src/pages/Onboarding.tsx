@@ -53,15 +53,17 @@ export default function Onboarding() {
 
   return (
     <div className="grid min-h-svh place-items-center bg-background p-4">
-      <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-7 elev-2">
+      <div className="ui-surface w-full max-w-lg rounded-3xl p-7">
         {/* Progress dots */}
         <div className="mb-6 flex items-center gap-1.5">
           {steps.map((s, i) => (
             <span
               key={s}
               className={cn(
-                "h-1.5 flex-1 rounded-full transition-colors",
-                i <= step ? "bg-primary" : "bg-muted",
+                "h-1.5 flex-1 rounded-full transition-all duration-300",
+                i <= step
+                  ? "bg-gradient-to-l from-primary to-[#5B5FE6] shadow-[0_0_10px_-2px_rgba(59,130,246,0.8)]"
+                  : "bg-primary/12",
               )}
             />
           ))}
@@ -69,8 +71,8 @@ export default function Onboarding() {
 
         {step === 0 && (
           <div>
-            <div className="mb-4 grid size-12 place-items-center rounded-2xl bg-primary text-primary-foreground">
-              <ListChecks className="size-6" />
+            <div className="ui-icon-tile mb-4 size-12 rounded-2xl">
+              <ListChecks className="size-6 text-primary" />
             </div>
             <h1 className="text-2xl font-extrabold">سلام! خوش آمدی 👋</h1>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
@@ -113,10 +115,10 @@ export default function Onboarding() {
                   onClick={() => setGoal(g.key)}
                   aria-pressed={goal === g.key}
                   className={cn(
-                    "flex w-full items-start gap-3 rounded-xl border p-3.5 text-start transition-colors",
+                    "flex w-full items-start gap-3 rounded-2xl border p-3.5 text-start transition-all duration-200",
                     goal === g.key
-                      ? "border-primary bg-accent"
-                      : "border-border hover:bg-muted",
+                      ? "border-primary/40 bg-accent/70 shadow-[0_0_0_3px_rgba(59,130,246,0.12)]"
+                      : "border-border/70 bg-white/50 hover:border-primary/30 hover:bg-white/80 dark:bg-white/5",
                   )}
                 >
                   <span
@@ -185,10 +187,10 @@ export default function Onboarding() {
                   key={s}
                   onClick={() => setProjectName(s)}
                   className={cn(
-                    "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors",
+                    "rounded-full border px-3 py-1.5 text-xs font-semibold transition-all duration-200",
                     projectName === s
-                      ? "border-primary bg-accent text-accent-foreground"
-                      : "border-border hover:bg-muted",
+                      ? "border-transparent bg-gradient-to-l from-primary to-[#5B5FE6] text-white shadow-[0_6px_16px_-8px_rgba(37,99,235,0.9)]"
+                      : "border-border/70 bg-white/60 hover:border-primary/30 hover:bg-white/90 dark:bg-white/5",
                   )}
                 >
                   {s}
@@ -216,7 +218,7 @@ export default function Onboarding() {
 
         {step === 4 && (
           <div className="text-center">
-            <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15">
+            <div className="mx-auto mb-4 grid size-14 place-items-center rounded-2xl border border-emerald-200/80 bg-emerald-50 text-emerald-600 shadow-[0_10px_26px_-14px_rgba(16,185,129,0.9)] dark:border-emerald-500/20 dark:bg-emerald-500/10">
               <PartyPopper className="size-7" />
             </div>
             <h1 className="text-2xl font-extrabold">همه‌چیز آماده است!</h1>

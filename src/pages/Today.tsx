@@ -71,7 +71,7 @@ export default function Today() {
       />
 
       {/* Day summary strip */}
-      <div className="flex items-center gap-4 rounded-xl border border-border bg-card px-4 py-3 elev-1">
+      <div className="ui-surface flex items-center gap-4 rounded-xl px-4 py-3">
         <div className="flex items-center gap-2">
           <CalendarCheck className="size-4 text-primary" />
           <span className="text-sm font-bold">{toFa(dayTasks.length)} کار</span>
@@ -87,7 +87,7 @@ export default function Today() {
         </span>
       </div>
 
-      <section className="rounded-2xl border border-border bg-card elev-1">
+      <section className="ui-surface overflow-hidden rounded-2xl">
         <div className="flex items-center justify-between px-4 py-2.5">
           <div className="flex items-center gap-3 text-xs">
             <span className="font-semibold text-muted-foreground">

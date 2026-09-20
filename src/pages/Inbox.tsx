@@ -111,7 +111,7 @@ export default function InboxPage() {
         </div>
       )}
 
-      <section className="rounded-2xl border border-border bg-card elev-1">
+      <section className="ui-surface overflow-hidden rounded-2xl">
         {root.length === 0 ? (
           <div className="px-4 py-14 text-center">
             <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-accent">

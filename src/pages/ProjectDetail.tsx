@@ -112,7 +112,7 @@ export default function ProjectDetail() {
         </div>
 
         {/* Progress strip */}
-        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-border bg-card px-4 py-3 elev-1">
+        <div className="ui-surface flex flex-wrap items-center gap-4 rounded-xl px-4 py-3">
           <div className="h-2 min-w-40 flex-1 overflow-hidden rounded-full bg-muted">
             <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct}%`, background: project.color }} />
           </div>
@@ -164,14 +164,14 @@ export default function ProjectDetail() {
             { label: "انجام شده", value: done },
             { label: "عقب‌افتاده", value: overdue.length, danger: true },
           ].map((s) => (
-            <div key={s.label} className="rounded-2xl border border-border bg-card p-5 elev-1">
+            <div key={s.label} className="ui-surface rounded-2xl p-5">
               <div className={cn("text-3xl font-extrabold tabular-nums", s.danger && "text-destructive")}>
                 {toFa(s.value)}
               </div>
               <div className="mt-1 text-xs text-muted-foreground">{s.label}</div>
             </div>
           ))}
-          <div className="rounded-2xl border border-border bg-card p-5 elev-1 md:col-span-3">
+          <div className="ui-surface rounded-2xl p-5 md:col-span-3">
             <h3 className="mb-3 text-sm font-bold">کارهای عقب‌افتاده و نزدیک</h3>
             {overdue.length === 0 && pts.filter((t) => t.dueDate === todayKey() && t.status !== "done").length === 0 ? (
               <p className="text-xs text-muted-foreground">همه‌چیز مرتب است.</p>
@@ -198,7 +198,7 @@ export default function ProjectDetail() {
 
       {/* Tasks list */}
       {tab === "tasks" && (
-        <section className="overflow-hidden rounded-2xl border border-border bg-card elev-1">
+        <section className="ui-surface overflow-hidden rounded-2xl">
           {pts.length === 0 ? (
             <p className="p-10 text-center text-sm text-muted-foreground">
               هنوز کاری در این پروژه نیست.
@@ -265,7 +265,7 @@ export default function ProjectDetail() {
                       draggable
                       onDragStart={() => setDragId(t._id)}
                       onClick={() => openTask(t._id)}
-                      className="cursor-grab rounded-xl border border-border bg-card p-3 transition-shadow elev-1 hover:elev-2 active:cursor-grabbing"
+                      className="ui-surface ui-surface-hover cursor-grab rounded-xl p-3 active:cursor-grabbing"
                     >
                       <p className={cn("text-xs font-semibold leading-5", t.status === "done" && "text-muted-foreground line-through")}>
                         {t.title}
@@ -332,7 +332,7 @@ export default function ProjectDetail() {
 
       {/* Calendar mini view */}
       {tab === "calendar" && (
-        <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+        <section className="ui-surface rounded-2xl p-5">
           <p className="text-sm font-bold">تقویم پروژه</p>
           <p className="mt-1 text-xs text-muted-foreground">
             نمای کامل تقویم در صفحه «تقویم» در دسترس است؛ اینجا فقط کارهای دارای تاریخ این پروژه:
@@ -360,7 +360,7 @@ export default function ProjectDetail() {
 
       {/* Activity */}
       {tab === "activity" && (
-        <section className="rounded-2xl border border-border bg-card p-5 elev-1">
+        <section className="ui-surface rounded-2xl p-5">
           <h3 className="mb-3 text-sm font-bold">فعالیت‌های اخیر</h3>
           <ul className="space-y-2 text-xs text-muted-foreground">
             {projectTasks

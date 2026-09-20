@@ -73,10 +73,10 @@ export function TaskDetailPanel({
     <aside
       role="dialog"
       aria-label={`جزئیات کار: ${task.title}`}
-      className="flex h-full w-full flex-col overflow-hidden border-s bg-card"
+      className="flex h-full w-full flex-col overflow-hidden border-s border-border/60 bg-white/85 backdrop-blur-2xl dark:border-white/10 dark:bg-slate-900/85"
     >
       {/* Header */}
-      <div className="flex items-center justify-between gap-2 border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-3">
         <span className="text-xs font-semibold text-muted-foreground">
           جزئیات کار
         </span>
@@ -109,7 +109,7 @@ export function TaskDetailPanel({
             onChange={(e) => onUpdate({ title: e.target.value })}
             rows={2}
             aria-label="عنوان کار"
-            className="w-full resize-none rounded-lg bg-transparent text-base font-bold leading-7 outline-none hover:bg-muted/50 focus:bg-muted/50"
+            className="w-full resize-none rounded-xl bg-transparent px-2 text-base font-bold leading-7 outline-none transition-colors hover:bg-white/60 focus:bg-white/80 dark:hover:bg-white/5 dark:focus:bg-white/5"
           />
         </div>
 
@@ -123,7 +123,7 @@ export function TaskDetailPanel({
             <select
               value={task.status}
               onChange={(e) => onUpdate({ status: e.target.value })}
-              className="h-9 w-full rounded-lg border border-input bg-card px-2 text-sm outline-none"
+              className="ui-field h-9 w-full appearance-none rounded-lg px-2.5 text-sm font-medium outline-none"
             >
               {STATUS_OPTIONS.map((s) => (
                 <option key={s} value={s}>
@@ -140,7 +140,7 @@ export function TaskDetailPanel({
             <select
               value={task.priority}
               onChange={(e) => onUpdate({ priority: e.target.value })}
-              className="h-9 w-full rounded-lg border border-input bg-card px-2 text-sm outline-none"
+              className="ui-field h-9 w-full appearance-none rounded-lg px-2.5 text-sm font-medium outline-none"
             >
               {PRIORITY_OPTIONS.map((p) => (
                 <option key={p} value={p}>
@@ -212,8 +212,8 @@ export function TaskDetailPanel({
             پروژه
           </label>
           {project ? (
-            <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
-              <span className="size-2.5 rounded-sm" style={{ background: project.color }} />
+            <div className="ui-surface flex items-center gap-2 rounded-xl px-3 py-2">
+              <span className="size-2.5 rounded-full" style={{ background: project.color }} />
               <span className="text-sm font-medium">{project.name}</span>
               <Button
                 variant="ghost"
@@ -225,7 +225,7 @@ export function TaskDetailPanel({
               </Button>
             </div>
           ) : (
-            <p className="rounded-lg border border-dashed border-border px-3 py-2 text-xs text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-border/70 bg-white/40 px-3 py-2 text-xs text-muted-foreground dark:bg-white/5">
               بدون پروژه
             </p>
           )}
@@ -275,7 +275,7 @@ export function TaskDetailPanel({
                 }
               }}
               placeholder="افزودن تگ…"
-              className="w-24 rounded-md border border-dashed border-border bg-transparent px-2 py-0.5 text-[11px] outline-none"
+              className="w-28 rounded-lg border border-dashed border-primary/40 bg-white/50 px-2 py-1 text-[11px] outline-none transition-colors focus:border-primary/70 dark:bg-white/5"
             />
           </div>
         </div>
@@ -293,9 +293,9 @@ export function TaskDetailPanel({
             )}
           </div>
           {subtasks.length > 0 && (
-            <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div className="mb-2 h-1.5 overflow-hidden rounded-full bg-primary/12 shadow-[inset_0_1px_2px_rgba(30,64,175,0.08)]">
               <div
-                className="h-full rounded-full bg-primary transition-all duration-500"
+                className="h-full rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] shadow-[0_0_10px_-2px_rgba(59,130,246,0.7)] transition-all duration-500"
                 style={{ width: `${(subDone / subtasks.length) * 100}%` }}
               />
             </div>
@@ -304,7 +304,7 @@ export function TaskDetailPanel({
             {subtasks.map((s) => (
               <li
                 key={s._id}
-                className="group flex items-center gap-2 rounded-lg px-1 py-1 hover:bg-muted/60"
+                className="group flex items-center gap-2 rounded-xl px-1.5 py-1 transition-colors hover:bg-white/70 dark:hover:bg-white/5"
               >
                 <TaskCheckbox
                   checked={s.status === "done"}
@@ -347,7 +347,7 @@ export function TaskDetailPanel({
         </div>
 
         {/* Activity */}
-        <div className="rounded-xl border border-border bg-muted/30 p-3">
+        <div className="rounded-xl border border-border/60 bg-white/50 p-3 dark:bg-white/5">
           <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-muted-foreground">
             <MessageSquare className="size-3.5" />
             فعالیت‌ها
