@@ -1,7 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
+import { useUserProfile } from "@/hooks/use-user-profile";
 import { toFa } from "@/lib/persian";
 import { cn } from "@/lib/utils";
+import { NAV_EMPHASIS, MOBILE_NAV_PER_PERSONA } from "@/lib/personas";
 import {
   Archive,
   Bell,
@@ -22,7 +24,7 @@ import {
   HelpCircle,
   Trophy,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router";
 
 export interface NavItem {
@@ -82,9 +84,19 @@ export function AppShell({
   const { dark, toggle } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
+  const { personaKey } = useUserProfile();
 
+  // Persona-aware nav: all items always visible, boosted paths get a visual dot
+  const emphasized = useMemo(() => new Set(NAV_EMPHASIS[personaKey] ?? []), [personaKey]);
   const withCounts = PRIMARY_NAV.map((n) =>
-    n.to === "/inbox" ? { ...n, badge: inboxCount } : n,
+    n.to === "/inbox" ? { ...n, badge: inboxCount, emphasized: emphasized.has(n.to) } : { ...n, emphasized: emphasized.has(n.to) },
+  );
+
+  // Persona-specific mobile bottom nav
+  const mobilePaths = MOBILE_NAV_PER_PERSONA[personaKey] ?? MOBILE_NAV_PER_PERSONA.personal;
+  const mobileNavItems = useMemo(
+    () => mobilePaths.map((path) => PRIMARY_NAV.find((n) => n.to === path)).filter(Boolean) as NavItem[],
+    [personaKey],
   );
 
   const NavLinks = ({ items, compact }: { items: NavItem[]; compact: boolean }) => (
@@ -103,11 +115,13 @@ export function AppShell({
                 : "text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-white/5",
             )
           }
-        >
-          <item.icon className="size-4.5 shrink-0" />
-          {!compact && (
-            <>
-              <span className="flex-1 truncate">{item.label}</span>
+        >              <item.icon className="size-4.5 shrink-0" />
+              {!compact && (
+                <>
+                  <span className={cn("flex-1 truncate", (item as any).emphasized && "text-foreground")}>{item.label}</span>
+                  {(item as any).emphasized && (
+                    <span className="size-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
+                  )}
               {item.badge !== undefined && item.badge > 0 && (
                 <span className="min-w-5 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-1.5 text-center text-[10px] font-bold leading-5 text-white shadow-[0_3px_10px_-4px_rgba(37,99,235,0.9)]">
                   {toFa(item.badge)}
@@ -305,7 +319,7 @@ export function AppShell({
           className="app-chrome flex shrink-0 items-stretch justify-around border-t border-border/60 pb-[env(safe-area-inset-bottom)] md:hidden"
           aria-label="ناوبری موبایل"
         >
-          {MOBILE_NAV.map((item) => (
+          {mobileNavItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}

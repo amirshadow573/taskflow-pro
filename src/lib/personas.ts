@@ -398,78 +398,78 @@ function rowsOf(...keys: string[]): DashboardConfig {
  * paths → projects.
  */
 export const RECOMMENDED_DASHBOARDS: Record<PersonaKey, DashboardConfig> = {
+  // ── Student: study tasks, routines/study sessions, and progress first ──
   student: rowsOf(
     "today-overview",
     "quick-add",
-    "today-tasks",
-    "deadlines",
-    "overdue",
-    "routines",
-    "progress-snapshot",
-    "next-up",
-    "growth-paths",
-    "projects",
+    "today-tasks",     // ③  "برنامه مطالعه امروز"
+    "routines",        // ④  "جلسات مطالعه" — moved UP (study focus)
+    "overdue",         // ⑤  "تکالیف عقب‌افتاده"
+    "progress-snapshot",// ⑥  "پیشرفت تحصیلی"
+    "next-up",         // ⑦  "درس‌های بعدی"
+    "growth-paths",    // ⑧  "مسیرهای یادگیری"
+    "projects",        // ⑨  "پروژه‌های درسی"
   ),
+  // ── Employee: tasks, deadlines, and meetings emphasis ──
   employee: rowsOf(
     "today-overview",
     "quick-add",
-    "today-tasks",
-    "deadlines",
-    "overdue",
-    "routines",
-    "progress-snapshot",
-    "next-up",
-    "growth-paths",
-    "projects",
+    "today-tasks",     // ③  "وظایف امروز"
+    "overdue",         // ④  "کارهای عقب‌افتاده" — deadlines visible
+    "next-up",         // ⑤  "پروژه‌های بعدی"
+    "routines",        // ⑥  "برنامه روزانه کاری"
+    "progress-snapshot",// ⑦  "بهره‌وری"
+    "growth-paths",    // ⑧  "مسیرهای حرفه‌ای"
+    "projects",        // ⑨  "پروژه‌های سازمانی"
   ),
+  // ── Freelancer: projects-first layout (clients > everything) ──
   freelancer: rowsOf(
     "today-overview",
     "quick-add",
-    "today-tasks",
-    "deadlines",
-    "overdue",
-    "routines",
-    "progress-snapshot",
-    "next-up",
-    "growth-paths",
-    "projects",
+    "projects",        // ③  "پروژه‌های فعال مشتری" — MOVED UP
+    "today-tasks",     // ④  "کارهای امروز"
+    "overdue",         // ⑤  "ددلاین‌های عقب‌افتاده"
+    "next-up",         // ⑥  "پروژه‌های بعدی"
+    "progress-snapshot",// ⑦  "پیشرفت پروژه‌ها"
+    "routines",        // ⑧  "برنامه روزانه"
+    "growth-paths",    // ⑨  "مسیرهای رشد"
   ),
+  // ── Business Owner: overview + projects + progress ──
   business_owner: rowsOf(
     "today-overview",
     "quick-add",
-    "today-tasks",
-    "deadlines",
-    "overdue",
-    "progress-snapshot",
-    "routines",
-    "next-up",
-    "growth-paths",
-    "projects",
+    "projects",        // ③  "پروژه‌های کسب‌وکار"
+    "progress-snapshot",// ④  "وضعیت کلی"
+    "today-tasks",     // ⑤  "وظایف مهم"
+    "overdue",         // ⑥  "مواعید عقب‌افتاده"
+    "next-up",         // ⑦  "اقدامات بعدی"
+    "routines",        // ⑧  "برنامه روزانه"
+    "growth-paths",    // ⑨  "مسیرهای رشد"
   ),
+  // ── Manager / Team: projects + progress + tasks ──
   manager: rowsOf(
     "today-overview",
     "quick-add",
-    "today-tasks",
-    "deadlines",
-    "overdue",
-    "progress-snapshot",
-    "routines",
-    "next-up",
-    "growth-paths",
-    "projects",
+    "projects",        // ③  "پروژه‌های تیم"
+    "progress-snapshot",// ④  "وضعیت کلی"
+    "today-tasks",     // ⑤  "وظایف مهم"
+    "overdue",         // ⑥  "مواعید عقب‌افتاده"
+    "next-up",         // ⑦  "اقدامات بعدی"
+    "routines",        // ⑧  "برنامه روزانه"
+    "growth-paths",    // ⑨  "مسیرهای رشد"
   ),
   team: rowsOf(
     "today-overview",
     "quick-add",
-    "today-tasks",
-    "deadlines",
-    "overdue",
-    "progress-snapshot",
-    "routines",
-    "next-up",
-    "growth-paths",
     "projects",
+    "progress-snapshot",
+    "today-tasks",
+    "overdue",
+    "next-up",
+    "routines",
+    "growth-paths",
   ),
+  // ── Personal: balanced general-purpose layout ──
   personal: rowsOf(
     "today-overview",
     "quick-add",
@@ -487,8 +487,8 @@ export const RECOMMENDED_DASHBOARDS: Record<PersonaKey, DashboardConfig> = {
     "today-tasks",
     "overdue",
     "next-up",
-    "progress-snapshot",
     "routines",
+    "progress-snapshot",
     "growth-paths",
     "projects",
   ),
@@ -603,3 +603,125 @@ export function questionsForPersona(key: PersonaKey): OnboardingQuestion[] {
     (q) => q.personas === "all" || q.personas.includes(key),
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Section labels — contextual per persona                              */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Persona-specific section headings. Keys are dashboard widget keys.
+ * Missing keys fall back to the widget's base label from WIDGETS[].
+ */
+export const SECTION_LABELS: Record<string, Record<string, string>> = {
+  student: {
+    "today-overview": "برنامه مطالعه امروز",
+    "today-tasks": "درس‌ها و تکالیف امروز",
+    "routines": "جلسات مطالعه",
+    "overdue": "تکالیف عقب‌افتاده",
+    "next-up": "درس‌های بعدی",
+    "progress-snapshot": "پیشرفت تحصیلی",
+    "growth-paths": "مسیرهای یادگیری",
+    "projects": "پروژه‌های درسی",
+  },
+  employee: {
+    "today-overview": "وظایف امروز",
+    "today-tasks": "کارهای امروز",
+    "routines": "برنامه روزانه کاری",
+    "overdue": "کارهای عقب‌افتاده",
+    "next-up": "پروژه‌های بعدی",
+    "progress-snapshot": "بهره‌وری",
+    "growth-paths": "مسیرهای حرفه‌ای",
+    "projects": "پروژه‌های سازمانی",
+  },
+  freelancer: {
+    "today-overview": "پروژه‌ها و کارهای امروز",
+    "today-tasks": "کارهای امروز",
+    "projects": "پروژه‌های فعال مشتری",
+    "overdue": "ددلاین‌های عقب‌افتاده",
+    "next-up": "پروژه‌های بعدی",
+    "progress-snapshot": "پیشرفت پروژه‌ها",
+    "routines": "برنامه روزانه",
+    "growth-paths": "مسیرهای رشد",
+  },
+  business_owner: {
+    "today-overview": "نمای کلی کسب‌وکار",
+    "today-tasks": "وظایف مهم",
+    "projects": "پروژه‌های کسب‌وکار",
+    "progress-snapshot": "وضعیت کلی",
+    "overdue": "مواعید عقب‌افتاده",
+    "next-up": "اقدامات بعدی",
+    "routines": "برنامه روزانه",
+    "growth-paths": "مسیرهای رشد",
+  },
+  manager: {
+    "today-overview": "وضعیت امروز",
+    "today-tasks": "وظایف مهم",
+    "projects": "پروژه‌های تیم",
+    "progress-snapshot": "وضعیت کلی",
+    "overdue": "مواعید عقب‌افتاده",
+    "next-up": "اقدامات بعدی",
+    "routines": "برنامه روزانه",
+    "growth-paths": "مسیرهای رشد",
+  },
+  team: {
+    "today-overview": "وضعیت تیم",
+    "today-tasks": "وظایف تیم",
+    "projects": "پروژه‌های تیم",
+    "progress-snapshot": "وضعیت کلی",
+    "overdue": "مواعید عقب‌افتاده",
+    "next-up": "اقدامات بعدی",
+    "routines": "برنامه تیم",
+    "growth-paths": "مسیرهای رشد",
+  },
+  personal: {}, // uses base labels
+  custom: {},
+};
+
+export function sectionLabel(widgetKey: string, personaKey: string): string {
+  const override = SECTION_LABELS[personaKey]?.[widgetKey];
+  if (override) return override;
+  return WIDGETS.find((w) => w.key === widgetKey)?.label ?? widgetKey;
+}
+
+/* ------------------------------------------------------------------ */
+/* Navigation emphasis — persona-specific nav boosts                    */
+/* ------------------------------------------------------------------ */
+
+/** Paths to highlight for each persona (higher = more emphasis). */
+export const NAV_EMPHASIS: Record<PersonaKey, string[]> = {
+  student:   ["/today", "/progress", "/calendar"],
+  employee:  ["/today", "/tasks", "/calendar"],
+  freelancer:["/projects", "/today", "/progress"],
+  business_owner: ["/dashboard", "/projects", "/progress"],
+  manager:   ["/dashboard", "/projects", "/progress"],
+  team:      ["/dashboard", "/projects", "/progress"],
+  personal:  ["/today", "/progress"],
+  custom:    ["/today"],
+};
+
+/** Mobile nav items per persona (bottom bar, 5 max). */
+export const MOBILE_NAV_PER_PERSONA: Record<PersonaKey, string[]> = {
+  student:   ["/today", "/progress", "/tasks", "/calendar", "/projects"],
+  employee:  ["/today", "/tasks", "/progress", "/calendar", "/projects"],
+  freelancer:["/projects", "/today", "/progress", "/calendar", "/tasks"],
+  business_owner: ["/dashboard", "/projects", "/today", "/progress", "/calendar"],
+  manager:   ["/dashboard", "/projects", "/today", "/progress", "/calendar"],
+  team:      ["/dashboard", "/projects", "/today", "/progress", "/calendar"],
+  personal:  ["/dashboard", "/today", "/progress", "/tasks", "/projects"],
+  custom:    ["/dashboard", "/today", "/progress", "/tasks", "/projects"],
+};
+
+/* ------------------------------------------------------------------ */
+/* Persona-aware greetings                                             */
+/* ------------------------------------------------------------------ */
+
+export const PERSONA_GREETINGS: Record<PersonaKey, { greeting: string; sub: string }> = {
+  student:       { greeting: "برنامه مطالعه امروزت چطوره", sub: "درس‌ها و تکالیف امروزت را بررسی کن." },
+  employee:      { greeting: "صبح بخیر", sub: "کارهای امروزت آماده‌اند." },
+  freelancer:    { greeting: "پروژه‌هایت امروز آماده‌اند", sub: "ددلاین‌ها و کارهای مشتریان را بررسی کن." },
+  business_owner:{ greeting: "نمای کلی کسب‌وکارت", sub: "وضعیت پروژه‌ها و اهداف را ببین." },
+  manager:       { greeting: "وضعیت تیم امروز", sub: "پروژه‌ها و بار کاری اعضای تیم." },
+  team:          { greeting: "وضعیت تیم امروز", sub: "کارهای مشترک و پروژه‌ها." },
+  personal:      { greeting: "امروز چه کاری می‌خواهی انجام بدهی", sub: "برنامه امروزت را شروع کن." },
+  custom:        { greeting: "امروز چه کاری می‌خواهی انجام بدهی", sub: "فضای کاری‌ات آماده است." },
+};
