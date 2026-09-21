@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
+import { personaKeyFromGoal, RECOMMENDED_DASHBOARDS } from "@/lib/personas";
 import { toFa } from "@/lib/persian";
 import { ArrowLeft, Check, ListChecks, PartyPopper, Rocket } from "lucide-react";
 import { useState } from "react";
@@ -23,6 +24,7 @@ export default function Onboarding() {
   const { user } = useAuth();
   const { createTask, createProject } = useWorkspace();
   const updateName = useMutation(api.profile.updateName);
+  const upsertProfile = useMutation(api.userProfile.upsert);
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0);
@@ -46,6 +48,19 @@ export default function Onboarding() {
     }
     if (taskTitle.trim()) {
       await createTask({ title: taskTitle, dueDate: undefined, priority: "medium", status: "todo" });
+    }
+    // Phase 1 personalization foundation: persist the chosen goal as the
+    // user's persona + goal set. Non-fatal — onboarding must never block.
+    try {
+      const personaKey = personaKeyFromGoal(goal);
+      await upsertProfile({
+        personaKey,
+        personaSource: "onboarding",
+        goals: goal ? [goal] : [],
+        dashboardConfig: JSON.stringify(RECOMMENDED_DASHBOARDS[personaKey]),
+      });
+    } catch {
+      /* non-fatal */
     }
     localStorage.setItem("taskly-onboarded", "1");
     navigate("/dashboard");

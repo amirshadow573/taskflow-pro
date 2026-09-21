@@ -2,15 +2,20 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toFa } from "@/lib/persian";
 import {
+  Archive,
+  Calendar,
   Check,
   ChevronLeft,
   CircleDot,
+  Clock,
   CornerDownLeft,
   FolderKanban,
+  HelpCircle,
   ListTree,
   Plus,
   Route as RouteIcon,
   Search,
+  Settings as SettingsIcon,
   Tag,
   Trophy,
 } from "lucide-react";
@@ -76,6 +81,14 @@ export function CommandPalette({
         icon: ListTree,
         run: () => navigate("/analytics"),
       },
+      // Mobile parity: these exist in the desktop sidebar but were previously
+      // unreachable on mobile (mobile bottom-nav shows only 5 destinations).
+      { id: "act-tasks", label: "برو به کارهای من", icon: ListTree, run: () => navigate("/tasks") },
+      { id: "act-calendar", label: "برو به تقویم", icon: Calendar, run: () => navigate("/calendar") },
+      { id: "act-planning", label: "برو به برنامه‌ریزی", icon: Clock, run: () => navigate("/planning") },
+      { id: "act-archive", label: "برو به بایگانی", icon: Archive, run: () => navigate("/archive") },
+      { id: "act-settings", label: "برو به تنظیمات", icon: SettingsIcon, run: () => navigate("/settings") },
+      { id: "act-help", label: "برو به راهنما", icon: HelpCircle, run: () => navigate("/help") },
     ],
     [navigate, onQuickAdd, query],
   );

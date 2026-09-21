@@ -13,6 +13,35 @@ export default defineSchema({
     isAnonymous: v.optional(v.boolean()),
   }).index("email", ["email"]),
 
+  /* ---------------------------------------------------------------- */
+  /* Personalization foundation (Phase 1)                               */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * One per user. Persona + goals + preferences + dashboard configuration.
+   * Extends (never replaces) the existing auth users table; the shared
+   * productivity data (tasks/projects/routines) stays persona-agnostic.
+   */
+  userProfile: defineTable({
+    userId: v.id("users"),
+    /** PersonaKey from src/lib/personas.ts (open string for future keys). */
+    personaKey: v.string(),
+    /** "onboarding" | "settings" | "inferred" | "default" */
+    personaSource: v.string(),
+    /** Free-form persona-specific answers (field, courseCount, teamSize…). */
+    personaDetails: v.optional(v.string()), // JSON
+    /** Goal keys from onboarding (focus, study, work, life…). */
+    goals: v.array(v.string()),
+    /** Preferences JSON (planningStyle, startPage, notifications…). */
+    preferences: v.optional(v.string()), // JSON
+    /** DashboardConfig JSON (widget rows: key/visible/priority). */
+    dashboardConfig: v.optional(v.string()), // JSON
+    /** Future reference for migration tracking. */
+    schemaVersion: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
   // Projects group tasks together
   projects: defineTable({
     userId: v.id("users"),
