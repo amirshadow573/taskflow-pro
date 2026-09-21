@@ -491,4 +491,63 @@ export default defineSchema({
     validUntil: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_user", ["userId"]).index("by_client", ["clientId"]),
+
+  /* ------------------------------------------------------------------ */
+  /* Employee-specific entities                                           */
+  /* ------------------------------------------------------------------ */
+
+  /** Focus sessions — personal focus/tracking blocks. */
+  focusSessions: defineTable({
+    userId: v.id("users"),
+    taskId: v.optional(v.id("tasks")),
+    projectId: v.optional(v.id("projects")),
+    title: v.optional(v.string()),
+    plannedMinutes: v.number(),
+    actualMinutes: v.number(),
+    date: v.string(),
+    completed: v.boolean(),
+    type: v.string(), // focus | deep_work | break
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]).index("by_user_date", ["userId", "date"]),
+
+  /** Recurring task configurations. */
+  recurringConfigs: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    projectId: v.optional(v.id("projects")),
+    priority: v.string(),
+    estimateMinutes: v.optional(v.number()),
+    recurrence: v.string(), // daily | weekly | monthly | custom
+    recurrenceDays: v.optional(v.array(v.number())), // 0=Sun..6=Sat for weekly
+    lastGenerated: v.optional(v.string()), // YYYY-MM-DD
+    active: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Work goals — professional objectives. */
+  workGoals: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    period: v.string(), // quarterly | monthly | weekly | custom
+    dueDate: v.optional(v.string()),
+    progress: v.number(), // 0-100
+    status: v.string(), // active | completed | paused | at_risk
+    relatedProjectIds: v.array(v.id("projects")),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Employee work notes. */
+  employeeNotes: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    content: v.string(),
+    noteType: v.string(), // quick | meeting | project | personal
+    projectId: v.optional(v.id("projects")),
+    tags: v.array(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 });
