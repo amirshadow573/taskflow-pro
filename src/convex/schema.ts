@@ -333,4 +333,88 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_subject", ["subjectId"]),
+
+  /* ------------------------------------------------------------------ */
+  /* Manager / Team-specific entities                                     */
+  /* ------------------------------------------------------------------ */
+
+  /** Teams — one per user who acts as manager. */
+  teams: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    description: v.optional(v.string()),
+    archived: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Team members — each row is one member of a team. */
+  teamMembers: defineTable({
+    userId: v.id("users"),
+    teamId: v.id("teams"),
+    name: v.string(),
+    role: v.string(), // manager | member | lead
+    email: v.optional(v.string()),
+    capacity: v.number(), // max tasks per week
+    archived: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_team", ["teamId"]).index("by_user", ["userId"]),
+
+  /** Milestones — project-level checkpoints. */
+  milestones: defineTable({
+    userId: v.id("users"),
+    projectId: v.id("projects"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    dueDate: v.string(),
+    status: v.string(), // pending | in_progress | completed | delayed
+    progress: v.number(), // 0-100
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_project", ["projectId"]).index("by_user", ["userId"]),
+
+  /** Team goals — team-level objectives. */
+  teamGoals: defineTable({
+    userId: v.id("users"),
+    teamId: v.id("teams"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    period: v.string(), // quarterly | monthly | weekly | custom
+    dueDate: v.optional(v.string()),
+    progress: v.number(), // 0-100
+    status: v.string(), // active | completed | paused | at_risk
+    ownerId: v.optional(v.id("teamMembers")),
+    relatedProjectIds: v.array(v.id("projects")),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_team", ["teamId"]).index("by_user", ["userId"]),
+
+  /** Meetings — team meetings with agenda and action items. */
+  meetings: defineTable({
+    userId: v.id("users"),
+    teamId: v.id("teams"),
+    title: v.string(),
+    date: v.string(),
+    time: v.optional(v.string()),
+    participants: v.array(v.string()), // member names
+    projectId: v.optional(v.id("projects")),
+    agenda: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    decisions: v.optional(v.string()),
+    actionItems: v.optional(v.string()), // JSON array of {title, assignee, done}
+    status: v.string(), // scheduled | in_progress | completed | cancelled
+    createdAt: v.number(),
+  }).index("by_team", ["teamId"]).index("by_user", ["userId"]),
+
+  /** Team activity log — operational events for the manager feed. */
+  teamActivity: defineTable({
+    userId: v.id("users"),
+    teamId: v.id("teams"),
+    type: v.string(), // task_assigned | task_completed | task_overdue | project_updated | goal_updated | meeting_scheduled | member_added
+    title: v.string(),
+    description: v.optional(v.string()),
+    memberId: v.optional(v.id("teamMembers")),
+    projectId: v.optional(v.id("projects")),
+    taskId: v.optional(v.id("tasks")),
+    createdAt: v.number(),
+  }).index("by_team", ["teamId", "createdAt"]).index("by_user", ["userId"]),
 });
