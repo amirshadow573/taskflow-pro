@@ -216,7 +216,7 @@ function CalendarMockup() {
 }
 
 /** Analytics mockup — productivity section. */
-function AnalyticsMockup() {
+function AnalyticsMockup({ embedded = false }: { embedded?: boolean }) {
   const stats = [
     { label: "انجام‌شده", value: "۴۷", icon: CheckCircle2, color: "text-emerald-600" },
     { label: "کل کارها", value: "۶۲", icon: ListChecks, color: "text-foreground" },
@@ -224,8 +224,11 @@ function AnalyticsMockup() {
     { label: "زنجیره روزها", value: "۱۲", icon: Sparkles, color: "text-amber-600" },
   ];
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-border bg-card elev-3 p-4" dir="rtl">
-      <p className="mb-3 text-sm font-extrabold">پیشرفت و بهره‌وری</p>
+    <div
+      className={embedded ? "w-full" : "w-full overflow-hidden rounded-2xl border border-border bg-card elev-3 p-4"}
+      dir="rtl"
+    >
+      {!embedded && <p className="mb-3 text-sm font-extrabold">پیشرفت و بهره‌وری</p>
       <div className="mb-3 grid grid-cols-4 gap-2">
         {stats.map((s) => (
           <div key={s.label} className="rounded-lg bg-muted/60 p-2.5">
@@ -263,7 +266,7 @@ function ProgressMockup() {
           <div className="grid size-16 place-items-center rounded-2xl bg-gradient-to-br from-primary to-[#5B5FE6] text-xl font-black text-white shadow-lg shadow-primary/25">
             {toFa(7)}
           </div>
-          <span className="absolute -bottom-1 start-1/2 -translate-x-1/2 rounded-full border border-primary/20 bg-white px-2 text-[9px] font-bold text-primary dark:bg-slate-900">
+          <span className="absolute -bottom-1 start-1/2 translate-x-1/2 rounded-full border border-primary/20 bg-white px-2 text-[9px] font-bold text-primary dark:bg-slate-900">
             سطح
           </span>
         </div>
@@ -337,13 +340,13 @@ export default function Landing() {
           }`}
         >
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-            <a href="/" className="flex items-center gap-2.5">
+            <Link to="/" className="flex items-center gap-2.5">
               <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
                 <ListChecks className="size-5" />
               </span>
               <span className="text-lg font-extrabold tracking-tight">تسک‌لی</span>
-            </a>
-            <nav className="hidden items-center gap-1 md:flex">
+            </Link>
+            <nav aria-label="ناوبری اصلی" className="hidden items-center gap-1 md:flex">
               {NAV_ITEMS.map((n) => (
                 <a
                   key={n.href}
@@ -375,6 +378,8 @@ export default function Landing() {
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="grid size-9 place-items-center rounded-lg hover:bg-muted md:hidden"
                 aria-label="منو"
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-nav"
               >
                 <div className="flex flex-col gap-1">
                   <span className={`h-0.5 w-4 rounded bg-foreground transition-transform ${mobileOpen ? "translate-y-1.5 rotate-45" : ""}`} />
@@ -385,7 +390,7 @@ export default function Landing() {
             </div>
           </div>
           {mobileOpen && (
-            <div className="border-t border-border bg-card px-4 pb-4 pt-2 md:hidden">
+            <div id="mobile-nav" className="border-t border-border bg-card px-4 pb-4 pt-2 md:hidden">
               {NAV_ITEMS.map((n) => (
                 <a
                   key={n.href}
@@ -408,7 +413,7 @@ export default function Landing() {
         </header>
 
         {/* ═══════════ 2. HERO ═══════════ */}
-        <section className="relative overflow-hidden pt-24 pb-8 sm:pt-32 sm:pb-12">
+        <section className="relative overflow-hidden pt-28 pb-10 sm:pt-36 sm:pb-14">
           <div className="orb orb-blue animate-float pointer-events-none absolute -start-40 -top-20 size-[500px] opacity-80" />
           <div className="orb orb-cyan animate-float-slow pointer-events-none absolute -end-32 top-20 size-[400px] opacity-70" />
           <div className="orb orb-lavender animate-float pointer-events-none absolute bottom-0 start-1/3 size-[300px] opacity-50" />
@@ -416,12 +421,12 @@ export default function Landing() {
           <div className="relative mx-auto max-w-6xl px-4 sm:px-6">
             <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.2fr]">
               {/* Text side */}
-              <Anim className="order-2 text-center lg:order-1 lg:text-start">
-                <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-1.5 text-xs font-bold text-primary">
+              <Anim className="text-center lg:text-start">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-1.5 text-xs font-bold text-primary">
                   <Zap className="size-3.5" />
                   فضای کاری مدیریت پروژه و تسک
                 </div>
-                <h1 className="text-4xl leading-[1.25] font-extrabold tracking-tight text-foreground sm:text-5xl">
+                <h1 className="text-4xl leading-[1.3] font-extrabold tracking-tight text-foreground sm:text-5xl">
                   همه کارهایت را
                   <br />
                   <span className="text-primary">در یک جریان منظم</span> مدیریت کن.
@@ -434,15 +439,13 @@ export default function Landing() {
                     شروع رایگان
                     <ArrowLeft className="me-1 size-4" />
                   </Button>
-                  <a href="#product">
-                    <Button size="lg" variant="outline" className="px-8 text-base">
-                      مشاهده داشبورد
-                    </Button>
-                  </a>
+                  <Button asChild size="lg" variant="outline" className="px-8 text-base">
+                    <a href="#product">مشاهده داشبورد</a>
+                  </Button>
                 </div>
               </Anim>
               {/* Image side */}
-              <Anim delay={0.15} className="order-1 lg:order-2">
+              <Anim delay={0.15}>
                 <div className="relative mx-auto max-w-xl">
                   <div className="pointer-events-none absolute -inset-6 rounded-3xl bg-gradient-to-b from-primary/[0.04] to-transparent" />
                   <div className="relative">
@@ -456,7 +459,7 @@ export default function Landing() {
 
         {/* ═══════════ 3. STATS STRIP ═══════════ */}
         <section className="border-y border-border/50">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-8 px-4 py-6 sm:justify-between sm:px-6">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-6 gap-y-5 px-4 py-6 sm:justify-between sm:gap-8 sm:px-6">
             {[
               { value: "۱۲۰۰+", label: "کاربر فعال" },
               { value: "۲۵۰۰۰+", label: "تسک ثبت‌شده" },
@@ -476,9 +479,9 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 4. FULL-WIDTH PRODUCT SHOWCASE ═══════════ */}
-        <section id="product" className="py-20 sm:py-28">
+        <section id="product" className="scroll-mt-24 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Anim className="mx-auto mb-12 max-w-2xl text-center">
+            <Anim className="mx-auto mb-10 max-w-2xl text-center">
               <SectionLabel>نمای کلی محصول</SectionLabel>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">مدیریت تمام کارها در یک نگاه</h2>
               <p className="mt-4 text-sm leading-7 text-muted-foreground">
@@ -492,7 +495,7 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 5. TWO-COLUMN: TASK MANAGEMENT ═══════════ */}
-        <section id="features" className="border-y border-border/50 py-20 sm:py-28">
+        <section id="features" className="scroll-mt-24 border-y border-border/50 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <Anim className="order-2 lg:order-1">
@@ -528,7 +531,7 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 6. TWO-COLUMN: DAILY PLANNING ═══════════ */}
-        <section className="py-20 sm:py-28">
+        <section className="py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <div className="grid items-center gap-10 lg:grid-cols-2">
               <Anim className="order-1">
@@ -564,9 +567,9 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 7. PRODUCTIVITY CARDS ═══════════ */}
-        <section className="border-y border-border/50 py-20 sm:py-28">
+        <section className="border-y border-border/50 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Anim className="mx-auto mb-12 max-w-2xl text-center">
+            <Anim className="mx-auto mb-10 max-w-2xl text-center">
               <SectionLabel>بهره‌وری</SectionLabel>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">پیشرفت خودت را ببین</h2>
               <p className="mt-4 text-sm leading-7 text-muted-foreground">
@@ -574,19 +577,19 @@ export default function Landing() {
               </p>
             </Anim>
             <div className="grid gap-5 md:grid-cols-3">
-              <Anim delay={0.05}>
+              <Anim delay={0.05} className="h-full">
                 <div className="ui-surface h-full rounded-2xl p-5">
                   <span className="mb-3 grid size-10 place-items-center rounded-xl bg-emerald-50 dark:bg-emerald-500/10">
                     <CheckCircle2 className="size-5 text-emerald-600" />
                   </span>
                   <h3 className="text-base font-extrabold">تکمیل کارها</h3>
                   <p className="mt-2 text-sm leading-6 text-muted-foreground">نرخ تکمیل روزانه و هفتگی خودت را ببین.</p>
-                  <div className="mt-4">
-                    <AnalyticsMockup />
+                  <div className="mt-4 rounded-xl bg-muted/40 p-3">
+                    <AnalyticsMockup embedded />
                   </div>
                 </div>
               </Anim>
-              <Anim delay={0.1}>
+              <Anim delay={0.1} className="h-full">
                 <div className="ui-surface relative h-full overflow-hidden rounded-2xl p-5 ring-2 ring-primary/20">
                   <span className="mb-3 grid size-10 place-items-center rounded-xl bg-primary/10">
                     <TrendingUp className="size-5 text-primary" />
@@ -600,7 +603,7 @@ export default function Landing() {
                   </div>
                 </div>
               </Anim>
-              <Anim delay={0.15}>
+              <Anim delay={0.15} className="h-full">
                 <div className="ui-surface h-full rounded-2xl p-5">
                   <span className="mb-3 grid size-10 place-items-center rounded-xl bg-amber-50 dark:bg-amber-500/10">
                     <Flame className="size-5 text-amber-600" />
@@ -626,9 +629,9 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 8. LEVEL-UP / PERSONAL PROGRESS ═══════════ */}
-        <section id="progress" className="py-20 sm:py-28">
+        <section id="progress" className="scroll-mt-24 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Anim className="mx-auto mb-12 max-w-2xl text-center">
+            <Anim className="mx-auto mb-10 max-w-2xl text-center">
               <SectionLabel>پیشرفت شخصی</SectionLabel>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">هر کاری که انجام می‌دهی، بخشی از پیشرفت توست</h2>
               <p className="mt-4 text-sm leading-7 text-muted-foreground">
@@ -646,8 +649,8 @@ export default function Landing() {
                   { icon: Trophy, title: "آخرین دستاورد", value: "۷ روز استمرار", desc: "۱۵ مهر ۱۴۰۴", color: "text-violet-600" },
                   { icon: Target, title: "مسیر فعال", value: "رشد فردی", desc: "مرحله ۳ / ۶", color: "text-primary" },
                 ].map((c, i) => (
-                  <Anim key={c.title} delay={i * 0.06}>
-                    <div className="ui-surface rounded-2xl p-4">
+                  <Anim key={c.title} delay={i * 0.06} className="h-full">
+                    <div className="ui-surface h-full rounded-2xl p-4">
                       <div className="flex items-center gap-2">
                         <c.icon className={`size-4 ${c.color}`} />
                         <span className="text-xs font-bold">{c.title}</span>
@@ -663,9 +666,9 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 9. HOW IT WORKS — 4 STEPS ═══════════ */}
-        <section id="how" className="border-y border-border/50 py-20 sm:py-28">
+        <section id="how" className="scroll-mt-24 border-y border-border/50 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Anim className="mx-auto mb-14 max-w-2xl text-center">
+            <Anim className="mx-auto mb-10 max-w-2xl text-center">
               <SectionLabel>نحوه کار</SectionLabel>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">چهار قدم تا پیشرفت</h2>
             </Anim>
@@ -693,9 +696,9 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 10. BENEFITS ═══════════ */}
-        <section className="py-20 sm:py-28">
+        <section className="py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Anim className="mx-auto mb-12 max-w-2xl text-center">
+            <Anim className="mx-auto mb-10 max-w-2xl text-center">
               <SectionLabel>مزایا</SectionLabel>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">همه چیز برای یک روز منظم</h2>
               <p className="mt-4 text-sm leading-7 text-muted-foreground">
@@ -713,8 +716,8 @@ export default function Landing() {
                 { icon: Flame, title: "انگیزه روزانه", desc: "XP و سطح‌بندی" },
                 { icon: Trophy, title: "دستاوردها", desc: "باز کردن قفل موفقیت‌ها" },
               ].map((c, i) => (
-                <Anim key={c.title} delay={i * 0.04}>
-                  <div className="ui-surface ui-surface-hover rounded-2xl p-5">
+                <Anim key={c.title} delay={i * 0.04} className="h-full">
+                  <div className="ui-surface ui-surface-hover h-full rounded-2xl p-5">
                     <c.icon className="mb-3 size-5 text-primary" />
                     <h3 className="text-sm font-extrabold">{c.title}</h3>
                     <p className="mt-1 text-xs leading-5 text-muted-foreground">{c.desc}</p>
@@ -726,9 +729,9 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 11. TESTIMONIALS ═══════════ */}
-        <section id="testimonials" className="border-y border-border/50 py-20 sm:py-28">
+        <section id="testimonials" className="scroll-mt-24 border-y border-border/50 py-16 sm:py-20">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
-            <Anim className="mx-auto mb-12 max-w-2xl text-center">
+            <Anim className="mx-auto mb-10 max-w-2xl text-center">
               <SectionLabel>نظرات کاربران</SectionLabel>
               <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">کاربران چه می‌گویند؟</h2>
               <p className="mt-4 text-sm leading-7 text-muted-foreground">
@@ -753,14 +756,14 @@ export default function Landing() {
                   role: "طراح محصول",
                 },
               ].map((t, i) => (
-                <Anim key={t.name} delay={i * 0.08}>
-                  <figure className="ui-surface h-full rounded-2xl p-6">
-                    <div className="mb-3 flex gap-0.5">
+                <Anim key={t.name} delay={i * 0.08} className="h-full">
+                  <figure className="ui-surface flex h-full flex-col rounded-2xl p-6">
+                    <div className="mb-3 flex gap-0.5" role="img" aria-label="امتیاز ۵ از ۵">
                       {[1, 2, 3, 4, 5].map((s) => (
-                        <span key={s} className="text-amber-400">★</span>
+                        <span key={s} aria-hidden className="text-amber-400">★</span>
                       ))}
                     </div>
-                    <blockquote className="text-sm leading-7 text-foreground">«{t.quote}»</blockquote>
+                    <blockquote className="flex-1 text-sm leading-7 text-foreground">«{t.quote}»</blockquote>
                     <figcaption className="mt-4 flex items-center gap-3">
                       <span className="grid size-10 place-items-center rounded-full bg-accent text-sm font-bold text-accent-foreground">
                         {t.name[0]}
@@ -778,7 +781,7 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 12. FAQ ═══════════ */}
-        <section id="faq" className="py-20 sm:py-28">
+        <section id="faq" className="scroll-mt-24 py-16 sm:py-20">
           <div className="mx-auto max-w-3xl px-4 sm:px-6">
             <Anim className="mb-10 text-center">
               <SectionLabel>سؤالات</SectionLabel>
@@ -795,9 +798,14 @@ export default function Landing() {
                 ["آیا می‌توانم پیشرفت خودم را در طول زمان مشاهده کنم؟", "بله. نمودار هفتگی و ماهانه، آمار تکمیل کارها، زنجیره استمرار و دستاوردها."],
               ] as [string, string][]).map(([q, a]) => (
                 <details key={q} className="ui-surface group rounded-2xl px-5 py-4">
-                  <summary className="cursor-pointer list-none text-sm font-bold marker:hidden">
-                    {q}
-                    <span className="float-start ms-2 text-muted-foreground transition-transform group-open:rotate-45">+</span>
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold">
+                    <span>{q}</span>
+                    <span
+                      aria-hidden
+                      className="grid size-6 shrink-0 place-items-center rounded-md bg-muted/60 text-base leading-none text-muted-foreground transition-transform group-open:rotate-45"
+                    >
+                      +
+                    </span>
                   </summary>
                   <p className="mt-3 text-sm leading-7 text-muted-foreground">{a}</p>
                 </details>
@@ -807,9 +815,9 @@ export default function Landing() {
         </section>
 
         {/* ═══════════ 13. FINAL CTA ═══════════ */}
-        <section className="px-4 pb-20 sm:px-6">
+        <section className="px-4 pb-16 sm:px-6 sm:pb-20">
           <div
-            className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl px-6 py-16 text-center sm:py-20"
+            className="relative mx-auto max-w-5xl overflow-hidden rounded-3xl px-6 py-12 text-center sm:py-16"
             style={{ background: "linear-gradient(160deg, #4f46e5, #312e81)" }}
           >
             <div className="pointer-events-none absolute -top-20 -start-20 size-64 rounded-full bg-white/[0.06]" />
@@ -837,8 +845,8 @@ export default function Landing() {
         {/* ═══════════ 14. FOOTER ═══════════ */}
         <footer className="border-t border-border/50">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-            <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
-              <div className="lg:col-span-2">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-10 lg:grid-cols-5">
+              <div className="col-span-2 lg:col-span-2">
                 <div className="flex items-center gap-2.5">
                   <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
                     <ListChecks className="size-5" />
@@ -877,7 +885,7 @@ export default function Landing() {
                 </ul>
               </div>
             </div>
-            <div className="mt-12 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
+            <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
               <span>© {toFa(1404)} تسک‌لی — همه حقوق محفوظ است.</span>
               <button
                 onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
