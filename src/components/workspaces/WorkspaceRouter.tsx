@@ -3,6 +3,7 @@ import { type PersonaKey } from "@/lib/personas";
 import { StudentWorkspace } from "./StudentWorkspace";
 import { EmployeeWorkspace } from "./EmployeeWorkspace";
 import { FreelancerWorkspace } from "./FreelancerWorkspace";
+import { BusinessOwnerWorkspace } from "./BusinessOwnerWorkspace";
 import { ManagerWorkspace } from "./ManagerWorkspace";
 import { PersonalWorkspace } from "./PersonalWorkspace";
 
@@ -17,7 +18,7 @@ export function WorkspaceRouter() {
     student: StudentWorkspace,
     employee: EmployeeWorkspace,
     freelancer: FreelancerWorkspace,
-    business_owner: ManagerWorkspace,
+    business_owner: BusinessOwnerWorkspace,
     manager: ManagerWorkspace,
     team: ManagerWorkspace,
     personal: PersonalWorkspace,

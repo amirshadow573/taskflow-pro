@@ -550,4 +550,122 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
+
+  /* ---------------------------------------------------------------- */
+  /* Business Owner workspace (Phase 2.5E)                             */
+  /* ---------------------------------------------------------------- */
+
+  /** Business customers / clients. */
+  customers: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    company: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    status: v.string(), // lead | prospect | active | inactive | lost
+    source: v.optional(v.string()),
+    totalRevenue: v.number(),
+    pendingPayments: v.number(),
+    tags: v.array(v.string()),
+    notes: v.optional(v.string()),
+    color: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Sales opportunities / deals. */
+  salesOpportunities: defineTable({
+    userId: v.id("users"),
+    customerId: v.optional(v.id("customers")),
+    title: v.string(),
+    value: v.number(),
+    currency: v.string(),
+    stage: v.string(), // lead | contacted | qualified | proposal | negotiation | won | lost
+    expectedCloseDate: v.optional(v.string()),
+    probability: v.optional(v.number()), // 0-100 manual
+    owner: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Revenue entries. */
+  revenueEntries: defineTable({
+    userId: v.id("users"),
+    customerId: v.optional(v.id("customers")),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    amount: v.number(),
+    currency: v.string(),
+    status: v.string(), // expected | invoiced | received | cancelled
+    category: v.optional(v.string()),
+    date: v.string(),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Business expenses. */
+  expenses: defineTable({
+    userId: v.id("users"),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    amount: v.number(),
+    currency: v.string(),
+    category: v.string(), // marketing | operations | software | equipment | personnel | services | other
+    date: v.string(),
+    notes: v.optional(v.string()),
+    recurring: v.optional(v.boolean()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Payment tracking. */
+  payments: defineTable({
+    userId: v.id("users"),
+    customerId: v.optional(v.id("customers")),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    amount: v.number(),
+    currency: v.string(),
+    type: v.string(), // incoming | outgoing
+    status: v.string(), // pending | paid | partial | overdue | cancelled
+    dueDate: v.string(),
+    paidDate: v.optional(v.string()),
+    paidAmount: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Business goals (strategic). */
+  businessGoals: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    type: v.string(), // numeric | completion | milestone | binary
+    period: v.string(), // quarterly | monthly | weekly | annual | custom
+    target: v.optional(v.number()),
+    current: v.number(),
+    unit: v.optional(v.string()), // toman | customers | projects | etc.
+    progress: v.number(), // 0-100
+    status: v.string(), // active | completed | paused | at_risk
+    dueDate: v.optional(v.string()),
+    relatedProjectIds: v.array(v.id("projects")),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Strategic initiatives. */
+  initiatives: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    status: v.string(), // planning | in_progress | completed | paused
+    goalId: v.optional(v.id("businessGoals")),
+    projectId: v.optional(v.id("projects")),
+    priority: v.string(),
+    dueDate: v.optional(v.string()),
+    progress: v.number(), // 0-100
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 });
