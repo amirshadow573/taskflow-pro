@@ -228,16 +228,20 @@ function AnalyticsMockup({ embedded = false }: { embedded?: boolean }) {
       className={embedded ? "w-full" : "w-full overflow-hidden rounded-2xl border border-border bg-card elev-3 p-4"}
       dir="rtl"
     >
-      {!embedded && <p className="mb-3 text-sm font-extrabold">پیشرفت و بهره‌وری</p>
-      <div className="mb-3 grid grid-cols-4 gap-2">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-lg bg-muted/60 p-2.5">
-            <s.icon className={`mb-1 size-3.5 ${s.color}`} />
-            <p className="text-base font-extrabold tabular-nums">{s.value}</p>
-            <p className="text-[9px] text-muted-foreground">{s.label}</p>
+      {!embedded && (
+        <>
+          <p className="mb-3 text-sm font-extrabold">پیشرفت و بهره‌وری</p>
+          <div className="mb-3 grid grid-cols-4 gap-2">
+            {stats.map((s) => (
+              <div key={s.label} className="rounded-lg bg-muted/60 p-2.5">
+                <s.icon className={`mb-1 size-3.5 ${s.color}`} />
+                <p className="text-base font-extrabold tabular-nums">{s.value}</p>
+                <p className="text-[9px] text-muted-foreground">{s.label}</p>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        </>
+      )}
       <div className="relative h-28 rounded-lg bg-muted/40 p-3" dir="ltr">
         <svg viewBox="0 0 300 80" className="h-full w-full" preserveAspectRatio="none">
           <defs>
