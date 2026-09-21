@@ -16,6 +16,7 @@ const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Onboarding = lazy(() => import("@/components/onboarding/OnboardingFlow"));
 import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
+const TestMode = lazy(() => import("@/components/landing/TestMode"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
@@ -285,6 +286,7 @@ createRoot(document.getElementById("root")!).render(
           <Suspense fallback={<RouteLoading />}>
             <Routes>
               <Route path="/" element={<Landing />} />              <Route path="/auth" element={<AuthPage redirectAfterAuth="/onboarding" />} />
+              <Route path="/test-mode" element={<TestMode />} />
               <Route
                 path="/onboarding" element={
                 <RequireAuth>

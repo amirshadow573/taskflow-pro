@@ -447,6 +447,14 @@ export default function Landing() {
                     <a href="#product">مشاهده داشبورد</a>
                   </Button>
                 </div>
+                <div className="mt-4 flex justify-center lg:justify-start">
+                  <Link to="/test-mode">
+                    <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
+                      <span className="ms-1 inline-block size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                      ورود به نسخه آزمایشی
+                    </Button>
+                  </Link>
+                </div>
               </Anim>
               {/* Image side */}
               <Anim delay={0.15}>

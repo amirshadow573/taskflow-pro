@@ -4,24 +4,26 @@ import {
   PERSONAS,
   RECOMMENDED_DASHBOARDS,
   personaMeta,
+  isTestMode,
+  getTestPersonaKey,
   type DashboardConfig,
   type PersonaKey,
 } from "@/lib/personas";
 
 /**
- * Phase 2 — personalization state hook.
- *
- * Reads the signed-in user's profile (persona / goals / work style /
- * dashboard config) with graceful defaults. Nothing in the existing UI
- * changes when no profile exists: callers receive the sensible default
- * ("personal" persona + its recommended dashboard).
- *
- * Phase 3+ consumers: gamification, AI analysis, adaptive dashboards.
+ * Personalization state hook — reads the user's profile with graceful
+ * defaults. In test mode, uses localStorage-selected persona instead of
+ * Convex profile, allowing persona switching without real accounts.
  */
 export function useUserProfile() {
   const profile = useQuery(api.userProfile.get, {});
 
-  const personaKey: PersonaKey = (profile?.personaKey as PersonaKey) ?? "personal";
+  // Test mode: use localStorage persona instead of Convex profile
+  const testPersona = isTestMode() ? getTestPersonaKey() : null;
+  const personaKey: PersonaKey = testPersona
+    ?? (profile?.personaKey as PersonaKey)
+    ?? "personal";
+
   const persona = personaMeta(personaKey);
 
   let dashboardConfig: DashboardConfig = RECOMMENDED_DASHBOARDS[personaKey];
@@ -37,23 +39,20 @@ export function useUserProfile() {
   return {
     /** Raw Convex document or null (not loaded / not created yet). */
     profile: profile ?? null,
-    /** Is the query still loading (undefined from Convex)? */
-    isLoading: profile === undefined,
+    /** Is the query still loading? */
+    isLoading: testPersona ? false : profile === undefined,
     personaKey,
     persona,
-    /** All personas — for pickers in settings/onboarding. */
     personas: PERSONAS,
     goals: profile?.goals ?? [],
-    /** Planning cadence chosen in onboarding/settings. */
     planningStyle: profile?.workStyle ?? null,
-    /** Productivity preference chosen in onboarding/settings. */
     productivityStyle: profile?.productivityStyle ?? null,
     preferences: safeJson(profile?.preferences),
     personaDetails: safeJson(profile?.personaDetails),
-    /** Resolved dashboard layout: recommended default or the user's saved one. */
     dashboardConfig,
-    /** True only after the user finished the personalized onboarding. */
-    onboardingCompleted: !!profile?.completedOnboarding,
+    onboardingCompleted: testPersona ? true : !!profile?.completedOnboarding,
+    /** Whether we're in test mode */
+    testMode: !!testPersona,
   };
 }
 

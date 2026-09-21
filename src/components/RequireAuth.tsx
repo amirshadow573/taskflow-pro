@@ -1,9 +1,13 @@
 import { useAuth } from "@/hooks/use-auth";
+import { isTestMode } from "@/lib/personas";
 import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router";
 
 export function RequireAuth({ children }: { children: ReactNode }) {
+  // Test mode: skip auth entirely — allows testing personas without accounts
+  if (isTestMode()) return <>{children}</>;
+
   const { isLoading, isAuthenticated } = useAuth();
   const location = useLocation();
 

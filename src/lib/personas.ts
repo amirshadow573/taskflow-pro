@@ -725,3 +725,106 @@ export const PERSONA_GREETINGS: Record<PersonaKey, { greeting: string; sub: stri
   personal:      { greeting: "امروز چه کاری می‌خواهی انجام بدهی", sub: "برنامه امروزت را شروع کن." },
   custom:        { greeting: "امروز چه کاری می‌خواهی انجام بدهی", sub: "فضای کاری‌ات آماده است." },
 };
+
+/* ------------------------------------------------------------------ */
+/* Persona feature set — controls enabled modules & navigation          */
+/* ------------------------------------------------------------------ */
+
+/** Every distinct module that can appear in the workspace. */
+export type FeatureKey =
+  // shared core
+  | "tasks" | "projects" | "calendar" | "goals" | "progress" | "routines"
+  | "inbox" | "archive" | "analytics" | "planning" | "focus"
+  // student
+  | "subjects" | "exams" | "gradeCalc" | "studyPlanner" | "studyNotes"
+  // manager / team
+  | "team" | "teamMembers" | "workload" | "teamGoals" | "teamActivity" | "performance"
+  // freelancer
+  | "clients" | "timeTracking" | "deliveries" | "clientDeadlines"
+  // employee
+  | "meetings" | "workGoals" | "workDeadlines"
+  // business
+  | "businessGoals" | "strategicProjects";
+
+export interface PersonaFeatureConfig {
+  /** Features shown in nav / dashboard. */
+  enabled: FeatureKey[];
+  /** Features never shown (for future phases). */
+  hidden: FeatureKey[];
+}
+
+/** Persona → default feature set. Goals can further boost/promote items. */
+export const PERSONA_FEATURES: Record<PersonaKey, PersonaFeatureConfig> = {
+  student: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","focus","subjects","exams","gradeCalc","studyPlanner","studyNotes"],
+    hidden: ["team","teamMembers","workload","teamGoals","teamActivity","performance","clients","timeTracking","deliveries","clientDeadlines","meetings","workGoals","workDeadlines","businessGoals","strategicProjects"],
+  },
+  employee: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","focus","meetings","workGoals","workDeadlines"],
+    hidden: ["subjects","exams","gradeCalc","studyPlanner","studyNotes","team","teamMembers","workload","teamGoals","teamActivity","performance","clients","timeTracking","deliveries","clientDeadlines","businessGoals","strategicProjects"],
+  },
+  freelancer: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","focus","clients","timeTracking","deliveries","clientDeadlines"],
+    hidden: ["subjects","exams","gradeCalc","studyPlanner","studyNotes","team","teamMembers","workload","teamGoals","teamActivity","performance","meetings","workGoals","workDeadlines","businessGoals","strategicProjects"],
+  },
+  business_owner: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","businessGoals","strategicProjects","teamMembers","workload","performance"],
+    hidden: ["subjects","exams","gradeCalc","studyPlanner","studyNotes","clients","timeTracking","deliveries","clientDeadlines","meetings","workGoals","workDeadlines"],
+  },
+  manager: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","team","teamMembers","workload","teamGoals","teamActivity","performance"],
+    hidden: ["subjects","exams","gradeCalc","studyPlanner","studyNotes","clients","timeTracking","deliveries","clientDeadlines","meetings","workGoals","workDeadlines","businessGoals","strategicProjects"],
+  },
+  team: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","team","teamMembers","workload","teamGoals","teamActivity","performance"],
+    hidden: ["subjects","exams","gradeCalc","studyPlanner","studyNotes","clients","timeTracking","deliveries","clientDeadlines","meetings","workGoals","workDeadlines","businessGoals","strategicProjects"],
+  },
+  personal: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","focus","inbox","analytics"],
+    hidden: ["subjects","exams","gradeCalc","studyPlanner","studyNotes","team","teamMembers","workload","teamGoals","teamActivity","performance","clients","timeTracking","deliveries","clientDeadlines","meetings","workGoals","workDeadlines","businessGoals","strategicProjects"],
+  },
+  custom: {
+    enabled: ["tasks","projects","calendar","goals","progress","routines","focus","inbox","analytics"],
+    hidden: [],
+  },
+};
+
+/** Check if a feature is enabled for a persona. */
+export function hasFeature(personaKey: PersonaKey, feature: FeatureKey): boolean {
+  return PERSONA_FEATURES[personaKey]?.enabled.includes(feature) ?? false;
+}
+
+/* ------------------------------------------------------------------ */
+/* Test mode — temporary development bypass                              */
+/* ------------------------------------------------------------------ */
+
+const TEST_KEY = "taskly-test-mode";
+const TEST_PERSONA_KEY = "taskly-test-persona";
+
+/** Enable test mode with a specific persona (no auth required). */
+export function enableTestMode(personaKey: PersonaKey): void {
+  localStorage.setItem(TEST_KEY, "1");
+  localStorage.setItem(TEST_PERSONA_KEY, personaKey);
+}
+
+export function disableTestMode(): void {
+  localStorage.removeItem(TEST_KEY);
+  localStorage.removeItem(TEST_PERSONA_KEY);
+}
+
+export function isTestMode(): boolean {
+  return localStorage.getItem(TEST_KEY) === "1";
+}
+
+export function getTestPersonaKey(): PersonaKey | null {
+  if (!isTestMode()) return null;
+  return (localStorage.getItem(TEST_PERSONA_KEY) as PersonaKey) ?? "personal";
+}
+
+/** Quick switch persona in test mode (no persistence beyond localStorage). */
+export function switchTestPersona(personaKey: PersonaKey): void {
+  if (!isTestMode()) return;
+  localStorage.setItem(TEST_PERSONA_KEY, personaKey);
+  // Trigger a full-page reload to re-derive the workspace
+  window.location.reload();
+}
