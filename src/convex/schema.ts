@@ -233,4 +233,104 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_key", ["userId", "key"]),
+
+  /* ------------------------------------------------------------------ */
+  /* Student-specific academic entities                                   */
+  /* ------------------------------------------------------------------ */
+
+  /** Academic subjects — one per course/module. */
+  subjects: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    teacher: v.optional(v.string()),
+    color: v.string(), // tailwind color class or hex
+    targetGrade: v.optional(v.number()), // 0-20 scale
+    currentGrade: v.optional(v.number()),
+    studyHours: v.number(), // total minutes studied
+    archived: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Exams — linked to a subject. */
+  exams: defineTable({
+    userId: v.id("users"),
+    subjectId: v.id("subjects"),
+    title: v.string(),
+    date: v.string(), // YYYY-MM-DD
+    time: v.optional(v.string()), // HH:mm
+    location: v.optional(v.string()),
+    importance: v.string(), // high | medium | low
+    targetGrade: v.optional(v.number()),
+    preparationProgress: v.number(), // 0-100
+    completed: v.boolean(),
+    actualGrade: v.optional(v.number()),
+    archived: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_subject", ["subjectId"]),
+
+  /** Assignments / homework — linked to a subject. */
+  assignments: defineTable({
+    userId: v.id("users"),
+    subjectId: v.id("subjects"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    dueDate: v.string(), // YYYY-MM-DD
+    difficulty: v.string(), // easy | medium | hard
+    estimatedMinutes: v.optional(v.number()),
+    status: v.string(), // pending | in_progress | completed | overdue
+    priority: v.string(), // low | medium | high
+    completedAt: v.optional(v.number()),
+    archived: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_subject", ["subjectId"]),
+
+  /** Academic grades — one per assessment result. */
+  grades: defineTable({
+    userId: v.id("users"),
+    subjectId: v.id("subjects"),
+    title: v.string(), // e.g. "آزمون میان‌ترم"
+    score: v.number(),
+    maxScore: v.number(), // usually 20
+    weight: v.number(), // percentage weight
+    date: v.string(), // YYYY-MM-DD
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_subject", ["subjectId"]),
+
+  /** Study sessions — linked to a subject optionally. */
+  studySessions: defineTable({
+    userId: v.id("users"),
+    subjectId: v.optional(v.id("subjects")),
+    title: v.optional(v.string()),
+    plannedMinutes: v.number(),
+    actualMinutes: v.number(),
+    date: v.string(), // YYYY-MM-DD
+    completed: v.boolean(),
+    type: v.string(), // study | focus | review
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_date", ["userId", "date"])
+    .index("by_subject", ["subjectId"]),
+
+  /** Academic notes — linked to subject/exam/assignment optionally. */
+  studentNotes: defineTable({
+    userId: v.id("users"),
+    subjectId: v.optional(v.id("subjects")),
+    title: v.string(),
+    content: v.string(),
+    tags: v.array(v.string()),
+    isFavorite: v.boolean(),
+    noteType: v.string(), // subject | lecture | exam | quick | revision
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_subject", ["subjectId"]),
 });
