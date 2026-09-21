@@ -9,17 +9,14 @@ import {
 } from "@/lib/personas";
 
 /**
- * Phase 1 personalization foundation — client side.
+ * Phase 2 — personalization state hook.
  *
- * Reads the signed-in user's profile (persona / goals / preferences /
+ * Reads the signed-in user's profile (persona / goals / work style /
  * dashboard config) with graceful defaults. Nothing in the existing UI
  * changes when no profile exists: callers receive the sensible default
  * ("personal" persona + its recommended dashboard).
  *
- * Phase 2+ consumers:
- *  - dashboard renders rows from `dashboardConfig` (visibility + order)
- *  - onboarding renders persona-specific questions
- *  - gamification / AI read persona for tuned defaults
+ * Phase 3+ consumers: gamification, AI analysis, adaptive dashboards.
  */
 export function useUserProfile() {
   const profile = useQuery(api.userProfile.get, {});
@@ -47,12 +44,16 @@ export function useUserProfile() {
     /** All personas — for pickers in settings/onboarding. */
     personas: PERSONAS,
     goals: profile?.goals ?? [],
+    /** Planning cadence chosen in onboarding/settings. */
+    planningStyle: profile?.workStyle ?? null,
+    /** Productivity preference chosen in onboarding/settings. */
+    productivityStyle: profile?.productivityStyle ?? null,
     preferences: safeJson(profile?.preferences),
     personaDetails: safeJson(profile?.personaDetails),
     /** Resolved dashboard layout: recommended default or the user's saved one. */
     dashboardConfig,
-    /** Server-side mirror of the old onboarding "done" flag. */
-    onboarded: !!profile,
+    /** True only after the user finished the personalized onboarding. */
+    onboardingCompleted: !!profile?.completedOnboarding,
   };
 }
 

@@ -102,6 +102,204 @@ export function personaMeta(key: string): PersonaMeta {
   return PERSONAS.find((p) => p.key === key) ?? PERSONAS[6]; // personal
 }
 
+/* ------------------------------------------------------------------ */
+/* Phase 2 — persona-adaptive onboarding catalog                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The 7 onboarding persona choices ("manager" and "team" merge into one
+ * management card per the Phase 2 spec). "custom" covers "سایر".
+ */
+export const ONBOARDING_PERSONAS: PersonaMeta[] = [
+  PERSONAS[0], // student
+  PERSONAS[1], // employee
+  PERSONAS[2], // freelancer
+  PERSONAS[3], // business_owner
+  {
+    key: "manager",
+    label: "مدیر / تیم",
+    description: "مدیریت تیم، تقسیم کار و پیگیری پروژه‌ها",
+    emoji: "👥",
+  },
+  PERSONAS[6], // personal
+  PERSONAS[7], // custom (سایر)
+];
+
+/** One selectable goal in the onboarding (persona-adaptive). */
+export interface GoalOption {
+  key: string;
+  label: string;
+  description: string;
+  /** lucide icon name resolved by OnboardingFlow (keeps this file UI-free). */
+  icon: string;
+}
+
+/** Persian RTL goal catalogs — intentionally different per persona. */
+export const GOALS_BY_PERSONA: Record<PersonaKey, GoalOption[]> = {
+  student: [
+    { key: "study_plan", label: "برنامه‌ریزی مطالعه", description: "برنامه منظم و قابل اجرا برای درس‌ها", icon: "book" },
+    { key: "exam_prep", label: "آماده‌سازی امتحان", description: "برنامه‌ریزی برای آزمون‌ها و پایان ترم", icon: "target" },
+    { key: "assignments", label: "مدیریت تکالیف", description: "پیگیری پروژه‌ها و تمرین‌های درسی", icon: "list" },
+    { key: "focus", label: "تمرکز", description: "مطالعه عمیق بدون حواس‌پرتی", icon: "target" },
+    { key: "consistency", label: "استمرار", description: "مطالعه روزانه و پیوسته", icon: "calendar" },
+    { key: "academic", label: "اهداف درسی", description: "معدل، ترم و پیشرفت تحصیلی", icon: "flag" },
+  ],
+  employee: [
+    { key: "task_mgmt", label: "مدیریت کارها", description: "نظم در کارهای روزانه", icon: "list" },
+    { key: "time_mgmt", label: "مدیریت زمان", description: "استفاده بهتر از ساعت‌های کاری", icon: "clock" },
+    { key: "focus", label: "تمرکز", description: "تمرکز روی کارهای مهم", icon: "target" },
+    { key: "meetings", label: "جلسات", description: "مدیریت قرارها و جلسات", icon: "calendar" },
+    { key: "deadlines", label: "ضرب‌الاجل‌ها", description: "رسیدن به موعدها بدون استرس", icon: "flag" },
+    { key: "projects", label: "مدیریت پروژه", description: "سازمان‌دهی پروژه‌های سازمانی", icon: "folder" },
+  ],
+  freelancer: [
+    { key: "projects", label: "مدیریت پروژه", description: "پروژه‌های موازی و تحویل‌ها", icon: "folder" },
+    { key: "client_deadlines", label: "ضرب‌الاجل مشتری", description: "رسیدن به موعدهای توافق‌شده", icon: "clock" },
+    { key: "time_tracking", label: "ثبت زمان", description: "آگاهی از زمان صرف‌شده هر کار", icon: "clock" },
+    { key: "client_org", label: "سازمان‌دهی مشتریان", description: "کارها و پروژه هر مشتری", icon: "list" },
+    { key: "delivery", label: "تحویل پروژه", description: "تحویل با کیفیت و به‌موقع", icon: "flag" },
+    { key: "personal", label: "اهداف شخصی", description: "تعادل کار و زندگی", icon: "target" },
+  ],
+  business_owner: [
+    { key: "team_mgmt", label: "مدیریت تیم", description: "تقسیم کار و پیگیری اعضا", icon: "users" },
+    { key: "projects", label: "مدیریت پروژه", description: "پروژه‌های در جریان کسب‌وکار", icon: "folder" },
+    { key: "deadlines", label: "ضرب‌الاجل‌ها", description: "موعدهای مهم کسب‌وکار", icon: "flag" },
+    { key: "workload", label: "بار کاری", description: "تعادل بار تیم و منابع", icon: "users" },
+    { key: "team_goals", label: "اهداف تیمی", description: "برنامه‌های تیم را به نتیجه برسانم", icon: "target" },
+    { key: "business_goals", label: "اهداف کسب‌وکار", description: "رشد و توسعه کسب‌وکار", icon: "flag" },
+  ],
+  manager: [
+    { key: "team_mgmt", label: "مدیریت تیم", description: "تقسیم کار و پیگیری اعضا", icon: "users" },
+    { key: "projects", label: "مدیریت پروژه", description: "سلامت پروژه‌های تیم", icon: "folder" },
+    { key: "deadlines", label: "ضرب‌الاجل‌ها", description: "موعدهای مهم تیم", icon: "flag" },
+    { key: "workload", label: "بار کاری", description: "تعادل بار تیم و منابع", icon: "users" },
+    { key: "team_goals", label: "اهداف تیمی", description: "برنامه‌های تیم را به نتیجه برسانم", icon: "target" },
+    { key: "business_goals", label: "اهداف کسب‌وکار", description: "اهداف سازمانی بلندمدت", icon: "flag" },
+  ],
+  team: [
+    { key: "team_mgmt", label: "هماهنگی تیم", description: "تقسیم کار و پیگیری مشترک", icon: "users" },
+    { key: "projects", label: "پروژه‌های مشترک", description: "کارهای تیمی و پروژه‌ها", icon: "folder" },
+    { key: "deadlines", label: "ضرب‌الاجل‌ها", description: "موعدهای مشترک تیمی", icon: "flag" },
+    { key: "workload", label: "بار کاری", description: "تعادل بار کاری اعضا", icon: "users" },
+    { key: "team_goals", label: "اهداف تیمی", description: "اهداف مشترک تیم", icon: "target" },
+    { key: "business_goals", label: "اهداف سازمانی", description: "اهداف کل سازمان", icon: "flag" },
+  ],
+  personal: [
+    { key: "daily_tasks", label: "کارهای روزانه", description: "نظم کارهای هر روز", icon: "list" },
+    { key: "habits", label: "عادت‌ها", description: "ساخت عادت‌های پایدار", icon: "calendar" },
+    { key: "focus", label: "تمرکز", description: "تمرکز عمیق روزانه", icon: "target" },
+    { key: "life_org", label: "نظم زندگی", description: "کارهای شخصی و روزمره", icon: "list" },
+    { key: "personal_goals", label: "اهداف شخصی", description: "اهداف بلندمدت خودم", icon: "flag" },
+    { key: "consistency", label: "استمرار", description: "پیوستگی روزانه", icon: "calendar" },
+  ],
+  custom: [
+    { key: "daily_tasks", label: "کارهای روزانه", description: "نظم کارهای هر روز", icon: "list" },
+    { key: "focus", label: "تمرکز", description: "تمرکز روی کارهای مهم", icon: "target" },
+    { key: "projects", label: "مدیریت پروژه", description: "سازمان‌دهی پروژه‌ها", icon: "folder" },
+    { key: "goals", label: "اهداف", description: "پیگیری اهدافم", icon: "flag" },
+  ],
+};
+
+/* ------------------------------ Work style ------------------------------ */
+
+/** Planning cadence (Step 4a). */
+export const PLANNING_STYLES = [
+  { key: "daily", label: "روزانه", description: "برنامه هر روز را صبح می‌چینم", icon: "calendar" },
+  { key: "weekly", label: "هفتگی", description: "هفته را یک‌جا برنامه‌ریزی می‌کنم", icon: "calendar" },
+  { key: "project_based", label: "پروژه‌محور", description: "دور هر پروژه سازمان می‌گیرم", icon: "folder" },
+  { key: "time_based", label: "زمان‌محور", description: "بلوک‌های زمانی مشخص دارم", icon: "clock" },
+  { key: "flexible", label: "منعطف", description: "بسته به روز تصمیم می‌گیرم", icon: "sparkles" },
+  { key: "hybrid", label: "ترکیبی", description: "ترکیبی از روش‌های بالا", icon: "sparkles" },
+] as const;
+
+export type PlanningStyleKey = (typeof PLANNING_STYLES)[number]["key"];
+
+/** Productivity preference (Step 4b). */
+export const PRODUCTIVITY_STYLES = [
+  { key: "deep_focus", label: "تمرکز عمیق", description: "کارهای عمیق و طولانی", icon: "target" },
+  { key: "fast_execution", label: "اجراهای سریع", description: "کارهای کوتاه و سریع", icon: "zap" },
+  { key: "detailed_planning", label: "برنامه‌ریزی دقیق", description: "همه‌چیز از قبل مشخص", icon: "list" },
+  { key: "flexible_flow", label: "جریان منعطف", description: "بسته به انرژی روز", icon: "sparkles" },
+  { key: "goal_oriented", label: "هدف‌محور", description: "سنگ‌بنای اهداف بزرگ", icon: "flag" },
+] as const;
+
+export type ProductivityStyleKey = (typeof PRODUCTIVITY_STYLES)[number]["key"];
+
+/** Where onboarding answers live in the userProfile document. */
+export interface WorkStyle {
+  planningStyle: PlanningStyleKey | null;
+  productivityStyle: ProductivityStyleKey | null;
+}
+
+/* -------------------- Dashboard config generation ----------------------- */
+
+/**
+ * Deterministic dashboard-config generation from onboarding answers.
+ * Base = the persona's recommended layout; goals + work style apply small,
+ * predictable priority bumps. Same core widgets, different presentation.
+ */
+export function buildDashboardConfig(input: {
+  personaKey: PersonaKey;
+  goals: string[];
+  workStyle: WorkStyle;
+}): DashboardConfig {
+  const { personaKey, goals, workStyle } = input;
+  const has = (g: string) => goals.includes(g);
+
+  const priority: Record<string, number> = {};
+  const visible: Record<string, boolean> = {};
+  const base = RECOMMENDED_DASHBOARDS[personaKey].rows;
+  for (const r of base) {
+    priority[r.widget] = r.priority;
+    visible[r.widget] = true;
+  }
+
+  /** Additive, small, predictable adjustments. */
+  const bump = (widget: string, delta: number, show = true) => {
+    priority[widget] = (priority[widget] ?? 0) + delta;
+    if (show) visible[widget] = true;
+  };
+
+  if (personaKey === "student") {
+    if (has("exam_prep") || has("assignments")) bump("deadlines", 4);
+    if (has("study_plan")) bump("routines", 3);
+    if (has("consistency") || has("academic")) bump("progress-snapshot", 2);
+  }
+  if (personaKey === "freelancer" || personaKey === "business_owner") {
+    if (has("client_deadlines") || has("deadlines")) bump("deadlines", 4);
+    if (has("projects") || has("delivery")) bump("projects", 3);
+    if (has("time_tracking")) bump("progress-snapshot", 2);
+  }
+  if (personaKey === "employee") {
+    if (has("deadlines")) bump("deadlines", 4);
+    if (has("meetings")) bump("routines", 2);
+    if (has("time_mgmt") || has("task_mgmt")) bump("today-tasks", 2);
+  }
+  if (personaKey === "manager" || personaKey === "team" || personaKey === "business_owner") {
+    if (has("workload") || has("team_mgmt")) bump("projects", 4);
+  }
+  if (has("focus") || has("habits")) bump("routines", 2);
+  if (has("consistency")) bump("progress-snapshot", 2);
+
+  if (workStyle.planningStyle === "daily" || workStyle.planningStyle === "weekly") {
+    bump("routines", 2);
+  }
+  if (workStyle.productivityStyle === "goal_oriented") {
+    bump("progress-snapshot", 2);
+  }
+
+  return {
+    version: 1,
+    rows: WIDGETS.filter((w) => visible[w.key])
+      .map((w) => ({
+        widget: w.key,
+        visible: true,
+        priority: priority[w.key] ?? 0,
+      }))
+      .sort((a, b) => b.priority - a.priority),
+  };
+}
+
 /**
  * Map the legacy onboarding goal keys (focus / study / work / life) onto the
  * closest persona, so existing onboarding choices produce sensible defaults

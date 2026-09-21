@@ -14,7 +14,8 @@ import { Plus } from "lucide-react";
 // Lazy load route components for better code splitting
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
-const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
+const Onboarding = lazy(() => import("@/components/onboarding/OnboardingFlow"));
+import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
@@ -288,7 +289,9 @@ createRoot(document.getElementById("root")!).render(
                 path="/onboarding" element={
                 <RequireAuth>
                   <WorkspaceData chrome={false}>
-                    <Onboarding />
+                    <OnboardingGate>
+                      <Onboarding />
+                    </OnboardingGate>
                   </WorkspaceData>
                 </RequireAuth>
               } />

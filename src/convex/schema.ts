@@ -30,12 +30,18 @@ export default defineSchema({
     personaSource: v.string(),
     /** Free-form persona-specific answers (field, courseCount, teamSize…). */
     personaDetails: v.optional(v.string()), // JSON
-    /** Goal keys from onboarding (focus, study, work, life…). */
+    /** Goal keys from onboarding (persona-adaptive, e.g. study_plan/exam_prep). */
     goals: v.array(v.string()),
+    /** Work style: planning cadence (daily/weekly/project_based/…). */
+    workStyle: v.optional(v.string()),
+    /** Productivity preference (deep_focus/fast_execution/goal_oriented…). */
+    productivityStyle: v.optional(v.string()),
     /** Preferences JSON (planningStyle, startPage, notifications…). */
     preferences: v.optional(v.string()), // JSON
     /** DashboardConfig JSON (widget rows: key/visible/priority). */
     dashboardConfig: v.optional(v.string()), // JSON
+    /** True once the user finished the personalized onboarding. */
+    completedOnboarding: v.optional(v.boolean()),
     /** Future reference for migration tracking. */
     schemaVersion: v.number(),
     createdAt: v.number(),

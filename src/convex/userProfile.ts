@@ -42,8 +42,11 @@ export const upsert = mutation({
     personaSource: v.optional(v.string()), // onboarding | settings | inferred | default
     personaDetails: v.optional(v.string()), // JSON
     goals: v.optional(v.array(v.string())),
+    workStyle: v.optional(v.string()), // planning cadence key
+    productivityStyle: v.optional(v.string()), // productivity preference key
     preferences: v.optional(v.string()), // JSON
     dashboardConfig: v.optional(v.string()), // JSON
+    completedOnboarding: v.optional(v.boolean()),
   },
   handler: async (ctx, patch) => {
     const userId = await getAuthUserId(ctx);
@@ -66,9 +69,16 @@ export const upsert = mutation({
           ? { personaDetails: patch.personaDetails }
           : {}),
         ...(patch.goals !== undefined ? { goals: patch.goals } : {}),
+        ...(patch.workStyle !== undefined ? { workStyle: patch.workStyle } : {}),
+        ...(patch.productivityStyle !== undefined
+          ? { productivityStyle: patch.productivityStyle }
+          : {}),
         ...(patch.preferences !== undefined ? { preferences: patch.preferences } : {}),
         ...(patch.dashboardConfig !== undefined
           ? { dashboardConfig: patch.dashboardConfig }
+          : {}),
+        ...(patch.completedOnboarding !== undefined
+          ? { completedOnboarding: patch.completedOnboarding }
           : {}),
         updatedAt: now,
       });
@@ -81,8 +91,11 @@ export const upsert = mutation({
       personaSource: patch.personaSource ?? "default",
       personaDetails: patch.personaDetails,
       goals: patch.goals ?? [],
+      workStyle: patch.workStyle,
+      productivityStyle: patch.productivityStyle,
       preferences: patch.preferences,
       dashboardConfig: patch.dashboardConfig,
+      completedOnboarding: patch.completedOnboarding ?? false,
       schemaVersion: 1,
       createdAt: now,
       updatedAt: now,
