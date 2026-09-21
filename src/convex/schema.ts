@@ -417,4 +417,78 @@ export default defineSchema({
     taskId: v.optional(v.id("tasks")),
     createdAt: v.number(),
   }).index("by_team", ["teamId", "createdAt"]).index("by_user", ["userId"]),
+
+  /* ------------------------------------------------------------------ */
+  /* Freelancer-specific entities                                          */
+  /* ------------------------------------------------------------------ */
+
+  /** Clients — independent professionals the freelancer works with. */
+  clients: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    company: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    color: v.string(),
+    archived: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Invoices — billing records for client work. */
+  invoices: defineTable({
+    userId: v.id("users"),
+    clientId: v.id("clients"),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    amount: v.number(), // in local currency units
+    currency: v.string(), // e.g. "IRR" | "USD"
+    status: v.string(), // draft | sent | paid | overdue | cancelled
+    dueDate: v.string(),
+    paidAt: v.optional(v.number()),
+    items: v.optional(v.string()), // JSON line items
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]).index("by_client", ["clientId"]),
+
+  /** Time entries — billable/non-billable time tracked. */
+  timeEntries: defineTable({
+    userId: v.id("users"),
+    clientId: v.optional(v.id("clients")),
+    projectId: v.optional(v.id("projects")),
+    description: v.optional(v.string()),
+    startTime: v.number(), // timestamp
+    endTime: v.optional(v.number()), // null = running
+    duration: v.number(), // seconds
+    billable: v.boolean(),
+    hourlyRate: v.optional(v.number()),
+    date: v.string(), // YYYY-MM-DD
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]).index("by_user_date", ["userId", "date"]),
+
+  /** Deliverables — client-facing deliverables with status tracking. */
+  deliverables: defineTable({
+    userId: v.id("users"),
+    clientId: v.id("clients"),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    description: v.optional(v.string()),
+    dueDate: v.string(),
+    status: v.string(), // pending | in_progress | delivered | revised | approved
+    priority: v.string(), // low | medium | high | urgent
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]).index("by_client", ["clientId"]),
+
+  /** Proposals — project proposals sent to clients. */
+  proposals: defineTable({
+    userId: v.id("users"),
+    clientId: v.id("clients"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    amount: v.number(),
+    currency: v.string(),
+    status: v.string(), // draft | sent | accepted | rejected | expired
+    validUntil: v.optional(v.string()),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]).index("by_client", ["clientId"]),
 });
