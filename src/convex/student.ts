@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleFocusSession } from "./gamification";
 
 /* ================================================================== */
 /*  SUBJECTS                                                           */
@@ -335,7 +336,7 @@ export const createStudySession = mutation({
         });
       }
     }
-    return ctx.db.insert("studySessions", {
+    const id = await ctx.db.insert("studySessions", {
       userId,
       subjectId: args.subjectId,
       title: args.title,
@@ -346,6 +347,15 @@ export const createStudySession = mutation({
       type: args.type,
       createdAt: Date.now(),
     });
+    // XP: completed study sessions earn focus XP (shared engine + daily cap).
+    if (args.completed) {
+      await handleFocusSession(
+        ctx,
+        { userId, _id: id, title: args.title, plannedMinutes: args.plannedMinutes, actualMinutes: args.actualMinutes, completed: args.completed },
+        "جلسه مطالعه",
+      );
+    }
+    return id;
   },
 });
 
@@ -364,6 +374,16 @@ export const updateStudySession = mutation({
     if (args.actualMinutes !== undefined) patch.actualMinutes = args.actualMinutes;
     if (args.completed !== undefined) patch.completed = args.completed;
     await ctx.db.patch(args.id, patch);
+    // XP: award/revoke when a study session's completion state changes.
+    const nextCompleted = args.completed ?? doc.completed;
+    const nextMinutes = args.actualMinutes ?? doc.actualMinutes;
+    if (nextCompleted !== doc.completed || nextMinutes !== doc.actualMinutes) {
+      await handleFocusSession(
+        ctx,
+        { userId, _id: args.id, title: doc.title ?? undefined, plannedMinutes: doc.plannedMinutes, actualMinutes: nextMinutes, completed: nextCompleted },
+        "جلسه مطالعه",
+      );
+    }
   },
 });
 

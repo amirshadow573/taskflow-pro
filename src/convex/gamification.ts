@@ -122,7 +122,33 @@ async function countEvents(
     .query("xpEvents")
     .withIndex("by_user_day", (q) => q.eq("userId", userId).eq("day", day))
     .collect();
-  return rows.filter((r) => kinds.includes(r.kind)).length;
+  return rows.filter((r) => kinds.includes(r.kind) && isAwarded(r)).length;
+}
+
+/** A row counts toward balances only while it is not reversed. */
+const isAwarded = (r: { status?: string }): boolean => r.status !== "reversed";
+
+/**
+ * Outcome kinds that pay at most once per reference for the lifetime of the
+ * account — reopening and re-completing the same project/goal/milestone can
+ * never be used to farm XP (Phase 03 anti-gaming).
+ */
+const ONCE_KINDS = new Set(["project", "goal"]);
+
+/** Apply a balance delta and recompute the level from total XP. */
+async function addBalance(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  delta: number,
+): Promise<void> {
+  const prog = await progDoc(ctx, userId);
+  if (!prog) return;
+  const totalXp = Math.max(0, prog.totalXp + delta);
+  await ctx.db.patch(prog._id, {
+    totalXp,
+    level: levelInfoFromXp(totalXp).level,
+    updatedAt: Date.now(),
+  });
 }
 
 const hasActivity = (s: { completedTasks: number; routineDone: number }): boolean =>
@@ -152,7 +178,23 @@ async function awardXp(
   if (amount <= 0) return false;
   if (refType && refId) {
     const existing = await eventByRef(ctx, userId, refType, refId);
-    if (existing) return false;
+    if (existing) {
+      // Outcome kinds never pay twice for the same reference.
+      if (ONCE_KINDS.has(kind)) return false;
+      if (isAwarded(existing)) return false;
+      // A previously reversed event is reactivated (auditable, no duplicate).
+      await ctx.db.patch(existing._id, {
+        status: "awarded",
+        reversedAt: undefined,
+        amount,
+        label,
+        day,
+        createdAt: Date.now(),
+        meta,
+      });
+      await addBalance(ctx, userId, amount);
+      return true;
+    }
   }
   // Anti-farming caps for the repeatable categories.
   if (kind === "task" || kind === "subtask") {
@@ -162,6 +204,10 @@ async function awardXp(
   if (kind === "routine") {
     const n = await countEvents(ctx, userId, day, ["routine"]);
     if (n >= XP_RULES.dailyRoutineXpCap) return false;
+  }
+  if (kind === "focus") {
+    const n = await countEvents(ctx, userId, day, ["focus"]);
+    if (n >= XP_RULES.dailyFocusXpCap) return false;
   }
   if (kind === "path" && refType === "pathManual") {
     const n = await countEvents(ctx, userId, day, ["path"]);
@@ -175,24 +221,19 @@ async function awardXp(
     label,
     day,
     createdAt: Date.now(),
+    status: "awarded",
     refType,
     refId,
     meta,
   });
-
-  const prog = await progDoc(ctx, userId);
-  if (prog) {
-    const totalXp = prog.totalXp + amount;
-    await ctx.db.patch(prog._id, {
-      totalXp,
-      level: levelInfoFromXp(totalXp).level,
-      updatedAt: Date.now(),
-    });
-  }
+  await addBalance(ctx, userId, amount);
   return true;
 }
 
-/** Remove a previously awarded event (used when a task is re-opened). */
+/**
+ * Reverse a previously awarded event. The row is kept (status → "reversed")
+ * so the ledger stays auditable — history is never silently corrupted.
+ */
 async function revokeXp(
   ctx: MutationCtx,
   userId: Id<"users">,
@@ -200,17 +241,9 @@ async function revokeXp(
   refId: string,
 ): Promise<void> {
   const existing = await eventByRef(ctx, userId, refType, refId);
-  if (!existing) return;
-  await ctx.db.delete(existing._id);
-  const prog = await progDoc(ctx, userId);
-  if (prog) {
-    const totalXp = Math.max(0, prog.totalXp - existing.amount);
-    await ctx.db.patch(prog._id, {
-      totalXp,
-      level: levelInfoFromXp(totalXp).level,
-      updatedAt: Date.now(),
-    });
-  }
+  if (!existing || !isAwarded(existing)) return;
+  await ctx.db.patch(existing._id, { status: "reversed", reversedAt: Date.now() });
+  await addBalance(ctx, userId, -existing.amount);
 }
 
 /* ------------------------------------------------------------------ */
@@ -287,7 +320,7 @@ async function computeDayNumbers(
     routineItems: items.length,
     routineDone,
     routinesFull,
-    xpEarned: xpRows.reduce((n, r) => n + r.amount, 0),
+    xpEarned: xpRows.filter(isAwarded).reduce((n, r) => n + r.amount, 0),
     missionsDone: dayMissions.filter((mm) => mm.completed).length,
     missionsTotal: dayMissions.length,
   };
@@ -358,7 +391,7 @@ async function refreshDaily(ctx: MutationCtx, ctxUserId: Id<"users">, day: strin
     missionsTotal: dayMissions.length,
   });
   await ctx.db.patch(row._id, {
-    xpEarned: xpRows.reduce((n, r) => n + r.amount, 0),
+    xpEarned: xpRows.filter(isAwarded).reduce((n, r) => n + r.amount, 0),
     missionsDone: dayMissions.filter((mm) => mm.completed).length,
     missionsTotal: dayMissions.length,
     taskScore: breakdown.tasks,
@@ -939,9 +972,9 @@ async function syncTotals(ctx: MutationCtx, userId: Id<"users">, day: string): P
   ]);
   await ctx.db.patch(prog._id, {
     weekKey: week,
-    weekXp: weekRows.reduce((n, r) => n + r.amount, 0),
+    weekXp: weekRows.filter(isAwarded).reduce((n, r) => n + r.amount, 0),
     monthKey: month,
-    monthXp: monthRows.reduce((n, r) => n + r.amount, 0),
+    monthXp: monthRows.filter(isAwarded).reduce((n, r) => n + r.amount, 0),
     level: levelInfoFromXp(prog.totalXp).level,
     updatedAt: Date.now(),
   });
@@ -1053,6 +1086,156 @@ export async function handleRoutineToggle(
     console.error("[gamification] engine failed after routine toggle", err);
     return { level: startLevel, levelUp: null, unlocked: [], xp: 0 };
   }
+}
+
+/* ------------------------------------------------------------------ */
+/* Outcome XP — projects, milestones, goals, focus sessions            */
+/* (Phase 03: one shared engine, persona-aware sources)                */
+/* ------------------------------------------------------------------ */
+
+/** Shared wrapper: apply an award/reversal, then re-run the engine. */
+async function runOutcome(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  apply: () => Promise<void>,
+): Promise<EngineResult> {
+  const prog = await ensureProgressDoc(ctx, userId);
+  const startLevel = prog.level;
+  const day = todayKey();
+  try {
+    await apply();
+    return await runEngine(ctx, userId, day, startLevel);
+  } catch (err) {
+    console.error("[gamification] engine failed after outcome change", err);
+    return { level: startLevel, levelUp: null, unlocked: [], xp: 0 };
+  }
+}
+
+/** Project status changed (e.g. active → completed). */
+export async function handleProjectStatusChange(
+  ctx: MutationCtx,
+  project: Doc<"projects">,
+  newStatus: string,
+): Promise<EngineResult> {
+  return runOutcome(ctx, project.userId, async () => {
+    if (newStatus === "completed") {
+      await awardXp(ctx, project.userId, {
+        amount: XP_RULES.projectCompleted,
+        kind: "project",
+        label: `تکمیل پروژه «${project.name}»`,
+        day: todayKey(),
+        refType: "project",
+        refId: project._id,
+      });
+    } else {
+      await revokeXp(ctx, project.userId, "project", project._id);
+    }
+  });
+}
+
+/** Project milestone (checkpoint) completed or reopened. */
+export async function handleMilestoneChange(
+  ctx: MutationCtx,
+  milestone: Doc<"milestones">,
+  newStatus: string,
+): Promise<EngineResult> {
+  return runOutcome(ctx, milestone.userId, async () => {
+    if (newStatus === "completed") {
+      await awardXp(ctx, milestone.userId, {
+        amount: XP_RULES.projectMilestone,
+        kind: "project",
+        label: `نقطه عطف «${milestone.title}»`,
+        day: todayKey(),
+        refType: "milestone",
+        refId: milestone._id,
+      });
+    } else {
+      await revokeXp(ctx, milestone.userId, "milestone", milestone._id);
+    }
+  });
+}
+
+/**
+ * Any goal table (personalGoals / workGoals / teamGoals / businessGoals)
+ * completed or reopened. One shared rule set across all six workspaces.
+ */
+export async function handleGoalStatusChange(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  opts: { table: string; goalId: string; title: string; prevStatus: string; newStatus: string },
+): Promise<EngineResult> {
+  const refId = `${opts.table}:${opts.goalId}`;
+  return runOutcome(ctx, userId, async () => {
+    if (opts.newStatus === "completed" && opts.prevStatus !== "completed") {
+      await awardXp(ctx, userId, {
+        amount: XP_RULES.goalCompleted,
+        kind: "goal",
+        label: `تکمیل هدف «${opts.title}»`,
+        day: todayKey(),
+        refType: "goal",
+        refId,
+      });
+    } else if (opts.prevStatus === "completed" && opts.newStatus !== "completed") {
+      await revokeXp(ctx, userId, "goal", refId);
+    }
+  });
+}
+
+/** One milestone/step inside a goal was ticked or unticked. */
+export async function handleGoalMilestoneChange(
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  opts: { goalId: string; index: number; title: string; done: boolean },
+): Promise<EngineResult> {
+  const refId = `${opts.goalId}:${opts.index}`;
+  return runOutcome(ctx, userId, async () => {
+    if (opts.done) {
+      await awardXp(ctx, userId, {
+        amount: XP_RULES.goalMilestone,
+        kind: "goal",
+        label: `گام هدف «${opts.title}»`,
+        day: todayKey(),
+        refType: "goalMilestone",
+        refId,
+      });
+    } else {
+      await revokeXp(ctx, userId, "goalMilestone", refId);
+    }
+  });
+}
+
+/**
+ * A focus/study session was saved. Only genuinely completed sessions award
+ * XP (≥ focusMinMinutes of actual work), with a per-day cap so a timer left
+ * running can never be farmed.
+ */
+export async function handleFocusSession(
+  ctx: MutationCtx,
+  session: {
+    userId: Id<"users">;
+    _id: string;
+    title?: string;
+    plannedMinutes: number;
+    actualMinutes: number;
+    completed: boolean;
+  },
+  sourceLabel = "تمرکز",
+): Promise<EngineResult> {
+  return runOutcome(ctx, session.userId, async () => {
+    const counts = session.completed && session.actualMinutes >= XP_RULES.focusMinMinutes;
+    if (counts) {
+      await awardXp(ctx, session.userId, {
+        amount: XP_RULES.focusSession,
+        kind: "focus",
+        label: `${sourceLabel} «${session.title?.trim() || `${session.plannedMinutes} دقیقه`}»`,
+        day: todayKey(),
+        refType: "focusSession",
+        refId: session._id,
+      });
+    } else {
+      await revokeXp(ctx, session.userId, "focusSession", session._id);
+    }
+  });
 }
 
 /* ------------------------------------------------------------------ */
@@ -1189,7 +1372,7 @@ async function backfill(ctx: MutationCtx, userId: Id<"users">): Promise<void> {
       routineItems: items.length,
       routineDone,
       focusMinutes: done.reduce((n, t) => n + (t.estimateMinutes ?? 0), 0),
-      xpEarned: xpEarned.reduce((n, r) => n + r.amount, 0),
+      xpEarned: xpEarned.filter(isAwarded).reduce((n, r) => n + r.amount, 0),
       missionsDone: 0,
       missionsTotal: 0,
       taskScore: breakdown.tasks,
@@ -1504,7 +1687,8 @@ export const xpHistory = query({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
       .take(Math.min(limit ?? 60, 200));
-    const filtered = kinds && kinds.length ? rows.filter((r) => kinds.includes(r.kind)) : rows;
+    const awarded = rows.filter((r) => r.status !== "reversed");
+    const filtered = kinds && kinds.length ? awarded.filter((r) => kinds.includes(r.kind)) : awarded;
     return filtered.map((r) => ({
       id: r._id,
       amount: r.amount,

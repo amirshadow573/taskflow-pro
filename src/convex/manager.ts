@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleGoalStatusChange, handleMilestoneChange } from "./gamification";
 
 /* ================================================================== */
 /*  TEAMS                                                              */
@@ -138,6 +139,10 @@ export const updateMilestone = mutation({
     for (const [k, v_] of Object.entries(args)) { if (k !== "id" && v_ !== undefined) patch[k] = v_; }
     if (args.status === "completed") patch.completedAt = Date.now();
     await ctx.db.patch(args.id, patch);
+    // XP: project milestone completed / reopened (shared engine, once each).
+    if (args.status !== undefined && args.status !== doc.status) {
+      await handleMilestoneChange(ctx, doc, args.status);
+    }
   },
 });
 
@@ -188,6 +193,16 @@ export const updateTeamGoal = mutation({
     for (const [k, v_] of Object.entries(args)) { if (k !== "id" && v_ !== undefined) patch[k] = v_; }
     if (args.status === "completed") patch.completedAt = Date.now();
     await ctx.db.patch(args.id, patch);
+    // XP: team goal completion (shared engine, once per goal).
+    if (args.status !== undefined && args.status !== doc.status) {
+      await handleGoalStatusChange(ctx, userId, {
+        table: "teamGoals",
+        goalId: args.id,
+        title: (args.title as string | undefined) ?? doc.title,
+        prevStatus: doc.status,
+        newStatus: args.status,
+      });
+    }
   },
 });
 

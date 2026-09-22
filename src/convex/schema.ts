@@ -154,14 +154,20 @@ export default defineSchema({
     .index("by_user_day", ["userId", "day"])
     .index("by_user", ["userId"]),
 
-  // XP ledger — every award / reversal is one immutable event.
+  // XP ledger — every award / reversal is one auditable event.
   xpEvents: defineTable({
     userId: v.id("users"),
     amount: v.number(),
-    kind: v.string(), // task | subtask | routine | mission | challenge | path | stage | streak | bonus
+    // task | subtask | routine | mission | challenge | path | stage | streak | bonus
+    // | project | goal | focus
+    kind: v.string(),
     label: v.string(),
     day: v.string(),
     createdAt: v.number(),
+    /** "awarded" (default) | "reversed" — reversals are kept for audit. */
+    status: v.optional(v.string()),
+    /** When the award was reversed (correction / source undone). */
+    reversedAt: v.optional(v.number()),
     refType: v.optional(v.string()),
     refId: v.optional(v.string()),
     meta: v.optional(v.string()),

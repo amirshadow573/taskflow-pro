@@ -159,11 +159,46 @@ export const XP_RULES = {
   pathCompletion: 300,
   /** Streak milestones (awarded once each). */
   streakMilestones: [7, 14, 30, 60, 100] as number[],
+  /* Outcome awards — projects, goals, focus (Phase 03). */
+  /** Finishing a whole project (awarded once per project). */
+  projectCompleted: 150,
+  /** Completing a project milestone / checkpoint (awarded once each). */
+  projectMilestone: 60,
+  /** Completing any goal (personal / work / team / business) — once each. */
+  goalCompleted: 120,
+  /** Completing one milestone/step inside a goal — once each. */
+  goalMilestone: 40,
+  /** A genuinely completed focus/study session (see min minutes below). */
+  focusSession: 25,
+  /** Minimum actual minutes for a session to count as completed focus. */
+  focusMinMinutes: 10,
+  /** Anti-exploit: maximum focus-session XP awards counted per day. */
+  dailyFocusXpCap: 4,
   /** Anti-exploit: maximum task-XP awards counted per day. */
   dailyTaskXpCap: 12,
   /** Anti-exploit: maximum routine-XP awards counted per day. */
   dailyRoutineXpCap: 20,
 } as const;
+
+/**
+ * Centralized semantic action registry (single source of truth).
+ * Callers reference these names instead of scattering XP numbers through
+ * the frontend — values always resolve from XP_RULES above.
+ */
+export const XP_ACTIONS = {
+  TASK_COMPLETED: { kind: "task", xp: (priority: string) => XP_RULES.taskByPriority[priority] ?? 10 },
+  TASK_IMPORTANT_COMPLETED: { kind: "task", xp: () => XP_RULES.taskByPriority.high ?? 16 },
+  PROJECT_COMPLETED: { kind: "project", xp: () => XP_RULES.projectCompleted },
+  PROJECT_MILESTONE: { kind: "project", xp: () => XP_RULES.projectMilestone },
+  GOAL_COMPLETED: { kind: "goal", xp: () => XP_RULES.goalCompleted },
+  GOAL_MILESTONE: { kind: "goal", xp: () => XP_RULES.goalMilestone },
+  FOCUS_SESSION: { kind: "focus", xp: () => XP_RULES.focusSession },
+  ROUTINE_COMPLETION: { kind: "routine", xp: () => XP_RULES.routineItem },
+  DAILY_PLAN: { kind: "bonus", xp: () => XP_RULES.plannedDayBonus },
+  WEEKLY_MISSION: { kind: "mission", xp: () => XP_RULES.weeklyMission },
+} as const;
+
+export type XpActionName = keyof typeof XP_ACTIONS;
 
 /* ------------------------------------------------------------------ */
 /* Daily score                                                         */
@@ -572,6 +607,9 @@ export const XP_KINDS = [
   "stage",
   "streak",
   "bonus",
+  "project",
+  "goal",
+  "focus",
 ] as const;
 export type XpKind = (typeof XP_KINDS)[number];
 
@@ -585,6 +623,9 @@ export const XP_KIND_LABELS: Record<string, string> = {
   stage: "مرحله مسیر",
   streak: "زنجیره",
   bonus: "پاداش",
+  project: "پروژه",
+  goal: "هدف",
+  focus: "تمرکز",
 };
 
 /** Filter groups used by the XP history UI. */
@@ -595,5 +636,8 @@ export const XP_FILTERS: Array<{ key: string; label: string; kinds: XpKind[] }> 
   { key: "mission", label: "ماموریت‌ها", kinds: ["mission"] },
   { key: "challenge", label: "چالش‌ها", kinds: ["challenge"] },
   { key: "path", label: "مسیرها", kinds: ["path", "stage"] },
+  { key: "project", label: "پروژه‌ها", kinds: ["project"] },
+  { key: "goal", label: "اهداف", kinds: ["goal"] },
+  { key: "focus", label: "تمرکز", kinds: ["focus"] },
   { key: "bonus", label: "پاداش‌ها", kinds: ["streak", "bonus"] },
 ];

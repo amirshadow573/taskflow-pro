@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleGoalMilestoneChange, handleGoalStatusChange } from "./gamification";
 
 /* ================================================================== */
 /*  Life Areas                                                         */
@@ -137,6 +138,32 @@ export const updateGoal = mutation({
         : (patch.progress ?? doc.progress);
     }
     await ctx.db.patch(id, updates);
+
+    // XP: goal completion + per-milestone progress (shared Phase 03 engine).
+    const nextStatus = (patch.status as string | undefined) ?? doc.status;
+    if (nextStatus !== doc.status) {
+      await handleGoalStatusChange(ctx, userId, {
+        table: "personalGoals",
+        goalId: id,
+        title: (patch.title as string | undefined) ?? doc.title,
+        prevStatus: doc.status,
+        newStatus: nextStatus,
+      });
+    }
+    if (patch.milestones) {
+      for (let i = 0; i < patch.milestones.length; i++) {
+        const wasDone = doc.milestones[i]?.done ?? false;
+        const nowDone = patch.milestones[i].done;
+        if (wasDone !== nowDone) {
+          await handleGoalMilestoneChange(ctx, userId, {
+            goalId: id,
+            index: i,
+            title: patch.milestones[i].title,
+            done: nowDone,
+          });
+        }
+      }
+    }
   },
 });
 

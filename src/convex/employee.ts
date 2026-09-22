@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleFocusSession, handleGoalStatusChange } from "./gamification";
 
 /* ================================================================== */
 /*  MEETINGS (reuse manager table)                                     */
@@ -70,7 +71,16 @@ export const createFocusSession = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
-    return ctx.db.insert("focusSessions", { userId, taskId: args.taskId, projectId: args.projectId, title: args.title, plannedMinutes: args.plannedMinutes, actualMinutes: args.actualMinutes, date: args.date, completed: args.completed, type: args.type, createdAt: Date.now() });
+    const id = await ctx.db.insert("focusSessions", { userId, taskId: args.taskId, projectId: args.projectId, title: args.title, plannedMinutes: args.plannedMinutes, actualMinutes: args.actualMinutes, date: args.date, completed: args.completed, type: args.type, createdAt: Date.now() });
+    // XP: only genuinely completed sessions earn focus XP (daily cap applies).
+    if (args.completed) {
+      await handleFocusSession(
+        ctx,
+        { userId, _id: id, title: args.title, plannedMinutes: args.plannedMinutes, actualMinutes: args.actualMinutes, completed: args.completed },
+        "جلسه تمرکز",
+      );
+    }
+    return id;
   },
 });
 
@@ -85,6 +95,16 @@ export const updateFocusSession = mutation({
     if (args.actualMinutes !== undefined) patch.actualMinutes = args.actualMinutes;
     if (args.completed !== undefined) patch.completed = args.completed;
     await ctx.db.patch(args.id, patch);
+    // XP: award/revoke when the session's completion state changes.
+    const nextCompleted = args.completed ?? doc.completed;
+    const nextMinutes = args.actualMinutes ?? doc.actualMinutes;
+    if (nextCompleted !== doc.completed || nextMinutes !== doc.actualMinutes) {
+      await handleFocusSession(
+        ctx,
+        { userId, _id: args.id, title: doc.title ?? undefined, plannedMinutes: doc.plannedMinutes, actualMinutes: nextMinutes, completed: nextCompleted },
+        "جلسه تمرکز",
+      );
+    }
   },
 });
 
@@ -178,6 +198,16 @@ export const updateWorkGoal = mutation({
     for (const [k, v_] of Object.entries(args)) { if (k !== "id" && v_ !== undefined) patch[k] = v_; }
     if (args.status === "completed") patch.completedAt = Date.now();
     await ctx.db.patch(args.id, patch);
+    // XP: work-goal completion (shared engine, once per goal).
+    if (args.status !== undefined && args.status !== doc.status) {
+      await handleGoalStatusChange(ctx, userId, {
+        table: "workGoals",
+        goalId: args.id,
+        title: doc.title,
+        prevStatus: doc.status,
+        newStatus: args.status,
+      });
+    }
   },
 });
 

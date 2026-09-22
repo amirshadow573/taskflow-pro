@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleProjectStatusChange } from "./gamification";
 
 export const list = query({
   args: {},
@@ -52,11 +53,16 @@ export const update = mutation({
     if (userId === null) throw new Error("Not authenticated");
     const project = await ctx.db.get(id);
     if (!project || project.userId !== userId) throw new Error("Not found");
+    const prevStatus = project.status;
     const patch: Record<string, unknown> = {};
     for (const [k, val] of Object.entries(rest)) {
       if (val !== undefined) patch[k] = val === null ? undefined : val;
     }
     if (Object.keys(patch).length) await ctx.db.patch(id, patch);
+    // XP: meaningful outcome when a project is completed (reversible + audited).
+    if (rest.status !== undefined && rest.status !== prevStatus) {
+      await handleProjectStatusChange(ctx, project, rest.status);
+    }
   },
 });
 

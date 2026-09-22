@@ -33,6 +33,7 @@ export function ProgressProvider({
   const data = useProgressQuery();
   const ensure = useMutation(api.gamification.ensureProgress);
   const booted = useRef(false);
+  const celebratedLevel = useRef<number | null>(null);
   const [event, setEvent] = useState<ProgressionEvent | null>(null);
 
   useEffect(() => {
@@ -47,6 +48,23 @@ export function ProgressProvider({
       sessionStorage.removeItem(BOOTSTRAP_KEY);
     });
   }, [ensure, ready]);
+
+  // Reactive level-up detection: every XP source (tasks, projects, goals,
+  // focus sessions, missions…) celebrates the same way, even when the caller
+  // does not emit a progression event manually.
+  useEffect(() => {
+    if (!data) return;
+    if (celebratedLevel.current === null) {
+      celebratedLevel.current = data.level;
+      return;
+    }
+    if (data.level > celebratedLevel.current) {
+      celebratedLevel.current = data.level;
+      setEvent({ levelUp: data.level, xp: data.xp });
+    } else {
+      celebratedLevel.current = Math.max(celebratedLevel.current, data.level);
+    }
+  }, [data]);
 
   useEffect(() => {
     const handler = (raw: Event) => {

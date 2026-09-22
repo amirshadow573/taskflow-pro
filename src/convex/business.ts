@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { handleGoalStatusChange } from "./gamification";
 
 /* ================================================================== */
 /* Customers                                                           */
@@ -417,8 +418,21 @@ export const updateBusinessGoal = mutation({
     for (const [k, v] of Object.entries(fields)) {
       if (v !== undefined) filtered[k] = v;
     }
+    const doc = await ctx.db.get(id);
+    if (!doc) return;
     filtered.updatedAt = Date.now();
     await ctx.db.patch(id, filtered);
+    // XP: strategic goal completion (shared Phase 03 engine, once per goal).
+    const nextStatus = (args.status as string | undefined) ?? doc.status;
+    if (nextStatus !== doc.status) {
+      await handleGoalStatusChange(ctx, doc.userId, {
+        table: "businessGoals",
+        goalId: id,
+        title: (args.title as string | undefined) ?? doc.title,
+        prevStatus: doc.status,
+        newStatus: nextStatus,
+      });
+    }
   },
 });
 
