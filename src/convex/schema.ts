@@ -768,4 +768,122 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
+
+  /* ---------------------------------------------------------------- */
+  /* Context & Environment Engine (Phase 02.6)                         */
+  /* ---------------------------------------------------------------- */
+
+  /**
+   * A real-world environment the user operates within.
+   * Generic by design — school, institute, company, team, business,
+   * client ecosystem, personal life… never hard-coded to one domain.
+   */
+  environments: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    /** EnvironmentType: school | institute | university | company | department | team | business | clients | personal | community | other */
+    type: v.string(),
+    description: v.optional(v.string()),
+    website: v.optional(v.string()),
+    timezone: v.optional(v.string()),
+    /** Weekday numbers the environment is active (0=Sunday … 6=Saturday). */
+    schedule: v.array(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** The user's relationship to an environment (role + localized label). */
+  environmentMemberships: defineTable({
+    userId: v.id("users"),
+    environmentId: v.id("environments"),
+    /** member | student | employee | manager | owner | client | freelancer */
+    role: v.string(),
+    /** Free-form localized label, e.g. "پایه ۱۲ — تجربی" or "تیم محصول". */
+    label: v.optional(v.string()),
+    status: v.string(), // active | left
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_env", ["userId", "environmentId"]),
+
+  /**
+   * Flexible context attribute with full provenance metadata.
+   * Distinguishes user-provided / discovered / imported / inferred data.
+   */
+  contextAttributes: defineTable({
+    userId: v.id("users"),
+    environmentId: v.optional(v.id("environments")),
+    /** Attribute key, e.g. "education_level", "department", "field_of_study". */
+    key: v.string(),
+    value: v.string(),
+    /** user_provided | discovered | imported | inferred */
+    origin: v.string(),
+    /** known | inferred | unknown — confidence of the value. */
+    confidence: v.string(),
+    userConfirmed: v.boolean(),
+    sourceId: v.optional(v.id("contextSources")),
+    lastUpdated: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_key", ["userId", "key"]),
+
+  /**
+   * Contextual events feed Calendar/Today with origin retained.
+   * One-off events use `date`; recurring events use `weekdays`.
+   */
+  contextEvents: defineTable({
+    userId: v.id("users"),
+    environmentId: v.optional(v.id("environments")),
+    title: v.string(),
+    /** class | exam | meeting | deadline | commitment | event | other */
+    type: v.string(),
+    /** One-off occurrence (YYYY-MM-DD). */
+    date: v.optional(v.string()),
+    /** Weekly recurrence — weekday numbers (0=Sunday … 6=Saturday). */
+    weekdays: v.array(v.number()),
+    startTime: v.optional(v.string()), // HH:mm
+    endTime: v.optional(v.string()), // HH:mm
+    /** user | environment | external */
+    origin: v.string(),
+    sourceId: v.optional(v.id("contextSources")),
+    /** known | inferred | unknown */
+    confidence: v.string(),
+    userConfirmed: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_date", ["userId", "date"]),
+
+  /**
+   * Registry of external/public information sources.
+   * Stores references only — no credentials, no scraping mechanisms.
+   */
+  contextSources: defineTable({
+    userId: v.id("users"),
+    environmentId: v.optional(v.id("environments")),
+    name: v.string(),
+    /** public_website | official_api | import | oauth | manual */
+    sourceType: v.string(),
+    url: v.optional(v.string()),
+    lastChecked: v.optional(v.number()),
+    status: v.string(), // active | paused | failed
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /**
+   * Lightweight confirmation queue for potentially useful discovered info.
+   * Nothing is applied automatically — the user always confirms.
+   */
+  contextConfirmations: defineTable({
+    userId: v.id("users"),
+    /** environment | event | attribute */
+    kind: v.string(),
+    /** JSON payload describing the proposed item. */
+    payload: v.string(),
+    /** inferred | unknown — never auto-applied. */
+    confidence: v.string(),
+    status: v.string(), // pending | accepted | dismissed
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
 });

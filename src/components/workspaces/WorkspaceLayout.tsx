@@ -2,6 +2,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { formatJalaliFull, toJalaliDate, JALALI_MONTHS, toFa } from "@/lib/persian";
 import { PERSONA_GREETINGS, personaMeta } from "@/lib/personas";
+import { MyEnvironment } from "@/components/context/MyEnvironment";
 import type { ReactNode } from "react";
 
 /**
@@ -11,9 +12,12 @@ import type { ReactNode } from "react";
 export function WorkspaceLayout({
   children,
   headerExtra,
+  showEnvironment = true,
 }: {
   children: ReactNode;
   headerExtra?: ReactNode;
+  /** Set false on pages where the environment card would add clutter. */
+  showEnvironment?: boolean;
 }) {
   const { user } = useAuth();
   const { personaKey } = useUserProfile();
@@ -45,6 +49,8 @@ export function WorkspaceLayout({
           </div>
         </div>
       </header>
+      {/* Context Engine — simple surface: "My Institute / My Workplace / My Team" */}
+      {showEnvironment !== false && <MyEnvironment compact />}
       {children}
     </div>
   );

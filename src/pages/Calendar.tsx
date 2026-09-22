@@ -1,4 +1,6 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
   JALALI_MONTHS,
@@ -26,6 +28,27 @@ export default function CalendarPage() {
 
   const j = toJalaliDate(cursor);
   const monthGrid = useMemo(() => jalaliMonthGrid(cursor), [cursor]);
+
+  // Context Engine: contextual events (classes, exams, meetings…) for the
+  // visible month + the selected day. Non-blocking — renders nothing while loading.
+  const gridKeys = useMemo(
+    () => monthGrid.filter((c) => c.type !== "empty").map((c) => c.key as string),
+    [monthGrid],
+  );
+  const monthEvents = useQuery(api.context.eventsInRange, {
+    start: gridKeys[0] ?? "",
+    end: gridKeys[gridKeys.length - 1] ?? "",
+  });
+  const dayEvents = useQuery(api.context.eventsOnDay, { day: selectedDay });
+
+  /** Context events falling on a given day (one-off + weekly recurrence). */
+  const eventsOn = useMemo(() => {
+    const rows = monthEvents ?? [];
+    return (key: string) => {
+      const weekday = new Date(`${key}T00:00:00`).getDay();
+      return rows.filter((e) => e.date === key || (e.date === undefined && e.weekdays.includes(weekday)));
+    };
+  }, [monthEvents]);
 
   const root = tasks.filter((t) => !t.parentId);
   const byDay = useMemo(() => {
@@ -101,6 +124,7 @@ export default function CalendarPage() {
               }
               const key = cell.key;
               const dayTasks = byDay.get(key) ?? [];
+              const dayCtxEvents = eventsOn(key);
               const isToday = key === today;
               const isSelected = key === selectedDay;
               const open = dayTasks.filter((t) => t.status !== "done");
@@ -156,6 +180,21 @@ export default function CalendarPage() {
                         +{toFa(open.length - 2)} مورد دیگر
                       </span>
                     )}
+                    {dayCtxEvents.slice(0, 1).map((e) => (
+                      <div
+                        key={`ctx-${e._id}`}
+                        title={`${e.title} — رویداد محیط`}
+                        className="truncate rounded px-1 py-0.5 text-[10px] font-medium"
+                        style={{ background: "rgba(139,92,246,0.12)", color: "#8b5cf6" }}
+                      >
+                        📌 {e.title}
+                      </div>
+                    ))}
+                    {dayCtxEvents.length > 1 && (
+                      <span className="block px-1 text-[9px] text-muted-foreground">
+                        +{toFa(dayCtxEvents.length - 1)} رویداد محیط
+                      </span>
+                    )}
                   </div>
                 </button>
               );
@@ -169,10 +208,36 @@ export default function CalendarPage() {
             {formatJalaliFull(new Date(selectedDay + "T00:00:00"))}
           </h2>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            {selectedTasks.length === 0
+            {selectedTasks.length === 0 && (dayEvents ?? []).length === 0
               ? "کاری برای این روز ثبت نشده."
-              : `${toFa(selectedTasks.length)} کار`}
+              : `${toFa(selectedTasks.length)} کار${(dayEvents ?? []).length ? ` · ${toFa((dayEvents ?? []).length)} رویداد محیط` : ""}`}
           </p>
+          {/* Contextual events — origin: environment (classes, exams, meetings) */}
+          {(dayEvents ?? []).length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {(dayEvents ?? []).map((e) => (
+                <li
+                  key={`ctx-${e._id}`}
+                  className="rounded-xl border border-violet-200 bg-violet-50/60 p-2.5 dark:border-violet-500/20 dark:bg-violet-500/5"
+                >
+                  <div className="flex items-start gap-2">
+                    <span className="mt-0.5 shrink-0 rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700 dark:bg-violet-500/15 dark:text-violet-300">
+                      {e.type === "class" ? "کلاس" : e.type === "exam" ? "امتحان" : e.type === "meeting" ? "جلسه" : e.type === "deadline" ? "مهلت" : e.type === "commitment" ? "تعهد" : "رویداد"}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold">{e.title}</p>
+                      <p className="mt-0.5 text-[10px] text-muted-foreground">
+                        {e.startTime && <span>{toFa(e.startTime)}{e.endTime ? ` – ${toFa(e.endTime)}` : " · "}</span>}
+                        {e.date === undefined && "تکرار هفتگی · "}
+                        منبع: محیط شما
+                        {!e.userConfirmed && " · تأیید نشده"}
+                      </p>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
           <ul className="mt-3 space-y-2">
             {selectedTasks.length === 0 && (
               <li className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
