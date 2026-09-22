@@ -51,6 +51,7 @@ import {
   type PathRow,
   type XpEventRow,
 } from "@/components/progress/ProgressSections";
+import { PersonaStatsPanel } from "@/components/progress/PersonaStats";
 
 const fmt = (n: number) => toFa(n.toLocaleString("en-US"));
 
@@ -729,7 +730,10 @@ export default function MyProgress() {
           <AchievementsPanel items={achievements ?? []} />
         </TabsContent>
 
-        <TabsContent value="stats">
+        <TabsContent value="stats" className="space-y-5">
+          {/* Persona stats (Phase 04) — what the user is becoming better at */}
+          <PersonaStatsPanel />
+          {/* Generic progression statistics (XP, streaks, quality) */}
           <StatsPanel />
         </TabsContent>
 

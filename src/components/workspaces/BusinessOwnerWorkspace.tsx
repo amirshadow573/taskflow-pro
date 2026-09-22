@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
 import { todayKey, isOverdue } from "@/lib/task-utils";
@@ -294,6 +295,8 @@ function DashboardTab({ metrics, tasks, projects, goals, revenue, expenses, paym
         <MetricCard icon={Users} label="مشتریان فعال" value={toFa(metrics.activeCustomers)} color="text-blue-600" />
         <MetricCard icon={Target} label="اهداف فعال" value={toFa(metrics.activeGoals)} color="text-violet-600" />
       </div>
+
+      <PersonaStatsStrip />
 
       {/* Second row */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">

@@ -241,6 +241,56 @@ export default defineSchema({
     .index("by_user_key", ["userId", "key"]),
 
   /* ------------------------------------------------------------------ */
+  /* Persona Stats (Phase 04)                                             */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Cached persona-stat state — one row per user + statKey.
+   * Values are always *derived* from real activity (see statRules.ts /
+   * personaStats.ts), never incremented, so deleted or reversed source
+   * activity can never inflate them. Definitions themselves live in code
+   * config (config-driven, not hard-coded in UI).
+   */
+  personaStats: defineTable({
+    userId: v.id("users"),
+    /** PersonaKey the value was computed under. */
+    persona: v.string(),
+    /** Stat key from the statRules catalog (e.g. focus, planning). */
+    statKey: v.string(),
+    /** False when there is not enough meaningful activity yet. */
+    hasData: v.boolean(),
+    /** Normalized 0–100 (0 when hasData is false). */
+    value: v.number(),
+    /** Value for the previous comparable window. */
+    previousValue: v.optional(v.number()),
+    /** up | down | flat — null-ish when data is insufficient. */
+    trend: v.optional(v.string()),
+    /** Config-driven tier label key (developing … exceptional). */
+    tier: v.string(),
+    /** Window (in days) the value was computed for. */
+    windowDays: v.number(),
+    /** Short human explanation of what fed the value. */
+    reason: v.optional(v.string()),
+    computedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_stat", ["userId", "statKey"]),
+
+  /** Daily value snapshots — history/trend chart input for future analytics. */
+  statSnapshots: defineTable({
+    userId: v.id("users"),
+    statKey: v.string(),
+    day: v.string(), // YYYY-MM-DD
+    value: v.number(), // 0–100
+    delta: v.optional(v.number()), // vs previous snapshot
+    reason: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user_stat_day", ["userId", "statKey", "day"])
+    .index("by_user_day", ["userId", "day"]),
+
+  /* ------------------------------------------------------------------ */
   /* Student-specific academic entities                                   */
   /* ------------------------------------------------------------------ */
 

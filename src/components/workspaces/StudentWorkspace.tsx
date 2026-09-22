@@ -6,6 +6,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
 import { todayKey, isOverdue } from "@/lib/task-utils";
@@ -1240,6 +1241,9 @@ export function StudentWorkspace() {
               </div>
             ))}
           </div>
+
+          {/* Compact persona stats (Phase 04) - secondary to today's work */}
+          <PersonaStatsStrip />
 
           {/* Today's tasks */}
           <section className="ui-surface overflow-hidden rounded-2xl">

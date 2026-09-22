@@ -5,6 +5,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
 import { todayKey, isOverdue } from "@/lib/task-utils";
@@ -750,6 +751,7 @@ export function FreelancerWorkspace() {
               </div>
             ))}
           </div>
+          <PersonaStatsStrip />
           {overdue.length > 0 && (
             <div className="rounded-xl border border-red-200 bg-red-50/50 p-3 dark:border-red-500/20 dark:bg-red-500/5">
               <div className="flex items-center gap-2"><AlertCircle className="size-4 text-red-500" /><span className="text-sm font-bold text-red-700 dark:text-red-300">{toFa(overdue.length)} کار عقب‌افتاده</span></div>

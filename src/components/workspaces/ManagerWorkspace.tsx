@@ -5,6 +5,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
 import { todayKey, isOverdue } from "@/lib/task-utils";
@@ -872,6 +873,8 @@ export function ManagerWorkspace() {
               </div>
             ))}
           </div>
+
+          <PersonaStatsStrip />
 
           {/* Overdue tasks alert */}
           {overdue.length > 0 && (

@@ -8,6 +8,7 @@ import { TodayRoutines } from "@/components/workspace/TodayRoutines";
 import { ProgressSnapshot } from "@/components/progress/ProgressSnapshot";
 import { ActivePathsStrip } from "@/components/progress/ActivePathsStrip";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
 import { todayKey, isOverdue, dateKeyOf } from "@/lib/task-utils";
@@ -346,7 +347,10 @@ function DashboardTab({ goTab }: { goTab: (t: TabKey) => void }) {
           </div>
         </SectionCard>
 
-        {/* G. Compact progress */}
+        {/* Compact persona stats (Phase 04) — grouped with progress, after priorities */}
+      <PersonaStatsStrip />
+
+      {/* G. Compact progress */}
         <SectionCard title="پیشرفت" icon={TrendingUp} action={<Button variant="ghost" size="sm" onClick={() => goTab("progress")}>جزئیات<ArrowLeft className="size-3.5" /></Button>}>
           <div className="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
             {[

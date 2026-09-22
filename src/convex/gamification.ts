@@ -40,6 +40,7 @@ import {
   pathTotalXp,
   type PathMission,
 } from "./growthPaths";
+import { syncPersonaStats } from "./personaStats";
 
 /* ------------------------------------------------------------------ */
 /* small helpers                                                       */
@@ -1009,6 +1010,9 @@ async function runEngine(
   await syncTotals(ctx, userId, day);
   const unlocked = await evaluateAchievements(ctx, userId, day);
   await syncTotals(ctx, userId, day);
+  // Persona stats (Phase 04) — derived + idempotent, and never allowed to
+  // break the productivity engine if it fails.
+  await syncPersonaStats(ctx, userId);
 
   const after = await progDoc(ctx, userId);
   void current;
