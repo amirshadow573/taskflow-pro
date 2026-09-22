@@ -668,4 +668,104 @@ export default defineSchema({
     createdAt: v.number(),
     updatedAt: v.number(),
   }).index("by_user", ["userId"]),
+
+  /* ---------------------------------------------------------------- */
+  /* Personal Productivity Workspace (Phase 2.5F)                      */
+  /* ---------------------------------------------------------------- */
+
+  /** Areas of the user's life — where attention is going. */
+  lifeAreas: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    color: v.string(), // hex
+    emoji: v.optional(v.string()),
+    archived: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Personal goals with milestones (hierarchy: goal → milestones → tasks). */
+  personalGoals: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    lifeAreaId: v.optional(v.id("lifeAreas")),
+    dueDate: v.optional(v.string()), // YYYY-MM-DD
+    progress: v.number(), // 0-100
+    status: v.string(), // active | completed | paused
+    milestones: v.array(
+      v.object({
+        title: v.string(),
+        done: v.boolean(),
+      }),
+    ),
+    relatedProjectIds: v.array(v.id("projects")),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Habits — repeated behaviors (separate from routines). */
+  habits: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    frequency: v.string(), // daily | weekly
+    target: v.number(), // completions per frequency period
+    color: v.optional(v.string()),
+    lifeAreaId: v.optional(v.id("lifeAreas")),
+    archived: v.boolean(),
+    createdAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Per-day habit completion logs (for streaks & consistency). */
+  habitLogs: defineTable({
+    userId: v.id("users"),
+    habitId: v.id("habits"),
+    day: v.string(), // YYYY-MM-DD
+    done: v.boolean(),
+  })
+    .index("by_user_day", ["userId", "day"])
+    .index("by_habit", ["habitId"]),
+
+  /** Time blocks — when the user intends to do something. */
+  timeBlocks: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    day: v.string(), // YYYY-MM-DD
+    startTime: v.string(), // HH:mm
+    endTime: v.string(), // HH:mm
+    kind: v.string(), // focus | exercise | learning | routine | personal | other
+    taskId: v.optional(v.id("tasks")),
+    projectId: v.optional(v.id("projects")),
+    goalId: v.optional(v.id("personalGoals")),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_day", ["userId", "day"]),
+
+  /** Daily / weekly / monthly personal reviews. */
+  personalReviews: defineTable({
+    userId: v.id("users"),
+    type: v.string(), // daily | weekly | monthly
+    periodKey: v.string(), // YYYY-MM-DD (daily), week start (weekly), YYYY-MM (monthly)
+    completedWork: v.string(),
+    remainingWork: v.string(),
+    wentWell: v.string(),
+    focusNext: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_type", ["userId", "type"]),
+
+  /** Lightweight personal notes. */
+  personalNotes: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    body: v.string(),
+    lifeAreaId: v.optional(v.id("lifeAreas")),
+    tags: v.array(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 });
