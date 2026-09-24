@@ -25,6 +25,7 @@ import { query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { dateKey, shiftKey, todayKey } from "./progression";
+import { syncUserSkills } from "./skills";
 import {
   DEFAULT_STAT_WINDOW,
   STATS_EMPTY_STATE,
@@ -598,6 +599,10 @@ export async function syncPersonaStats(
       if (snapExisting) await ctx.db.patch(snapExisting._id, snap);
       else await ctx.db.insert("statSnapshots", { userId, statKey: def.key, day: today, createdAt: now, ...snap });
     }
+
+    // Skills & Evolution (Phase 05) — derived from the stat rows we just
+    // persisted; same idempotent, failure-tolerant contract as above.
+    await syncUserSkills(ctx, userId);
   } catch (err) {
     console.error("[personaStats] sync failed", err);
   }

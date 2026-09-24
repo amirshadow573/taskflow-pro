@@ -291,6 +291,60 @@ export default defineSchema({
     .index("by_user_day", ["userId", "day"]),
 
   /* ------------------------------------------------------------------ */
+  /* Skills & Evolution (Phase 05)                                        */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * Cached skill state — one row per user + skillKey.
+   * Skills are *derived* from persona stats + real activity (see skillRules
+   * config), never incremented — reversed/invalidated activity self-heals on
+   * the next sync. Level-ups are logged as auditable skillEvents.
+   */
+  userSkills: defineTable({
+    userId: v.id("users"),
+    persona: v.string(),
+    /** Skill key from the skillRules persona path. */
+    skillKey: v.string(),
+    /** False until at least one contributing persona stat has data. */
+    hasData: v.boolean(),
+    /** Normalized 0–100 progress. */
+    progress: v.number(),
+    /** 0 (not started) … 5 — derived from SKILL_LEVEL_THRESHOLDS. */
+    level: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_skill", ["userId", "skillKey"]),
+
+  /** Auditable skill history — level-ups and evolution-stage changes. */
+  skillEvents: defineTable({
+    userId: v.id("users"),
+    persona: v.string(),
+    /** Skill key, or "evolution" for stage changes. */
+    skillKey: v.string(),
+    /** "levelUp" | "evolution" (future: quest/achievement hooks). */
+    type: v.string(),
+    from: v.number(),
+    to: v.number(),
+    /** Persian explanation of what developed. */
+    label: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user_skill", ["userId", "skillKey", "createdAt"])
+    .index("by_user", ["userId", "createdAt"]),
+
+  /** Current evolution stage per user + persona. */
+  userEvolution: defineTable({
+    userId: v.id("users"),
+    persona: v.string(),
+    stageIndex: v.number(),
+    stageKey: v.string(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_persona", ["userId", "persona"]),
+
+  /* ------------------------------------------------------------------ */
   /* Student-specific academic entities                                   */
   /* ------------------------------------------------------------------ */
 
