@@ -58,6 +58,12 @@ export default defineSchema({
     status: v.string(), // active | paused | completed
     createdAt: v.number(),
     archived: v.boolean(),
+    /**
+     * Optional link to the persona goal this project serves, as `${kind}:${id}`
+     * (kind = personal | work | team | business). Phase 09 — lets the UI show
+     * Goal → Project → Task relationships without a second hierarchy.
+     */
+    goalRef: v.optional(v.string()),
   }).index("by_user", ["userId"]),
 
   // Unified task model: inbox capture, today lists, projects, kanban, subtasks

@@ -22,8 +22,10 @@ export const create = mutation({
     description: v.optional(v.string()),
     color: v.optional(v.string()),
     deadline: v.optional(v.string()),
+    /** `${kind}:${goalId}` — the goal this project serves (Phase 09). */
+    goalRef: v.optional(v.string()),
   },
-  handler: async (ctx, { name, description, color, deadline }) => {
+  handler: async (ctx, { name, description, color, deadline, goalRef }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Not authenticated");
     return await ctx.db.insert("projects", {
@@ -35,6 +37,7 @@ export const create = mutation({
       status: "active",
       createdAt: Date.now(),
       archived: false,
+      goalRef: goalRef || undefined,
     });
   },
 });
@@ -47,6 +50,7 @@ export const update = mutation({
     color: v.optional(v.string()),
     deadline: v.optional(v.union(v.string(), v.null())),
     status: v.optional(v.string()),
+    goalRef: v.optional(v.union(v.string(), v.null())),
   },
   handler: async (ctx, { id, ...rest }) => {
     const userId = await getAuthUserId(ctx);
