@@ -1,6 +1,6 @@
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { type PersonaKey } from "@/lib/personas";
-import { StudentWorkspace } from "./StudentWorkspace";
+import { StudentWorkspaceCommand } from "./StudentWorkspaceCommand";
 import { EmployeeWorkspace } from "./EmployeeWorkspace";
 import { FreelancerWorkspace } from "./FreelancerWorkspace";
 import { BusinessOwnerWorkspace } from "./BusinessOwnerWorkspace";
@@ -15,7 +15,7 @@ export function WorkspaceRouter() {
   const { personaKey } = useUserProfile();
 
   const workspaceMap: Record<string, React.FC> = {
-    student: StudentWorkspace,
+    student: StudentWorkspaceCommand,
     employee: EmployeeWorkspace,
     freelancer: FreelancerWorkspace,
     business_owner: BusinessOwnerWorkspace,

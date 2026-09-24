@@ -46,12 +46,38 @@ const PRIMARY_NAV: NavItem[] = [
   { to: "/projects", label: "پروژه‌ها", icon: FolderKanban },
   { to: "/calendar", label: "تقویم", icon: CalendarDays },
   { to: "/planning", label: "برنامه‌ریزی", icon: Clock },
-  // پیشرفت من = level / XP / missions / growth paths (single nav entry)
+  // پیشرفت من = level / XP / stats / skills / quests / achievements / unlocks
   { to: "/progress", label: "پیشرفت من", icon: Trophy },
   { to: "/analytics", label: "تحلیل", icon: LineChart },
   { to: "/archive", label: "بایگانی", icon: Archive },
   { to: "/settings", label: "تنظیمات", icon: Settings },
 ];
+
+/**
+ * Phase 09 navigation grouping — the sidebar is NOT a feature catalogue.
+ * Core = daily execution, Progress = progression systems (one hub, not five
+ * top-level items), Advanced = optional analysis/history/settings.
+ */
+const NAV_GROUPS: { label: string; paths: string[] }[] = [
+  {
+    label: "روزمره",
+    paths: ["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning"],
+  },
+  { label: "پیشرفت", paths: ["/progress"] },
+  { label: "پیشرفته", paths: ["/analytics", "/archive", "/settings"] },
+];
+
+/** Persona-specific ordering inside the "روزمره" group (priorities first). */
+const CORE_ORDER_PER_PERSONA: Record<string, string[]> = {
+  student: ["/today", "/dashboard", "/calendar", "/tasks", "/projects", "/planning", "/inbox"],
+  employee: ["/today", "/tasks", "/calendar", "/projects", "/dashboard", "/planning", "/inbox"],
+  freelancer: ["/today", "/projects", "/tasks", "/calendar", "/dashboard", "/inbox", "/planning"],
+  manager: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/inbox"],
+  business_owner: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/inbox"],
+  personal: ["/today", "/tasks", "/dashboard", "/projects", "/calendar", "/planning", "/inbox"],
+  team: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/inbox"],
+  custom: ["/today", "/dashboard", "/tasks", "/projects", "/calendar", "/planning", "/inbox"],
+};
 
 const MOBILE_NAV: NavItem[] = [
   { to: "/dashboard", label: "داشبورد", icon: LayoutDashboard },
@@ -166,7 +192,78 @@ export function AppShell({
         </div>
 
         <div className="flex-1 overflow-y-auto py-3">
-          <NavLinks items={withCounts} compact={collapsed} />
+          {collapsed ? (
+            <NavLinks items={withCounts} compact />
+          ) : (
+            <nav aria-label="ناوبری اصلی" className="flex flex-col gap-4 px-2">
+              {NAV_GROUPS.map((group) => {
+                const order = CORE_ORDER_PER_PERSONA[personaKey];
+                const items = group.paths
+                  .map((p) => withCounts.find((n) => n.to === p))
+                  .filter(Boolean) as NavItem[];
+                const sorted =
+                  group.label === "روزمره" && order
+                    ? [...items].sort(
+                        (a, b) =>
+                          order.indexOf(a.to) - order.indexOf(b.to),
+                      )
+                    : items;
+                if (sorted.length === 0) return null;
+                return (
+                  <div key={group.label} className="space-y-0.5">
+                    <p className="px-3 pb-1 text-[10px] font-bold tracking-wide text-muted-foreground">
+                      {group.label}
+                    </p>
+                    {sorted.map((item) => (
+                      <NavLink
+                        key={item.to}
+                        to={item.to}
+                        className={({ isActive }) =>
+                          cn(
+                            "flex items-center gap-3 rounded-xl border border-transparent px-3 py-2 text-sm font-semibold transition-all duration-200",
+                            isActive
+                              ? "ui-nav-active"
+                              : "text-muted-foreground hover:bg-primary/10 hover:text-foreground dark:hover:bg-white/5",
+                          )
+                        }
+                      >
+                        <item.icon className="size-4.5 shrink-0" />
+                        <span
+                          className={cn(
+                            "flex-1 truncate",
+                            (item as any).emphasized && "text-foreground",
+                          )}
+                        >
+                          {item.label}
+                        </span>
+                        {(item as any).emphasized && (
+                          <span
+                            className="size-1.5 shrink-0 rounded-full bg-primary"
+                            aria-hidden="true"
+                          />
+                        )}
+                        {item.badge !== undefined && item.badge > 0 && (
+                          <span className="min-w-5 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-1.5 text-center text-[10px] font-bold leading-5 text-white shadow-[0_3px_10px_-4px_rgba(37,99,235,0.9)]">
+                            {toFa(item.badge)}
+                          </span>
+                        )}
+                        {item.to === "/analytics" &&
+                          capabilities?.analytics === false && (
+                            <span
+                              title="تحلیل پیشرفته هنوز باز نشده"
+                              aria-label="تحلیل پیشرفته هنوز باز نشده است"
+                              className="grid size-4 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground dark:bg-white/10"
+                            >
+                              <Lock className="size-2.5" aria-hidden="true" />
+                            </span>
+                          )}
+                      </NavLink>
+                    ))}
+                  </div>
+                );
+              })}
+            </nav>
+          )}
         </div>
 
         <div className="space-y-1 border-t border-border/60 p-2">

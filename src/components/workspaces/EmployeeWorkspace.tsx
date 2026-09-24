@@ -6,6 +6,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { CommandCenter } from "@/components/workspace/command/CommandCenter";
 import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
@@ -674,42 +675,16 @@ export function EmployeeWorkspace() {
         </div>
       </div>
 
-      {/* ── Dashboard ── */}
+      {/* ── Dashboard — Phase 09 command center ── */}
       {activeTab === "dashboard" && (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {[
-              { label: "کارهای امروز", value: allToday.length, icon: ListChecks, color: "text-foreground" },
-              { label: "عقب‌افتاده", value: overdue.length, icon: AlertCircle, color: "text-red-500" },
-              { label: "پروژه‌ها", value: activeProjects.length, icon: FolderKanban, color: "text-blue-600" },
-              { label: "نرخ تکمیل", value: `${toFa(pct)}٪`, icon: CheckCircle2, color: "text-emerald-600" },
-            ].map((s) => (
-              <div key={s.label} className="ui-surface rounded-2xl p-3 text-center">
-                <s.icon className={`mx-auto mb-1 size-5 ${s.color}`} />
-                <div className="text-lg font-extrabold tabular-nums">{typeof s.value === "number" ? toFa(s.value) : s.value}</div>
-                <div className="text-[10px] text-muted-foreground">{s.label}</div>
-              </div>
-            ))}
-          </div>
-          <PersonaStatsStrip />
-          {overdue.length > 0 && (
-            <div className="rounded-xl border border-red-200 bg-red-50/50 p-3 dark:border-red-500/20 dark:bg-red-500/5">
-              <div className="flex items-center gap-2"><AlertCircle className="size-4 text-red-500" /><span className="text-sm font-bold text-red-700 dark:text-red-300">{toFa(overdue.length)} وظیفه عقب‌افتاده</span></div>
-            </div>
-          )}
-          {/* Work Queue */}
-          <section className="ui-surface overflow-hidden rounded-2xl">
-            <div className="flex items-center justify-between border-b border-border/50 px-4 py-3">
-              <h2 className="flex items-center gap-2 text-sm font-bold"><span className="ui-icon-tile size-6"><Zap className="size-3.5 text-primary" /></span>صفحه کار</h2>
-            </div>
-            {workQueue.length === 0 ? (
-              <div className="px-4 py-8 text-center"><p className="text-sm font-semibold">برای امروز کاری ثبت نشده.</p><p className="mt-1 text-xs text-muted-foreground">وظیفه جدید ایجاد کنید یا از پروژه‌ها تخصیص دهید.</p></div>
-            ) : (
-              <ul>{workQueue.slice(0, 10).map((t) => <TaskRow key={t._id} task={t} project={projectOf(t.projectId)} subtaskTotal={subtotals.get(t._id)?.total} subtaskDone={subtotals.get(t._id)?.done} onToggle={(done) => toggleDone(t, done)} onOpen={() => openTask(t._id)} onDelete={() => deleteTask(t._id)} />)}</ul>
-            )}
-          </section>
-          <SmartTaskInput onCreate={(p) => createTask({ title: p.title, dueDate: p.dueDate, dueTime: p.dueTime, priority: p.priority, tags: p.tags })} />
-        </div>
+        <CommandCenter
+          quickLinks={[
+            { label: "جلسات", onClick: () => setActiveTab("meetings") },
+            { label: "تمرکز", onClick: () => setActiveTab("focus") },
+            { label: "اهداف کاری", onClick: () => setActiveTab("goals") },
+            { label: "کار تکراری", onClick: () => setActiveTab("recurring") },
+          ]}
+        />
       )}
 
       {/* ── Today ── */}

@@ -88,23 +88,28 @@ function MobileFabHost() {
 
 /** Mounted once; reads openTaskId from workspace context. */
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { useGoals } from "@/hooks/use-goals";
+import { findGoal } from "@/lib/goals";
 import { useState } from "react";
 import { X } from "lucide-react";
 
 function TaskDetailHost() {
   const { tasks, projects, openTaskId, openTask, updateTask, toggleDone, deleteTask, createTask } =
     useWorkspace();
+  const goals = useGoals();
   const task = tasks.find((t) => t._id === openTaskId);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   if (!task) return null;
   const project = projects.find((p) => p._id === task.projectId);
+  const goal = findGoal(goals, project?.goalRef as string | undefined);
   const subtasks = tasks.filter((t) => t.parentId === openTaskId);
 
   const panel = (
     <TaskDetailPanel
       task={task}
       project={project}
+      goal={goal ? { ref: goal.ref, title: goal.title } : null}
       subtasks={subtasks}
       onClose={() => openTask(null)}
       onUpdate={(patch) => updateTask(task._id, patch)}

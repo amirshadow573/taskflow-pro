@@ -6,6 +6,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { CommandCenter } from "@/components/workspace/command/CommandCenter";
 import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
@@ -856,10 +857,19 @@ export function ManagerWorkspace() {
         </div>
       </div>
 
-      {/* ── Dashboard Tab ── */}
       {activeTab === "dashboard" && (
+        <CommandCenter
+          quickLinks={[
+            { label: "تیم", onClick: () => setActiveTab("team") },
+            { label: "بار کاری", onClick: () => setActiveTab("workload") },
+            { label: "جلسات", onClick: () => setActiveTab("meetings") },
+            { label: "اهداف تیمی", onClick: () => setActiveTab("goals") },
+          ]}
+        />
+      )}
+
+      {false && (
         <div className="space-y-4">
-          {/* Executive summary */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
               { label: "وظایف امروز", value: allToday.length, icon: ListChecks, color: "text-foreground" },

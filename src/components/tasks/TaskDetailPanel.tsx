@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Clock,
   FolderOpen,
+  Target,
   Hash,
   MessageSquare,
   Paperclip,
@@ -42,6 +43,7 @@ const PRIORITY_OPTIONS: PriorityKey[] = ["urgent", "high", "medium", "low"];
 export function TaskDetailPanel({
   task,
   project,
+  goal,
   subtasks,
   onClose,
   onUpdate,
@@ -52,7 +54,9 @@ export function TaskDetailPanel({
   onDeleteSubtask,
 }: {
   task: TaskDetailData;
-  project?: { _id: string; name: string; color: string };
+  project?: { _id: string; name: string; color: string; goalRef?: string };
+  /** Phase 09: the goal this task ultimately serves (via its project). */
+  goal?: { ref: string; title: string } | null;
   subtasks: TaskDetailData[];
   onClose: () => void;
   onUpdate: (patch: Record<string, unknown>) => void;
@@ -212,17 +216,25 @@ export function TaskDetailPanel({
             پروژه
           </label>
           {project ? (
-            <div className="ui-surface flex items-center gap-2 rounded-xl px-3 py-2">
-              <span className="size-2.5 rounded-full" style={{ background: project.color }} />
-              <span className="text-sm font-medium">{project.name}</span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="ms-auto h-6 px-2 text-[11px]"
-                onClick={() => onUpdate({ projectId: null })}
-              >
-                جدا کردن
-              </Button>
+            <div className="ui-surface rounded-xl px-3 py-2">
+              <div className="flex items-center gap-2">
+                <span className="size-2.5 rounded-full" style={{ background: project.color }} />
+                <span className="text-sm font-medium">{project.name}</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="ms-auto h-6 px-2 text-[11px]"
+                  onClick={() => onUpdate({ projectId: null })}
+                >
+                  جدا کردن
+                </Button>
+              </div>
+              {goal && (
+                <p className="mt-1.5 flex items-center gap-1.5 border-t border-border/50 pt-1.5 text-[11px] font-semibold text-primary">
+                  <Target className="size-3.5 shrink-0" aria-hidden />
+                  چرا مهم است: {goal.title}
+                </p>
+              )}
             </div>
           ) : (
             <p className="rounded-xl border border-dashed border-border/70 bg-white/40 px-3 py-2 text-xs text-muted-foreground dark:bg-white/5">

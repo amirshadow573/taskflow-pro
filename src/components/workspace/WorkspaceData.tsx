@@ -51,6 +51,8 @@ export interface ProjectDoc {
   color: string;
   deadline?: string;
   status: string;
+  /** Phase 09: `${kind}:${goalId}` — links a project to the goal it serves. */
+  goalRef?: string;
 }
 
 interface WorkspaceCtx {
@@ -74,6 +76,8 @@ interface WorkspaceCtx {
     description?: string;
     color?: string;
     deadline?: string;
+    /** Phase 09: links the project to a goal (`${kind}:${goalId}`). */
+    goalRef?: string;
   }) => Promise<void>;
   updateProject: (id: Id<"projects">, patch: Record<string, unknown>) => Promise<void>;
   deleteProject: (id: Id<"projects">) => Promise<void>;
@@ -227,8 +231,27 @@ export function WorkspaceData({
         tone: "warning",
       });
     }
+    // Phase 09: project deadlines closing in — capped to avoid notification spam.
+    const soon = todayKeyStr;
+    for (const p of (projects ?? [])) {
+      if (!p.deadline || p.deadline < soon) continue;
+      const days = Math.round(
+        (Date.parse(`${p.deadline}T00:00:00`) - Date.parse(`${soon}T00:00:00`)) /
+          86400000,
+      );
+      if (days > 7) continue;
+      list.push({
+        id: `pdl-${p._id}`,
+        title: `نزدیک ددلاین پروژه: ${p.name}`,
+        body:
+          days === 0
+            ? "ددلاین این پروژه امروز است."
+            : `${new Intl.NumberFormat("fa-IR").format(days)} روز تا ددلاین این پروژه باقی مانده.`,
+        tone: "warning",
+      });
+    }
     return list;
-  }, [overdue, dueToday]);
+  }, [overdue, dueToday, projects, todayKeyStr]);
 
   const palette = (
     <CommandPalette

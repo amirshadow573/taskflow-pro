@@ -5,6 +5,7 @@ import { api } from "../../convex/_generated/api";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { CommandCenter } from "@/components/workspace/command/CommandCenter";
 import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
@@ -232,7 +233,19 @@ export function BusinessOwnerWorkspace() {
   /* Tab content */
   const renderContent = () => {
     switch (activeTab) {
-      case "dashboard": return <DashboardTab metrics={metrics} tasks={tasks} projects={projects} goals={goals} revenue={revenue} expenses={expenses} payments={payments} sales={sales} customers={customers} toggleDone={toggleDone} openTask={openTask} deleteTask={deleteTask} createTask={createTask} />;
+      case "dashboard": return (
+        <div className="space-y-5">
+          <CommandCenter
+            quickLinks={[
+              { label: "مشتریان", onClick: () => setActiveTab("customers") },
+              { label: "فروش", onClick: () => setActiveTab("sales") },
+              { label: "مالی", onClick: () => setActiveTab("finance") },
+              { label: "عملیات", onClick: () => setActiveTab("operations") },
+            ]}
+          />
+          <DashboardTab metrics={metrics} tasks={tasks} projects={projects} goals={goals} revenue={revenue} expenses={expenses} payments={payments} sales={sales} customers={customers} toggleDone={toggleDone} openTask={openTask} deleteTask={deleteTask} createTask={createTask} />
+        </div>
+      );
       case "customers": return <CustomersTab customers={customers} createCustomer={createCustomer} updateCustomer={updateCustomer} deleteCustomer={deleteCustomer} />;
       case "sales": return <SalesTab sales={sales} customers={customers} createSale={createSale} updateSale={updateSale} deleteSale={deleteSale} />;
       case "finance": return <FinanceTab revenue={revenue} expenses={expenses} createRevenue={createRevenue} updateRevenue={updateRevenue} deleteRevenue={deleteRevenue} createExpense={createExpense} updateExpense={updateExpense} deleteExpense={deleteExpense} />;

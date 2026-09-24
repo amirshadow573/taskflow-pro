@@ -41,6 +41,8 @@ export interface NextActionProject {
   deadline?: string;
   status: string;
   goalRef?: string;
+  /** Project accent color (hex) used for subtle UI accents. */
+  color?: string;
 }
 
 export interface ScoredAction {

@@ -1,4 +1,6 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { useGoals } from "@/hooks/use-goals";
+import { findGoal } from "@/lib/goals";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { Button } from "@/components/ui/button";
 import { PRIORITIES, type PriorityKey } from "@/components/ui/badge";
@@ -13,6 +15,7 @@ import {
   Plus,
   Settings2,
   Activity as ActivityIcon,
+  Target,
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
@@ -34,6 +37,7 @@ export default function ProjectDetail() {
   const { tasks, projects, updateTask, toggleDone, openTask, createTask, deleteTask, updateProject } =
     useWorkspace();
 
+  const goals = useGoals();
   const [tab, setTab] = useState<Tab>("overview");
   const [dragId, setDragId] = useState<string | null>(null);
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
@@ -60,6 +64,7 @@ export default function ProjectDetail() {
   const done = pts.filter((t) => t.status === "done").length;
   const pct = pts.length ? Math.round((done / pts.length) * 100) : 0;
   const overdue = pts.filter((t) => isOverdue(t));
+  const goal = findGoal(goals, project?.goalRef as string | undefined);
 
   if (!project) {
     return (
@@ -98,6 +103,12 @@ export default function ProjectDetail() {
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {project.description || "بدون توضیح"}
               </p>
+              {goal && (
+                <p className="mt-1.5 flex items-center gap-1.5 text-[11px] font-semibold text-primary">
+                  <Target className="size-3.5" aria-hidden />
+                  هدف: {goal.title}
+                </p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -159,6 +170,28 @@ export default function ProjectDetail() {
       {/* Overview */}
       {tab === "overview" && (
         <div className="grid gap-4 md:grid-cols-3">
+          {goal && (
+            <div className="ui-surface rounded-2xl p-5 md:col-span-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <Target className="size-4 text-primary" aria-hidden />
+                <h3 className="text-sm font-bold">{goal.title}</h3>
+                {goal.dueDate && (
+                  <span className="text-[11px] text-muted-foreground">
+                    موعد: {formatJalaliFull(new Date(goal.dueDate + "T00:00:00"))}
+                  </span>
+                )}
+              </div>
+              {goal.description && (
+                <p className="mt-1.5 text-xs leading-6 text-muted-foreground">
+                  {goal.description}
+                </p>
+              )}
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                این پروژه بخشی از مسیر رسیدن به این هدف است — کارهای همین پروژه
+                پیشرفت واقعی آن را می‌سازند.
+              </p>
+            </div>
+          )}
           {[
             { label: "کل کارها", value: pts.length },
             { label: "انجام شده", value: done },

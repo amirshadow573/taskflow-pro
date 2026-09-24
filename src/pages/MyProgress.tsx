@@ -53,6 +53,7 @@ import {
   type XpEventRow,
 } from "@/components/progress/ProgressSections";
 import { PersonaStatsPanel } from "@/components/progress/PersonaStats";
+import { SkillsPanel } from "@/components/progress/SkillsPanel";
 import {
   CapabilityGate,
   UnlockCenter,
@@ -176,6 +177,10 @@ export default function MyProgress() {
           <TabsTrigger value="achievements">
             <Medal className="size-3.5" />
             دستاوردها
+          </TabsTrigger>
+          <TabsTrigger value="skills">
+            <Route className="size-3.5" />
+            مهارت‌ها
           </TabsTrigger>
           <TabsTrigger value="stats">
             <TrendingUp className="size-3.5" />
@@ -737,6 +742,10 @@ export default function MyProgress() {
 
         <TabsContent value="achievements">
           <AchievementsPanel items={achievements ?? []} />
+        </TabsContent>
+
+        <TabsContent value="skills" className="space-y-5">
+          <SkillsPanel />
         </TabsContent>
 
         <TabsContent value="stats" className="space-y-5">

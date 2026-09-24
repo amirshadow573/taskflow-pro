@@ -9,6 +9,7 @@ import { TodayRoutines } from "@/components/workspace/TodayRoutines";
 import { ProgressSnapshot } from "@/components/progress/ProgressSnapshot";
 import { ActivePathsStrip } from "@/components/progress/ActivePathsStrip";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { CommandCenter } from "@/components/workspace/command/CommandCenter";
 import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
@@ -120,6 +121,20 @@ function TaskList({ tasks, projectOf, subtotals, compact }: { tasks: TaskDoc[]; 
 /* ================================================================== */
 
 function DashboardTab({ goTab }: { goTab: (t: TabKey) => void }) {
+  return (
+    <CommandCenter
+      quickLinks={[
+        { label: "صندوق", onClick: () => goTab("inbox") },
+        { label: "حوزه‌ها", onClick: () => goTab("areas") },
+        { label: "روتین‌ها", onClick: () => goTab("routines") },
+        { label: "بلوک زمانی", onClick: () => goTab("blocks") },
+      ]}
+    />
+  );
+}
+
+/* Legacy personal dashboard — kept for reference, superseded above. */
+function LegacyDashboardTab({ goTab }: { goTab: (t: TabKey) => void }) {
   const { tasks, projects, createTask } = useWorkspace();
   const tKey = todayKey();
   const routines = useQuery(api.routines.listRoutines);

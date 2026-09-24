@@ -1,4 +1,6 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { useGoals } from "@/hooks/use-goals";
+import { findGoal } from "@/lib/goals";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +21,7 @@ import {
   Plus,
   Trash2,
   TriangleAlert,
+  Target,
 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -37,12 +40,14 @@ const PROJECT_COLORS = [
 
 export default function Projects() {
   const { tasks, projects, createProject, deleteProject } = useWorkspace();
+  const goals = useGoals();
   const [view, setView] = useState<"grid" | "list">("grid");
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState("");
   const [desc, setDesc] = useState("");
   const [color, setColor] = useState(PROJECT_COLORS[0]);
   const [deadline, setDeadline] = useState("");
+  const [goalRef, setGoalRef] = useState("");
 
   const statsOf = (pid: string) => {
     const pts = tasks.filter((t) => t.projectId === pid && !t.parentId);
@@ -58,10 +63,12 @@ export default function Projects() {
       description: desc || undefined,
       color,
       deadline: deadline || undefined,
+      goalRef: goalRef || undefined,
     });
     setName("");
     setDesc("");
     setDeadline("");
+    setGoalRef("");
     setCreating(false);
   };
 
@@ -135,6 +142,29 @@ export default function Projects() {
                 aria-label="توضیح پروژه"
                 className="min-h-16"
               />
+              {(goals ?? []).length > 0 && (
+                <div>
+                  <label
+                    htmlFor="project-goal"
+                    className="mb-1 block text-[11px] font-bold text-muted-foreground"
+                  >
+                    این پروژه کدام هدف را جلو می‌برد؟ (اختیاری)
+                  </label>
+                  <select
+                    id="project-goal"
+                    value={goalRef}
+                    onChange={(e) => setGoalRef(e.target.value)}
+                    className="w-full rounded-lg border border-border/60 bg-background px-3 py-2 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">بدون هدف</option>
+                    {(goals ?? []).map((g) => (
+                      <option key={g.ref} value={g.ref}>
+                        {g.title}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="flex items-center gap-3">
                 <Input
                   type="date"
@@ -194,6 +224,7 @@ export default function Projects() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((p) => {
             const s = statsOf(p._id);
+            const g = findGoal(goals, p.goalRef);
             return (
               <Link key={p._id} to={`/projects/${p._id}`}>
                 <article className="group ui-surface ui-surface-hover h-full rounded-2xl p-5">
@@ -225,6 +256,12 @@ export default function Projects() {
                       <Trash2 className="size-4 text-muted-foreground hover:text-destructive" />
                     </button>
                   </div>
+                  {g && (
+                    <p className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-primary">
+                      <Target className="size-3" aria-hidden />
+                      هدف: {g.title}
+                    </p>
+                  )}
                   {p.description && (
                     <p className="mt-3 line-clamp-2 text-xs leading-5 text-muted-foreground">
                       {p.description}

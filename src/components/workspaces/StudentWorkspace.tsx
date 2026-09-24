@@ -7,6 +7,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import { SmartTaskInput } from "@/components/tasks/SmartTaskInput";
 import { WorkspaceLayout } from "./WorkspaceLayout";
+import { CommandCenter } from "@/components/workspace/command/CommandCenter";
 import { PersonaStatsStrip } from "@/components/progress/PersonaStats";
 import { Button } from "@/components/ui/button";
 import { toFa } from "@/lib/persian";
@@ -747,9 +748,7 @@ function StudySessionsModule() {
       <div className="flex items-center justify-between">
         <h3 className="flex items-center gap-2 text-sm font-bold"><Clock className="size-4 text-cyan-600" />جلسات مطالعه</h3>
         <Button size="sm" onClick={() => setAddOpen(true)}><Plus className="size-3.5" />جلسه جدید</Button>
-      </div>
-
-      {/* Stats */}
+      </div>          {/* Stats (today) */}
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-xl bg-cyan-50 p-3 text-center dark:bg-cyan-500/10">
           <div className="text-lg font-extrabold text-cyan-600 tabular-nums">{toFa(Math.round(weekActual / 60 * 10) / 10)}h</div>
