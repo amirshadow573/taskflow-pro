@@ -1049,4 +1049,46 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_user_key_period", ["userId", "questKey", "period"])
     .index("by_user_status", ["userId", "status"]),
+
+  /* ------------------------------------------------------------------ */
+  /* Unlocks / Capabilities (Phase 08)                                    */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * One row per user + unlock definition, created ONLY when all requirements
+   * are legitimately met (see unlockRules.ts config / unlocks.ts engine).
+   * Grants are idempotent (by_user_key) and persistent — a granted capability
+   * is never revoked by later progression regressions.
+   */
+  userUnlocks: defineTable({
+    userId: v.id("users"),
+    /** PersonaKey the capability was granted under. */
+    persona: v.string(),
+    /** Unlock key from the unlockRules catalog (e.g. analytics). */
+    unlockKey: v.string(),
+    /** "unlocked" — states are derived live for locked/available. */
+    status: v.string(),
+    unlockedAt: v.number(),
+    /** "requirements_met" | "bootstrap" — why the grant happened. */
+    trigger: v.string(),
+    /** JSON snapshot of the met requirements at grant time (audit). */
+    requirementsSnapshot: v.optional(v.string()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_key", ["userId", "unlockKey"]),
+
+  /** Auditable history of unlock grants (feeds subtle user feedback). */
+  unlockEvents: defineTable({
+    userId: v.id("users"),
+    unlockKey: v.string(),
+    /** "granted" (extensible for future event types). */
+    type: v.string(),
+    /** Persian label of the capability, denormalized for display. */
+    label: v.string(),
+    trigger: v.string(),
+    snapshot: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_created", ["userId", "createdAt"]),
 });
