@@ -19,6 +19,7 @@ import {
   Target,
   TrendingUp,
   Trophy,
+  Unlock,
   Users,
   Zap,
 } from "lucide-react";
@@ -52,6 +53,10 @@ import {
   type XpEventRow,
 } from "@/components/progress/ProgressSections";
 import { PersonaStatsPanel } from "@/components/progress/PersonaStats";
+import {
+  CapabilityGate,
+  UnlockCenter,
+} from "@/components/progress/UnlockCenter";
 
 const fmt = (n: number) => toFa(n.toLocaleString("en-US"));
 
@@ -175,6 +180,10 @@ export default function MyProgress() {
           <TabsTrigger value="stats">
             <TrendingUp className="size-3.5" />
             آمار
+          </TabsTrigger>
+          <TabsTrigger value="unlocks">
+            <Unlock className="size-3.5" />
+            قابلیت‌ها
           </TabsTrigger>
           <TabsTrigger value="leaderboard">
             <Users className="size-3.5" />
@@ -737,8 +746,14 @@ export default function MyProgress() {
           <StatsPanel />
         </TabsContent>
 
+        <TabsContent value="unlocks">
+          <UnlockCenter />
+        </TabsContent>
+
         <TabsContent value="leaderboard">
-          <LeaderboardPanel />
+          <CapabilityGate featureKey="leaderboard">
+            <LeaderboardPanel />
+          </CapabilityGate>
         </TabsContent>
 
         <TabsContent value="rewards">

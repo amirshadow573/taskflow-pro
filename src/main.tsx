@@ -16,6 +16,7 @@ const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Onboarding = lazy(() => import("@/components/onboarding/OnboardingFlow"));
 import { OnboardingGate } from "@/components/onboarding/OnboardingGate";
+import { CapabilityGate } from "@/components/progress/UnlockCenter";
 const TestMode = lazy(() => import("@/components/landing/TestMode"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
@@ -28,6 +29,15 @@ const ProjectDetail = lazy(() => import("./pages/ProjectDetail.tsx"));
 const CalendarPage = lazy(() => import("./pages/Calendar.tsx"));
 const Planning = lazy(() => import("./pages/Planning.tsx"));
 const AnalyticsPage = lazy(() => import("./pages/Progress.tsx"));
+
+/** تحلیل پیشرفته — an ADVANCED capability gated by the Phase 08 unlock system. */
+function GatedAnalytics() {
+  return (
+    <CapabilityGate featureKey="analytics">
+      <AnalyticsPage />
+    </CapabilityGate>
+  );
+}
 const MyProgress = lazy(() => import("./pages/MyProgress.tsx"));
 const GrowthPathDetail = lazy(() => import("./pages/GrowthPathDetail.tsx"));
 const ArchivePage = lazy(() => import("./pages/Archive.tsx"));
@@ -267,8 +277,8 @@ const WORKSPACE_PAGES = [
   // پیشرفت من — level-up / missions / growth paths
   { path: "/progress", Page: MyProgress },
   { path: "/progress/paths/:pathKey", Page: GrowthPathDetail },
-  // تحلیل — historical productivity analytics
-  { path: "/analytics", Page: AnalyticsPage },
+  // تحلیل — historical productivity analytics (unlocked via progress)
+  { path: "/analytics", Page: GatedAnalytics },
   { path: "/archive", Page: ArchivePage },
   { path: "/settings", Page: SettingsPage },
   { path: "/help", Page: Help },

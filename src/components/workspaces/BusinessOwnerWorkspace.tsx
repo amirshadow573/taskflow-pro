@@ -1,4 +1,5 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { CapabilityGate } from "@/components/progress/UnlockCenter";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { TaskRow } from "@/components/tasks/TaskRow";
@@ -240,7 +241,12 @@ export function BusinessOwnerWorkspace() {
       case "operations": return <OperationsTab tasks={tasks} projects={projects} toggleDone={toggleDone} openTask={openTask} deleteTask={deleteTask} />;
       case "payments": return <PaymentsTab payments={payments} createPayment={createPayment} updatePayment={updatePayment} deletePayment={deletePayment} />;
       case "initiatives": return <InitiativesTab initiatives={initiatives} goals={goals} projects={projects} createInit={createInit} updateInit={updateInit} deleteInit={deleteInit} />;
-      case "analytics": return <AnalyticsTab metrics={metrics} revenue={revenue} expenses={expenses} sales={sales} goals={goals} />;
+      case "analytics":
+        return (
+          <CapabilityGate featureKey="business_analytics">
+            <AnalyticsTab metrics={metrics} revenue={revenue} expenses={expenses} sales={sales} goals={goals} />
+          </CapabilityGate>
+        );
       default: return null;
     }
   };

@@ -33,6 +33,7 @@ import {
   resolveUnlock,
   type UnlockDef,
   type UnlockRequirement,
+  type UnlockTone,
 } from "./unlockRules";
 
 type Ctx = QueryCtx | MutationCtx;
@@ -69,23 +70,22 @@ async function buildEvalContext(
   userId: Id<"users">,
   persona: string,
 ): Promise<EvalContext> {
-  const [prog, statRows, skillRows, achRows, questRows, evoRows] = await Promise.all([
-    ctx.db.query("progress").withIndex("by_user", (q) => q.eq("userId", userId)).first(),
-    ctx.db.query("personaStats").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-    ctx.db.query("userSkills").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-    ctx.db.query("achievementUnlocks").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-    ctx.db
-      .query("userQuests")
-      .withIndex("by_user_status", (q) => q.eq("userId", userId).eq("status", "completed"))
-      .collect(),
-    ctx.db.query("userEvolution").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-    ctx.db.query("userUnlocks").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
-  ]);
-  // Sixth read (kept separate for clarity): persisted unlock grants.
-  const unlockRows = await ctx.db
-    .query("userUnlocks")
-    .withIndex("by_user", (q) => q.eq("userId", userId))
-    .collect();
+  const [prog, statRows, skillRows, achRows, questRows, evoRows, unlockRows] =
+    await Promise.all([
+      ctx.db.query("progress").withIndex("by_user", (q) => q.eq("userId", userId)).first(),
+      ctx.db.query("personaStats").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+      ctx.db.query("userSkills").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+      ctx.db
+        .query("achievementUnlocks")
+        .withIndex("by_user", (q) => q.eq("userId", userId))
+        .collect(),
+      ctx.db
+        .query("userQuests")
+        .withIndex("by_user_status", (q) => q.eq("userId", userId).eq("status", "completed"))
+        .collect(),
+      ctx.db.query("userEvolution").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+      ctx.db.query("userUnlocks").withIndex("by_user", (q) => q.eq("userId", userId)).collect(),
+    ]);
 
   const stats = new Map<string, { value: number; hasData: boolean }>();
   for (const r of statRows) stats.set(r.statKey, { value: r.value, hasData: r.hasData });
@@ -263,7 +263,9 @@ export async function syncUnlocks(
       // Guarded re-check — the same capability can never be granted twice.
       const existing = await ctx.db
         .query("userUnlocks")
-        .withIndex("by_user_key", (q) => q.eq("userId", userId).eq("key" as never, item.def.key as never))
+        .withIndex("by_user_key", (q) =>
+          q.eq("userId", userId).eq("unlockKey", item.def.key),
+        )
         .first();
       if (existing) continue;
 
@@ -304,12 +306,31 @@ export async function syncUnlocks(
 /* Serialization                                                       */
 /* ------------------------------------------------------------------ */
 
+/** Wire shape of one unlock as consumed by the Unlock Center UI. */
+export interface SerializedUnlock {
+  key: string;
+  label: string;
+  description: string;
+  icon: string;
+  tone: UnlockTone;
+  category: string;
+  categoryLabel: string;
+  featureKey: string;
+  status: "locked" | "available" | "unlocked";
+  unlockedAt: number | null;
+  requirements: RequirementRow[];
+  metCount: number;
+  total: number;
+  progressPct: number;
+}
+
 function serializeUnlock(
   item: EvaluatedUnlock,
   unlockedAt: number | null,
-): Record<string, unknown> {
+): SerializedUnlock {
   const { metCount, total, pct } = progressOf(item);
-  const status = unlockedAt !== null ? "unlocked" : item.allMet ? "available" : "locked";
+  const status: SerializedUnlock["status"] =
+    unlockedAt !== null ? "unlocked" : item.allMet ? "available" : "locked";
   return {
     key: item.def.key,
     label: item.def.label,

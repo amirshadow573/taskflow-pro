@@ -1,4 +1,5 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { CapabilityGate } from "@/components/progress/UnlockCenter";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";

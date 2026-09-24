@@ -1,4 +1,5 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { CapabilityGate } from "@/components/progress/UnlockCenter";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -794,7 +795,11 @@ export function EmployeeWorkspace() {
       {activeTab === "focus" && <FocusCenter />}
       {activeTab === "recurring" && <RecurringWorkModule />}
       {activeTab === "goals" && <WorkGoalsModule />}
-      {activeTab === "analytics" && <EmployeeAnalytics />}
+      {activeTab === "analytics" && (
+        <CapabilityGate featureKey="work_analytics">
+          <EmployeeAnalytics />
+        </CapabilityGate>
+      )}
       {activeTab === "notes" && <EmployeeNotesModule />}
     </WorkspaceLayout>
   );

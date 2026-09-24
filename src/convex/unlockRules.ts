@@ -31,7 +31,7 @@ import { STAT_CATALOG, faNum } from "./statRules";
 import { evolutionForPersona, skillsForPersona } from "./skillRules";
 
 /* ------------------------------------------------------------------ */
-/* Categories                                                          */
+/* Categories — Phase 08 of the product roadmap                        */
 /* ------------------------------------------------------------------ */
 
 export type UnlockCategory =

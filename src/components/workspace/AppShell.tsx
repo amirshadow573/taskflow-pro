@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/hooks/use-auth";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { toFa } from "@/lib/persian";
@@ -17,6 +18,7 @@ import {
   LayoutDashboard,
   LineChart,
   ListChecks,
+  Lock,
   Moon,
   Search,
   Settings,
@@ -24,8 +26,10 @@ import {
   HelpCircle,
   Trophy,
 } from "lucide-react";
+import { UnlockHint } from "@/components/progress/UnlockCenter";
+import { useQuery } from "convex/react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, NavLink, useNavigate } from "react-router";
+import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
 export interface NavItem {
   to: string;
@@ -85,6 +89,9 @@ export function AppShell({
   const [collapsed, setCollapsed] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
   const { personaKey } = useUserProfile();
+  const { pathname } = useLocation();
+  // Centralized capability map — subtle lock hints on gated nav items only.
+  const capabilities = useQuery(api.unlocks.capabilities);
 
   // Persona-aware nav: all items always visible, boosted paths get a visual dot
   const emphasized = useMemo(() => new Set(NAV_EMPHASIS[personaKey] ?? []), [personaKey]);
@@ -122,11 +129,20 @@ export function AppShell({
                   {(item as any).emphasized && (
                     <span className="size-1.5 shrink-0 rounded-full bg-primary" aria-hidden="true" />
                   )}
-              {item.badge !== undefined && item.badge > 0 && (
-                <span className="min-w-5 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-1.5 text-center text-[10px] font-bold leading-5 text-white shadow-[0_3px_10px_-4px_rgba(37,99,235,0.9)]">
-                  {toFa(item.badge)}
-                </span>
-              )}
+                  {item.badge !== undefined && item.badge > 0 && (
+                    <span className="min-w-5 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-1.5 text-center text-[10px] font-bold leading-5 text-white shadow-[0_3px_10px_-4px_rgba(37,99,235,0.9)]">
+                      {toFa(item.badge)}
+                    </span>
+                  )}
+                  {item.to === "/analytics" && capabilities?.analytics === false && (
+                    <span
+                      title="تحلیل پیشرفته هنوز باز نشده"
+                      aria-label="تحلیل پیشرفته هنوز باز نشده است"
+                      className="grid size-4 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground dark:bg-white/10"
+                    >
+                      <Lock className="size-2.5" aria-hidden="true" />
+                    </span>
+                  )}
             </>
           )}
         </NavLink>
@@ -302,6 +318,9 @@ export function AppShell({
             )}
           </div>
         </header>
+
+        {/* Compact unlock progression hint — dashboard only, never clutter. */}
+        {pathname === "/dashboard" && <UnlockHint />}
 
         {/*
          * Scrollable content.

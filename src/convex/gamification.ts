@@ -41,6 +41,7 @@ import {
   type PathMission,
 } from "./growthPaths";
 import { syncPersonaStats } from "./personaStats";
+import { syncUnlocks } from "./unlocks";
 
 /* ------------------------------------------------------------------ */
 /* small helpers                                                       */
@@ -1013,6 +1014,9 @@ async function runEngine(
   // Persona stats (Phase 04) — derived + idempotent, and never allowed to
   // break the productivity engine if it fails.
   await syncPersonaStats(ctx, userId);
+  // Unlocks (Phase 08) — evaluated last, after achievements + stats + skills,
+  // so every requirement reflects this run. Idempotent + failure-tolerant.
+  await syncUnlocks(ctx, userId);
 
   const after = await progDoc(ctx, userId);
   void current;

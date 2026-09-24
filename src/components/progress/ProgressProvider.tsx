@@ -2,6 +2,7 @@ import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { LevelUpOverlay, type ProgressionEvent } from "./LevelUpOverlay";
+import { UnlockFeedback } from "./UnlockCenter";
 
 function useProgressQuery() {
   return useQuery(api.gamification.myProgress);
@@ -82,6 +83,8 @@ export function ProgressProvider({
     <Ctx.Provider value={data ?? null}>
       {children}
       <LevelUpOverlay event={event} onClose={() => setEvent(null)} />
+      {/* Phase 08 — self-healing unlock sync + restrained grant feedback. */}
+      <UnlockFeedback />
     </Ctx.Provider>
   );
 }

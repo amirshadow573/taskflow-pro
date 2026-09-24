@@ -1,4 +1,5 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { CapabilityGate } from "@/components/progress/UnlockCenter";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -1295,7 +1296,11 @@ export function StudentWorkspace() {
       )}
 
       {/* ── Analytics Tab ── */}
-      {activeTab === "analytics" && <StudyAnalytics />}
+      {activeTab === "analytics" && (
+        <CapabilityGate featureKey="study_analytics">
+          <StudyAnalytics />
+        </CapabilityGate>
+      )}
     </WorkspaceLayout>
   );
 }
