@@ -996,4 +996,57 @@ export default defineSchema({
     status: v.string(), // pending | accepted | dismissed
     createdAt: v.number(),
   }).index("by_user", ["userId"]),
+
+  /* ------------------------------------------------------------------ */
+  /* Quests (Phase 06)                                                    */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * One row per user + quest definition instance. Daily/weekly quests recur
+   * per period (period = day key or week start key) — the instance key is
+   * `${questKey}:${period}` so a period can never hold duplicates. Progress is
+   * always *derived* from real activity (see questRules.ts / quests.ts), never
+   * incremented, and XP is paid at most once via awardXp refId idempotency.
+   * Definitions themselves live in code config (config-driven).
+   */
+  userQuests: defineTable({
+    userId: v.id("users"),
+    /** Quest key from the questRules catalog (e.g. daily_priority_3). */
+    questKey: v.string(),
+    /** PersonaKey the quest was generated under. */
+    persona: v.string(),
+    /** daily | weekly | special | persona | goal */
+    type: v.string(),
+    /** easy | medium | hard | major */
+    difficulty: v.string(),
+    /** Day key (daily) or week-start key (weekly); equals key for special. */
+    period: v.string(),
+    /** active | completed | expired | cancelled */
+    status: v.string(),
+    /** Current derived progress (0..target). */
+    progress: v.number(),
+    target: v.number(),
+    /** Configured XP reward at generation time. */
+    xp: v.number(),
+    title: v.string(),
+    description: v.string(),
+    /** Metric key from the questRules requirement catalog. */
+    metric: v.string(),
+    /** Optional deadline (YYYY-MM-DD) — special quests, tight dailies. */
+    deadline: v.optional(v.string()),
+    /** Related goal id when the quest is goal-based. */
+    goalId: v.optional(v.string()),
+    /** Human explanation of what actions count (shown in detail view). */
+    countsText: v.optional(v.string()),
+    /** Skill key this quest relates to (context only — skills stay derived). */
+    skillKey: v.optional(v.string()),
+    completedAt: v.optional(v.number()),
+    /** True once the XP reward has been paid (awardXp is also idempotent). */
+    rewardPaid: v.optional(v.boolean()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_key_period", ["userId", "questKey", "period"])
+    .index("by_user_status", ["userId", "status"]),
 });
