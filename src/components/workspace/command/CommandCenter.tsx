@@ -17,6 +17,7 @@
  */
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
+import { toast } from "sonner";
 import { SlidersHorizontal } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { useUserProfile } from "@/hooks/use-user-profile";
@@ -66,10 +67,10 @@ function RoutinesModule() {
 MODULE_CONTENT.routines = () => <RoutinesModule />;
 
 export function CommandCenter({ quickLinks }: { quickLinks?: QuickLink[] }) {
-  const { personaKey, dashboardConfig } = useUserProfile();
-  const saveConfig = useMutation(api.userProfile.upsert);
+  const { personaKey, dashboardConfig, saveProfile } = useUserProfile();
   const { tasks } = useWorkspace();
   const [customizing, setCustomizing] = useState(false);
+  const [savingWidget, setSavingWidget] = useState<string | null>(null);
 
   const modules = useMemo(() => modulesForPersona(personaKey), [personaKey]);
 
@@ -83,15 +84,21 @@ export function CommandCenter({ quickLinks }: { quickLinks?: QuickLink[] }) {
 
   const hasContent = tasks.length > 0;
 
-  const toggleModule = (def: CommandModuleDef, next: boolean) => {
+  const toggleModule = async (def: CommandModuleDef, next: boolean) => {
     const existing = dashboardConfig.rows.filter((r) => r.widget !== def.key);
     const rows = [
       ...existing,
       { widget: def.key, visible: next, priority: def.priority },
     ];
-    saveConfig({ dashboardConfig: JSON.stringify({ version: 1, rows }) }).catch(
-      () => void 0,
-    );
+    setSavingWidget(def.key);
+    try {
+      await saveProfile({ dashboardConfig: JSON.stringify({ version: 1, rows }) });
+    } catch {
+      // Surface the failure instead of silently reverting the switch.
+      toast.error("ذخیره شخصی‌سازی داشبورد ناموفق بود.");
+    } finally {
+      setSavingWidget(null);
+    }
   };
 
   // Group consecutive pair-layout modules so the desktop grid stays balanced.
@@ -162,7 +169,8 @@ export function CommandCenter({ quickLinks }: { quickLinks?: QuickLink[] }) {
                           </span>
                           <Switch
                             checked={visibility(m.key)}
-                            onCheckedChange={(v) => toggleModule(m, v)}
+                            disabled={savingWidget === m.key}
+                            onCheckedChange={(v) => void toggleModule(m, v)}
                             aria-label={`نمایش ${m.label}`}
                           />
                         </li>

@@ -31,10 +31,24 @@ export default function MyTasks() {
   const { tasks, projects, toggleDone, deleteTask, openTask } = useWorkspace();
   const [params, setParams] = useSearchParams();
 
-  const [quick, setQuick] = useState<QuickFilter>(
-    (params.get("filter") as QuickFilter) || "all",
-  );
-  const [projectId, setProjectId] = useState<string>(params.get("project") ?? "");
+  // Audit fix: the quick filter was read from the URL only on first mount, so
+  // following a `/tasks?filter=overdue` link while already on /tasks silently
+  // did nothing. The URL is now the single source of truth and stays in sync,
+  // so refresh and back/forward both restore the exact view.
+  const quick = (params.get("filter") as QuickFilter) || "all";
+  const setQuick = (next: QuickFilter) => {
+    const p = new URLSearchParams(params);
+    if (next === "all") p.delete("filter");
+    else p.set("filter", next);
+    setParams(p, { replace: true });
+  };
+  const projectId = params.get("project") ?? "";
+  const setProjectId = (next: string) => {
+    const p = new URLSearchParams(params);
+    if (next) p.set("project", next);
+    else p.delete("project");
+    setParams(p, { replace: true });
+  };
   const [priority, setPriority] = useState<string>("");
   const [tag, setTag] = useState<string>("");
   const [groupBy, setGroupBy] = useState<"none" | "project" | "date">("project");

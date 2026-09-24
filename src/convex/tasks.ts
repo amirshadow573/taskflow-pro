@@ -95,7 +95,27 @@ export const update = mutation({
     for (const [k, val] of Object.entries(rest)) {
       if (val !== undefined) patch[k] = val === null ? undefined : val;
     }
+
+    // Audit fix: completing a task through the status selector (task detail
+    // panel) bypassed the progression engine, so XP / stats / skills /
+    // achievements silently diverged from the checkbox path. Keep ONE code
+    // path: any transition into or out of "done" goes through the engine.
+    const nextStatus = patch.status as string | undefined;
+    const wasDone = task.status === "done";
+    const willBeDone = nextStatus !== undefined && nextStatus === "done";
+    const completionChanged =
+      nextStatus !== undefined && wasDone !== willBeDone;
+
+    if (completionChanged) {
+      patch.completedAt = willBeDone ? Date.now() : undefined;
+    }
+
     if (Object.keys(patch).length) await ctx.db.patch(id, patch);
+
+    if (completionChanged) {
+      const updated = await ctx.db.get(id);
+      if (updated) await handleTaskToggle(ctx, updated, willBeDone);
+    }
   },
 });
 

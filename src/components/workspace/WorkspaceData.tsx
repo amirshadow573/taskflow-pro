@@ -6,6 +6,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { useMutation, useQuery } from "convex/react";
 import { toast } from "sonner";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useNotifPrefs } from "@/lib/preferences";
 
 /**
  * Seeds realistic Persian sample data once per fresh account.
@@ -113,6 +114,7 @@ export function WorkspaceData({
   const deleteProjectMut = useMutation(api.projects.remove);
 
   const [openTaskId, setOpenTaskId] = useState<Id<"tasks"> | null>(null);
+  const [notifPrefs] = useNotifPrefs();
 
   const seedSettled = useDemoSeed(tasks !== undefined);
 
@@ -215,43 +217,51 @@ export function WorkspaceData({
       body: string;
       tone: "warning" | "info" | "danger";
     }> = [];
-    for (const t of overdue.slice(0, 3)) {
-      list.push({
-        id: `ov-${t._id}`,
-        title: `عقب‌افتاده: ${t.title}`,
-        body: "زمان انجام این کار گذشته است.",
-        tone: "danger",
-      });
+    // Notification preferences are now real (audit fix: they were written to
+    // localStorage but never read, so the toggles did nothing).
+    if (notifPrefs.overdue) {
+      for (const t of overdue.slice(0, 3)) {
+        list.push({
+          id: `ov-${t._id}`,
+          title: `عقب‌افتاده: ${t.title}`,
+          body: "زمان انجام این کار گذشته است.",
+          tone: "danger",
+        });
+      }
     }
-    for (const t of dueToday.slice(0, 3)) {
-      list.push({
-        id: `td-${t._id}`,
-        title: `امروزی: ${t.title}`,
-        body: "این کار برای امروز برنامه‌ریزی شده.",
-        tone: "warning",
-      });
+    if (notifPrefs.today) {
+      for (const t of dueToday.slice(0, 3)) {
+        list.push({
+          id: `td-${t._id}`,
+          title: `امروزی: ${t.title}`,
+          body: "این کار برای امروز برنامه‌ریزی شده.",
+          tone: "warning",
+        });
+      }
     }
     // Phase 09: project deadlines closing in — capped to avoid notification spam.
     const soon = todayKeyStr;
-    for (const p of (projects ?? [])) {
-      if (!p.deadline || p.deadline < soon) continue;
-      const days = Math.round(
-        (Date.parse(`${p.deadline}T00:00:00`) - Date.parse(`${soon}T00:00:00`)) /
-          86400000,
-      );
-      if (days > 7) continue;
-      list.push({
-        id: `pdl-${p._id}`,
-        title: `نزدیک ددلاین پروژه: ${p.name}`,
-        body:
-          days === 0
-            ? "ددلاین این پروژه امروز است."
-            : `${new Intl.NumberFormat("fa-IR").format(days)} روز تا ددلاین این پروژه باقی مانده.`,
-        tone: "warning",
-      });
+    if (notifPrefs.project) {
+      for (const p of (projects ?? [])) {
+        if (!p.deadline || p.deadline < soon) continue;
+        const days = Math.round(
+          (Date.parse(`${p.deadline}T00:00:00`) - Date.parse(`${soon}T00:00:00`)) /
+            86400000,
+        );
+        if (days > 7) continue;
+        list.push({
+          id: `pdl-${p._id}`,
+          title: `نزدیک ددلاین پروژه: ${p.name}`,
+          body:
+            days === 0
+              ? "ددلاین این پروژه امروز است."
+              : `${new Intl.NumberFormat("fa-IR").format(days)} روز تا ددلاین این پروژه باقی مانده.`,
+          tone: "warning",
+        });
+      }
     }
     return list;
-  }, [overdue, dueToday, projects, todayKeyStr]);
+  }, [overdue, dueToday, projects, todayKeyStr, notifPrefs]);
 
   const palette = (
     <CommandPalette

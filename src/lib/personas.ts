@@ -801,15 +801,62 @@ export function hasFeature(personaKey: PersonaKey, feature: FeatureKey): boolean
 const TEST_KEY = "taskly-test-mode";
 const TEST_PERSONA_KEY = "taskly-test-persona";
 
+/**
+ * Test-mode persona store (audit fix).
+ *
+ * Previously the persona lived ONLY in localStorage and was read during render,
+ * so a persona change produced no re-render: the UI either appeared to do
+ * nothing, or required `window.location.reload()` to "stick". localStorage is
+ * not reactive, so it is now wrapped in a tiny subscribe/notify store and read
+ * through `useSyncExternalStore` (see hooks/use-user-profile.ts).
+ *
+ * This is the single source of truth for the test-mode persona.
+ */
+const testPersonaListeners = new Set<() => void>();
+
+/** Cached snapshot so `useSyncExternalStore` sees a stable value. */
+let testPersonaCache: PersonaKey | null | undefined;
+
+function readTestPersona(): PersonaKey | null {
+  if (localStorage.getItem(TEST_KEY) !== "1") return null;
+  return (localStorage.getItem(TEST_PERSONA_KEY) as PersonaKey) ?? "personal";
+}
+
+/** Stable snapshot for useSyncExternalStore. */
+export function getTestPersonaSnapshot(): PersonaKey | null {
+  if (testPersonaCache === undefined) testPersonaCache = readTestPersona();
+  return testPersonaCache;
+}
+
+function notifyTestPersona(): void {
+  testPersonaCache = readTestPersona();
+  for (const l of testPersonaListeners) l();
+}
+
+/** Subscribe to test-persona changes (returns an unsubscribe function). */
+export function subscribeTestPersona(cb: () => void): () => void {
+  testPersonaListeners.add(cb);
+  return () => {
+    testPersonaListeners.delete(cb);
+  };
+}
+
+function setTestPersona(personaKey: PersonaKey | null): void {
+  if (personaKey === null) localStorage.removeItem(TEST_PERSONA_KEY);
+  else localStorage.setItem(TEST_PERSONA_KEY, personaKey);
+  notifyTestPersona();
+}
+
 /** Enable test mode with a specific persona (no auth required). */
 export function enableTestMode(personaKey: PersonaKey): void {
   localStorage.setItem(TEST_KEY, "1");
-  localStorage.setItem(TEST_PERSONA_KEY, personaKey);
+  setTestPersona(personaKey);
 }
 
 export function disableTestMode(): void {
   localStorage.removeItem(TEST_KEY);
   localStorage.removeItem(TEST_PERSONA_KEY);
+  notifyTestPersona();
 }
 
 export function isTestMode(): boolean {
@@ -817,14 +864,14 @@ export function isTestMode(): boolean {
 }
 
 export function getTestPersonaKey(): PersonaKey | null {
-  if (!isTestMode()) return null;
-  return (localStorage.getItem(TEST_PERSONA_KEY) as PersonaKey) ?? "personal";
+  return readTestPersona();
 }
 
-/** Quick switch persona in test mode (no persistence beyond localStorage). */
+/**
+ * Quick switch persona in test mode. Re-renders every subscriber immediately
+ * (no page reload) so the workspace, navigation and dashboard all re-derive.
+ */
 export function switchTestPersona(personaKey: PersonaKey): void {
   if (!isTestMode()) return;
-  localStorage.setItem(TEST_PERSONA_KEY, personaKey);
-  // Trigger a full-page reload to re-derive the workspace
-  window.location.reload();
+  setTestPersona(personaKey);
 }

@@ -5,7 +5,10 @@ import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
 import { toFa } from "@/lib/persian";
-import { ONBOARDING_PERSONAS, GOALS_BY_PERSONA, PLANNING_STYLES, PRODUCTIVITY_STYLES, buildDashboardConfig, type PersonaKey } from "@/lib/personas";
+import { ONBOARDING_PERSONAS, GOALS_BY_PERSONA, PLANNING_STYLES, PRODUCTIVITY_STYLES, buildDashboardConfig, switchTestPersona, type PersonaKey } from "@/lib/personas";
+import { useUserProfile } from "@/hooks/use-user-profile";
+import { readStartPage } from "@/lib/preferences";
+import { toast } from "sonner";
 import {
   ArrowLeft,
   ArrowRight,
@@ -56,8 +59,8 @@ const TOTAL_STEPS = 5;
 export default function OnboardingFlow() {
   const { user } = useAuth();
   const { createTask, createProject } = useWorkspace();
+  const { saveProfile, testMode } = useUserProfile();
   const updateName = useMutation(api.profile.updateName);
-  const upsertProfile = useMutation(api.userProfile.upsert);
   const navigate = useNavigate();
 
   const [step, setStep] = useState(0); // 0 welcome · 1 persona · 2 goals · 3 style · 4 result
@@ -87,6 +90,21 @@ export default function OnboardingFlow() {
     setStep(next);
   };
 
+  /**
+   * Audit fix: skipping onboarding navigated away WITHOUT persisting
+   * `completedOnboarding`, so the onboarding gate treated the user as a new
+   * account and the flow re-appeared on every later visit to /onboarding.
+   */
+  const skipOnboarding = async () => {
+    try {
+      await saveProfile({ completedOnboarding: true });
+    } catch {
+      /* non-fatal — still leave the flow */
+    }
+    localStorage.setItem("taskly-onboarded", "1");
+    navigate(readStartPage());
+  };
+
   const toggleGoal = (key: string) =>
     setGoals((g) => (g.includes(key) ? g.filter((k) => k !== key) : [...g, key]));
 
@@ -95,6 +113,26 @@ export default function OnboardingFlow() {
     if (!personaKey || saving) return;
     setSaving(true);
     try {
+      const config = buildDashboardConfig({
+        personaKey,
+        goals,
+        workStyle: {
+          planningStyle: (planningStyle ?? null) as never,
+          productivityStyle: (productivityStyle ?? null) as never,
+        },
+      });
+
+      if (testMode) {
+        // Audit fix: in test mode every Convex mutation throws "Not
+        // authenticated", so onboarding always fell into the catch and the
+        // user's persona was never saved. Persist locally instead.
+        switchTestPersona(personaKey);
+        localStorage.setItem("taskly-test-dashboard", JSON.stringify(config));
+        localStorage.setItem("taskly-onboarded", "1");
+        go(4);
+        return;
+      }
+
       if (name.trim() && name !== (user?.name ?? "")) {
         try {
           await updateName({ name });
@@ -107,16 +145,7 @@ export default function OnboardingFlow() {
         await createTask({ title: taskTitle, priority: "medium", status: "todo" });
       }
 
-      const config = buildDashboardConfig({
-        personaKey,
-        goals,
-        workStyle: {
-          planningStyle: (planningStyle ?? null) as never,
-          productivityStyle: (productivityStyle ?? null) as never,
-        },
-      });
-
-      await upsertProfile({
+      await saveProfile({
         personaKey,
         personaSource: "onboarding",
         goals,
@@ -129,7 +158,8 @@ export default function OnboardingFlow() {
       localStorage.setItem("taskly-onboarded", "1");
       go(4);
     } catch {
-      // Never trap the user in onboarding — land them on the dashboard.
+      // Never trap the user in onboarding — but say why it happened.
+      toast.error("ذخیره شخصی‌سازی کامل نشد؛ فعلاً با تنظیمات پیش‌فرض ادامه می‌دهی.");
       localStorage.setItem("taskly-onboarded", "1");
       navigate("/dashboard");
     } finally {
@@ -237,7 +267,7 @@ export default function OnboardingFlow() {
                   <ArrowLeft className="size-4" />
                 </Button>
                 <button
-                  onClick={() => navigate("/dashboard")}
+                  onClick={skipOnboarding}
                   className="mt-3 block w-full text-center text-xs font-semibold text-muted-foreground transition-colors hover:text-foreground"
                 >
                   رد کردن
@@ -460,7 +490,7 @@ export default function OnboardingFlow() {
                         </li>
                       ))}
                     </ul>
-                    <Button size="lg" className="mt-6 w-full max-w-xs" onClick={() => navigate("/dashboard")}>
+                    <Button size="lg" className="mt-6 w-full max-w-xs" onClick={skipOnboarding}>
                       ورود به داشبورد من
                       <ArrowLeft className="size-4" />
                     </Button>

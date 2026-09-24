@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Route, Routes, useLocation, Navigate } from "react-router";
 import "./index.css";
 import { cn } from "@/lib/utils";
+import { applyStoredPreferences, readStartPage } from "@/lib/preferences";
 import { Plus } from "lucide-react";
 
 // Lazy load route components for better code splitting
@@ -241,6 +242,10 @@ class RootErrorBoundary extends React.Component<
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
+// Audit fix: persisted theme/accent were never re-applied on boot, so a
+// refresh reverted the user's saved appearance. Apply before first paint.
+applyStoredPreferences();
+
 function RouteSyncer() {
   const location = useLocation();
   useEffect(() => {
@@ -300,7 +305,10 @@ createRoot(document.getElementById("root")!).render(
           <RouteSyncer />
           <Suspense fallback={<RouteLoading />}>
             <Routes>
-              <Route path="/" element={<Landing />} />              <Route path="/auth" element={<AuthPage redirectAfterAuth="/onboarding" />} />
+              <Route path="/" element={<Landing />} />
+              {/* Auth lands on the user's chosen start page (audit fix: the
+                  "start page" preference was stored but never used). */}
+              <Route path="/auth" element={<AuthPage redirectAfterAuth={readStartPage()} />} />
               <Route path="/test-mode" element={<TestMode />} />
               <Route
                 path="/onboarding" element={
@@ -327,7 +335,7 @@ createRoot(document.getElementById("root")!).render(
                 />
               ))}
               {/* Legacy /app/* URLs → friendly top-level URLs */}
-              <Route path="/app" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/app" element={<Navigate to={readStartPage()} replace />} />
               <Route path="/app/*" element={<AppPrefixRedirect />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

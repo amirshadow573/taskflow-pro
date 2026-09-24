@@ -54,6 +54,7 @@ import {
 } from "@/components/progress/ProgressSections";
 import { PersonaStatsPanel } from "@/components/progress/PersonaStats";
 import { SkillsPanel } from "@/components/progress/SkillsPanel";
+import { QuestsPanel } from "@/components/progression/QuestsPanel";
 import {
   CapabilityGate,
   UnlockCenter,
@@ -177,6 +178,10 @@ export default function MyProgress() {
           <TabsTrigger value="achievements">
             <Medal className="size-3.5" />
             دستاوردها
+          </TabsTrigger>
+          <TabsTrigger value="quests">
+            <Target className="size-3.5" />
+            ماموریت‌ها
           </TabsTrigger>
           <TabsTrigger value="skills">
             <Route className="size-3.5" />
@@ -742,6 +747,10 @@ export default function MyProgress() {
 
         <TabsContent value="achievements">
           <AchievementsPanel items={achievements ?? []} />
+        </TabsContent>
+
+        <TabsContent value="quests" className="space-y-5">
+          <QuestsPanel />
         </TabsContent>
 
         <TabsContent value="skills" className="space-y-5">

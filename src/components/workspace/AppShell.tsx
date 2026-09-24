@@ -5,6 +5,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { toFa } from "@/lib/persian";
 import { cn } from "@/lib/utils";
 import { NAV_EMPHASIS, MOBILE_NAV_PER_PERSONA } from "@/lib/personas";
+import { readTheme, writeTheme } from "@/lib/preferences";
 import {
   Archive,
   Bell,
@@ -87,15 +88,18 @@ const MOBILE_NAV: NavItem[] = [
   { to: "/projects", label: "پروژه‌ها", icon: FolderKanban },
 ];
 
-/** Theme controller stored on <html class="dark">. */
+/** Theme controller — backed by the shared preferences store (audit fix). */
 export function useTheme() {
-  const [dark, setDark] = useState(() =>
-    document.documentElement.classList.contains("dark"),
-  );
+  const [dark, setDark] = useState(() => readTheme() === "dark");
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
   }, [dark]);
-  return { dark, toggle: () => setDark((d) => !d) };
+  const toggle = () =>
+    setDark((d) => {
+      writeTheme(d ? "light" : "dark");
+      return !d;
+    });
+  return { dark, toggle };
 }
 
 export function AppShell({
