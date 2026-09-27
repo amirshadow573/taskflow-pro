@@ -16,7 +16,7 @@
  * pages, and core modules can never be hidden.
  */
 import { useMemo, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { toast } from "sonner";
 import { SlidersHorizontal } from "lucide-react";
 import { api } from "@/convex/_generated/api";
@@ -31,6 +31,7 @@ import { NextActionCard } from "./NextActionCard";
 import { PersonaSpotlight } from "./PersonaSpotlight";
 import { ProgressCompact } from "./ProgressCompact";
 import { LongTermGoals, PlanningAhead } from "./Outlook";
+import { DashboardSuggestions } from "@/components/planning/DashboardSuggestions";
 import { modulesForPersona, type CommandModuleDef } from "./modules";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -49,6 +50,7 @@ const MODULE_CONTENT: Record<string, () => React.ReactNode> = {
   progress: () => <ProgressCompact />,
   stats: () => <PersonaStatsStrip />,
   quests: () => <TodayPathMissions />,
+  suggestions: () => <DashboardSuggestions />,
   planning: () => <PlanningAhead />,
   "long-term": () => <LongTermGoals />,
 };

@@ -4,20 +4,13 @@ import { TaskRow } from "@/components/tasks/TaskRow";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { PlanningCenter } from "@/components/planning/PlanningCenter";
 import { emitProgressionEvent } from "@/components/progress/ProgressProvider";
-import { useAuth } from "@/hooks/use-auth";
-import {
-  toFa,
-  formatJalaliFull,
-  dateKey,
-  toJalaliDate,
-  JALALI_MONTHS,
-} from "@/lib/persian";
-import { todayKey, addDaysKey, dateKeyOf } from "@/lib/task-utils";
+import { toFa, formatJalaliFull } from "@/lib/persian";
+import { todayKey, addDaysKey } from "@/lib/task-utils";
 import {
   CalendarClock,
   CheckCircle2,
-  Circle,
   Plus,
   Repeat,
   Trash2,
@@ -29,7 +22,6 @@ import type { Id } from "@/convex/_generated/dataModel";
 const ROUTINE_COLORS = ["#4f46e5", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4"];
 
 function PlanningPage() {
-  const { user } = useAuth();
   const { tasks, projects, toggleDone, openTask, deleteTask } = useWorkspace();
 
   const routines = useQuery(api.routines.listRoutines, {});
@@ -94,7 +86,6 @@ function PlanningPage() {
   }, [root]);
 
   const projectOf = (id?: string) => projects.find((p) => p._id === id);
-  const jj = toJalaliDate(new Date());
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
@@ -104,9 +95,13 @@ function PlanningPage() {
           برنامه‌ریزی
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          روتین‌های ثابت روزانه و نقشه کارهای دو هفته آینده.
+          مرکز برنامه‌ریزی: وضعیت امروز، قدم بعدی، موعدها و پیشنهادها — در کنار
+          روتین‌ها و نقشه دو هفته آینده.
         </p>
       </header>
+
+      {/* Phase 10 — Smart Planning & Decision Support */}
+      <PlanningCenter />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Routines */}
@@ -121,7 +116,6 @@ function PlanningPage() {
           {(routines ?? []).map((r) => {
             const rItems = (items ?? []).filter((it) => it.routineId === r._id);
             const doneN = rItems.filter((it) => doneSet.has(it._id)).length;
-            const pct = rItems.length ? Math.round((doneN / rItems.length) * 100) : 0;
             return (
               <div key={r._id} className="ui-surface overflow-hidden rounded-2xl">
                 <div className="flex items-center justify-between border-b border-border/70 px-4 py-2.5">

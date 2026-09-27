@@ -22,6 +22,7 @@ export type CommandModuleKey =
   | "spotlight"
   | "progress"
   | "stats"
+  | "suggestions"
   | "planning"
   | "long-term"
   | "routines"
@@ -148,6 +149,26 @@ export const COMMAND_MODULES: CommandModuleDef[] = [
       manager: 55,
       business_owner: 55,
       freelancer: 45,
+    },
+  },
+  {
+    key: "suggestions",
+    level: 4,
+    priority: 34,
+    label: "پیشنهادهای برنامه‌ریزی",
+    description: "بار امروز و پیشنهادهای قطعی قابل رد زدن",
+    personas: "all",
+    optional: true,
+    layout: "pair",
+    // Phase 10 planning intelligence: persona-aware emphasis — students and
+    // freelancers live by deadlines, so they see planning advice first.
+    personaPriority: {
+      student: 40,
+      freelancer: 40,
+      personal: 39,
+      employee: 36,
+      manager: 32,
+      business_owner: 30,
     },
   },
   {

@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useQuery } from "convex/react";
 import {
   AlarmClock,
+  Ban,
   CalendarCheck,
   ChevronLeft,
   ChevronRight,
@@ -22,6 +23,8 @@ import { TodayPathMissions } from "@/components/progress/TodayPathMissions";
 import { Bar, Pill } from "@/components/progress/progress-ui";
 import { Button } from "@/components/ui/button";
 import { eventTypeLabel } from "@/lib/context-events";
+import { usePlanning } from "@/hooks/use-planning";
+import { PlanningSuggestions } from "@/components/planning/PlanningSuggestions";
 import { todayKey, isOverdue } from "@/lib/task-utils";
 import { formatJalaliFull, toFa } from "@/lib/persian";
 import { cn } from "@/lib/utils";
@@ -29,11 +32,19 @@ import { cn } from "@/lib/utils";
 /** Persona-aware section labels for Today. Shared foundation, tailored wording. */
 const PERSONA_SECTIONS: Record<
   string,
-  { must: string; important: string; schedule: string; deadlines: string; empty: string }
+  {
+    must: string;
+    important: string;
+    could: string;
+    schedule: string;
+    deadlines: string;
+    empty: string;
+  }
 > = {
   student: {
     must: "باید امروز انجام شود",
     important: "مهم‌های امروز",
+    could: "کارهای اختیاری امروز",
     schedule: "کلاس‌ها و آزمون‌ها",
     deadlines: "موعدهای نزدیک",
     empty: "برنامه مطالعه‌ات خالی است",
@@ -41,6 +52,7 @@ const PERSONA_SECTIONS: Record<
   employee: {
     must: "کارهای اصلی امروز",
     important: "مهم‌های امروز",
+    could: "کارهای انعطاف‌پذیر امروز",
     schedule: "جلسات و بلوک‌های کاری",
     deadlines: "موعدهای نزدیک",
     empty: "برنامه کاری امروزت خالی است",
@@ -48,6 +60,7 @@ const PERSONA_SECTIONS: Record<
   freelancer: {
     must: "کار مشتری‌های امروز",
     important: "مهم‌های امروز",
+    could: "کارهای آزاد امروز",
     schedule: "جلسات و تحویل‌ها",
     deadlines: "موعد تحویل‌ها",
     empty: "امروز کار مشتری‌ای ثبت نشده",
@@ -55,6 +68,7 @@ const PERSONA_SECTIONS: Record<
   manager: {
     must: "اولویت‌های تیم",
     important: "مهم‌های امروز",
+    could: "کارهای انعطاف‌پذیر",
     schedule: "جلسات و نقاط ریسک",
     deadlines: "موعدهای نزدیک",
     empty: "اولویت امروز تیم ثبت نشده",
@@ -62,6 +76,7 @@ const PERSONA_SECTIONS: Record<
   business_owner: {
     must: "تصمیم‌های مهم کسب‌وکار",
     important: "مهم‌های امروز",
+    could: "کارهای انعطاف‌پذیر",
     schedule: "جلسات و تعهدها",
     deadlines: "سررسیدهای مالی",
     empty: "کار فوری کسب‌وکار ثبت نشده",
@@ -69,6 +84,7 @@ const PERSONA_SECTIONS: Record<
   personal: {
     must: "مسئولیت‌های امروز",
     important: "مهم‌های امروز",
+    could: "کارهای انعطاف‌پذیر",
     schedule: "بلوک‌های زمانی امروز",
     deadlines: "موعدهای نزدیک",
     empty: "امروز هنوز برنامه‌ای نداری",
@@ -76,12 +92,6 @@ const PERSONA_SECTIONS: Record<
 };
 
 const FALLBACK = PERSONA_SECTIONS.personal;
-const PRIORITY_ORDER: Record<string, number> = {
-  urgent: 0,
-  high: 1,
-  medium: 2,
-  low: 3,
-};
 
 export default function Today() {
   const { tasks, projects, toggleDone, deleteTask, openTask, createTask } =
@@ -106,10 +116,6 @@ export default function Today() {
     () => root.filter((t) => t.dueDate === dkey),
     [root, dkey],
   );
-  const open = useMemo(
-    () => dayTasks.filter((t) => t.status !== "done"),
-    [dayTasks],
-  );
   const done = useMemo(
     () => dayTasks.filter((t) => t.status === "done"),
     [dayTasks],
@@ -117,20 +123,14 @@ export default function Today() {
   const overdue = useMemo(() => root.filter((t) => isOverdue(t)), [root]);
   const pct = dayTasks.length ? Math.round((done.length / dayTasks.length) * 100) : 0;
 
-  const mustDo = useMemo(
-    () =>
-      open
-        .filter((t) => t.priority === "urgent" || t.priority === "high")
-        .sort(
-          (a, b) =>
-            (a.dueTime ?? "99").localeCompare(b.dueTime ?? "99") ||
-            (PRIORITY_ORDER[a.priority] ?? 2) - (PRIORITY_ORDER[b.priority] ?? 2),
-        ),
-    [open],
-  );
-  const important = useMemo(
-    () => open.filter((t) => t.priority !== "urgent" && t.priority !== "high"),
-    [open],
+  /* Phase 10 — deterministic planning buckets + dismissible suggestions. */
+  const plan = usePlanning();
+  const mustDo = plan.result.buckets.mustDo;
+  const shouldDo = plan.result.buckets.shouldDo;
+  const couldDo = plan.result.buckets.couldDo;
+  const blocked = plan.result.buckets.blocked;
+  const planningSuggestions = plan.recommendations.filter(
+    (r) => r.type !== "NEXT_ACTION",
   );
   const upcoming = useMemo(
     () =>
@@ -163,7 +163,7 @@ export default function Today() {
   const dayEvents = events ?? [];
   const isToday = offset === 0;
 
-  const renderRows = (list: typeof dayTasks, key: string) =>
+  const renderRows = (list: typeof dayTasks) =>
     list.map((t) => (
       <TaskRow
         key={t._id}
@@ -316,19 +316,67 @@ export default function Today() {
             }
           />
         ) : (
-          <ul>{renderRows(mustDo, "must")}</ul>
+          <ul>{renderRows(mustDo)}</ul>
         )}
       </section>
 
-      {/* Important */}
-      {important.length > 0 && (
+      {/* Should do — important work toward goals/projects */}
+      {shouldDo.length > 0 && (
         <section className="ui-surface overflow-hidden rounded-2xl">
           <SectionHeader
             title={sections.important}
             icon={ListChecks}
-            count={important.length}
+            count={shouldDo.length}
           />
-          <ul>{renderRows(important, "important")}</ul>
+          <ul>{renderRows(shouldDo)}</ul>
+        </section>
+      )}
+
+      {/* Could do — useful but flexible */}
+      {couldDo.length > 0 && (
+        <section className="ui-surface overflow-hidden rounded-2xl">
+          <SectionHeader
+            title={sections.could}
+            icon={ListChecks}
+            count={couldDo.length}
+          />
+          <ul>{renderRows(couldDo)}</ul>
+        </section>
+      )}
+
+      {/* Blocked — cannot progress right now (always with the reason) */}
+      {blocked.length > 0 && (
+        <section
+          className="ui-surface overflow-hidden rounded-2xl"
+          aria-label="کارهای مسدود"
+        >
+          <SectionHeader title="مسدود" icon={Ban} count={blocked.length} />
+          <ul>
+            {blocked.map((b) => (
+              <li
+                key={b.task._id}
+                className="border-b border-border/40 px-4 py-2.5 last:border-0"
+              >
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => openTask(b.task._id)}
+                    className="min-w-0 flex-1 truncate text-start text-[13px] font-bold hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+                  >
+                    {b.task.title}
+                  </button>
+                  {projectOf(b.task.projectId) && (
+                    <span className="hidden shrink-0 text-[10px] text-muted-foreground sm:inline">
+                      {projectOf(b.task.projectId)?.name}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-[11px] leading-5 text-muted-foreground">
+                  {b.reason}
+                </p>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
@@ -366,6 +414,17 @@ export default function Today() {
       {/* Quests / missions — only when relevant */}
       {isToday && <TodayPathMissions />}
 
+      {/* Phase 10 — planning suggestions (dismissible, deterministic) */}
+      {isToday && (
+        <PlanningSuggestions
+          recommendations={planningSuggestions}
+          onDismiss={plan.dismiss}
+          limit={4}
+          title="پیشنهادهای برنامه‌ریزی"
+          description="قطعی و قابل رد زدن — بدون تغییر خودکار در کارهایت"
+        />
+      )}
+
       {/* Completed */}
       <section className="ui-surface overflow-hidden rounded-2xl">
         <div className="flex items-center justify-between px-4 py-2.5">
@@ -392,7 +451,7 @@ export default function Today() {
         </div>
         {showCompleted && (expanded.done ?? true) && done.length > 0 && (
           <ul className="border-t border-border/40">
-            {renderRows(done, "done")}
+            {renderRows(done)}
           </ul>
         )}
       </section>

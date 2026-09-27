@@ -15,6 +15,7 @@ import { useUserProfile } from "@/hooks/use-user-profile";
 import { Pill } from "@/components/progress/progress-ui";
 import { Button } from "@/components/ui/button";
 import { pickAlternatives, rankActions, type ScoredAction } from "@/lib/next-action";
+import { blockedReason } from "@/lib/planning";
 import { todayKey } from "@/lib/task-utils";
 import { toFa } from "@/lib/persian";
 import { cn } from "@/lib/utils";
@@ -59,8 +60,14 @@ export function NextActionCard() {
     () => rankActions(tasks, projects, personaKey, dayKey),
     [tasks, projects, personaKey, dayKey],
   );
-  const primary = ranked[0];
-  const alternatives = pickAlternatives(ranked, primary?.task._id, 2);
+  // Phase 10: never offer work the user cannot progress right now — blocked
+  // tasks keep their own surface (bucket + BLOCKED_TASK recommendation).
+  const actionable = useMemo(() => {
+    const byId = new Map(projects.map((p) => [p._id, p]));
+    return ranked.filter((a) => !blockedReason(a.task, byId));
+  }, [ranked, projects]);
+  const primary = actionable[0] ?? ranked[0];
+  const alternatives = pickAlternatives(actionable, primary?.task._id, 2);
   const projectOf = (id?: string) => projects.find((p) => p._id === id);
 
   if (!primary) {
