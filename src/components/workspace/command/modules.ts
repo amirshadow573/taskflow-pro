@@ -19,6 +19,7 @@ export type CommandModuleKey =
   | "first-steps"
   | "today"
   | "next-action"
+  | "execution"
   | "spotlight"
   | "progress"
   | "stats"
@@ -83,6 +84,26 @@ export const COMMAND_MODULES: CommandModuleDef[] = [
     personas: "all",
     optional: false,
     layout: "full",
+  },
+  {
+    key: "execution",
+    level: 2,
+    priority: 72,
+    label: "اجرای امروز",
+    description: "پیشرفت واقعی امروز، نشست‌های اجرا و موارد نیازمند بازیابی",
+    personas: "all",
+    optional: true,
+    layout: "full",
+    // Phase 12: execution sits right under «قدم بعدی» for every persona — it is
+    // the state of the work the planner just pointed at.
+    personaPriority: {
+      student: 74,
+      employee: 72,
+      freelancer: 72,
+      manager: 70,
+      business_owner: 70,
+      personal: 73,
+    },
   },
   {
     key: "spotlight",

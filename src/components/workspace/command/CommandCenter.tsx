@@ -32,6 +32,7 @@ import { PersonaSpotlight } from "./PersonaSpotlight";
 import { ProgressCompact } from "./ProgressCompact";
 import { LongTermGoals, PlanningAhead } from "./Outlook";
 import { DashboardSuggestions } from "@/components/planning/DashboardSuggestions";
+import { ExecutionDashboardModule } from "@/components/execution/ExecutionDashboardModule";
 import { modulesForPersona, type CommandModuleDef } from "./modules";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -46,6 +47,7 @@ const MODULE_CONTENT: Record<string, () => React.ReactNode> = {
   "first-steps": () => <FirstSteps />,
   today: () => <TodayFocus />,
   "next-action": () => <NextActionCard />,
+  execution: () => <ExecutionDashboardModule />,
   spotlight: () => <PersonaSpotlight />,
   progress: () => <ProgressCompact />,
   stats: () => <PersonaStatsStrip />,

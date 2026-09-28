@@ -29,8 +29,14 @@ import {
   type PlanningSnapshot,
   type UrgencyState,
   type WorkloadAnalysis,
+  type WorkloadState,
 } from "@/lib/planning";
 import type { ScheduleSnapshot } from "@/lib/scheduling/types";
+import type {
+  ExecutionRecommendation,
+  ExecutionSession,
+  ExecutionSnapshot,
+} from "@/lib/execution/types";
 
 /* ------------------------------------------------------------------ */
 /* Signal snapshot — the single input a future AI layer would consume   */
@@ -204,6 +210,12 @@ export interface AIPlanningContext {
    * ONLY through the allow-listed actions below, never by writing directly.
    */
   schedule?: ScheduleSnapshot;
+  /**
+   * Phase 12: how REALITY went today (planned vs scheduled vs actual, live
+   * session, deviations, recovery options). Attached by callers that already
+   * hold an execution result — never re-queried for the AI layer.
+   */
+  execution?: ExecutionSnapshot;
 }
 
 /**
@@ -221,6 +233,8 @@ export function buildAIPlanningContext(
     priorities?: Array<{ taskId: string; attention: AttentionBand }>;
     /** Phase 11: scheduling snapshot (optional — attached when available). */
     scheduleSnapshot?: ScheduleSnapshot;
+    /** Phase 12: execution snapshot (optional — attached when available). */
+    executionSnapshot?: ExecutionSnapshot;
   },
 ): AIPlanningContext {
   const { snapshot, goals } = options;
@@ -280,6 +294,147 @@ export function buildAIPlanningContext(
     progression: signals.progression,
     planningSnapshot: snapshot,
     schedule: options.scheduleSnapshot,
+    execution: options.executionSnapshot,
+  };
+}
+
+/* ------------------------------------------------------------------ */
+/* Phase 12 — future AI execution contract (§37)                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * AIExecutionContext — the CONTROLLED, structured view of how the user is
+ * actually executing their plan. Like AIPlanningContext, it is a whitelisted
+ * projection built deterministically from the execution engine's own output:
+ * no raw table access, no user id, no document shape leaks.
+ *
+ * Phase 12 does NOT call any AI provider. This contract exists so a future AI
+ * phase can reason about planned vs actual work and propose recovery — always
+ * through the confirm-first, allow-listed actions below, never by writing to
+ * the database directly.
+ */
+export interface AIExecutionContext {
+  persona: PersonaKey;
+  day: string;
+  /** Live session, when the user is working right now. */
+  currentExecution: {
+    id: string;
+    title: string;
+    kind: string;
+    state: string;
+    plannedMinutes: number | null;
+    startedAt: number;
+  } | null;
+  /** Time budget for the day, in minutes. */
+  time: {
+    plannedMinutes: number | null;
+    scheduledMinutes: number | null;
+    availableMinutes: number | null;
+    actualMinutes: number;
+    estimatedMinutes: number | null;
+    actualVsEstimated: number | null;
+  };
+  outcomes: {
+    completedSessions: number;
+    partialSessions: number;
+    abandonedSessions: number;
+    missedBlocks: number;
+    blockedTasks: number;
+    rescheduledTasks: number;
+  };
+  /** Schedule drift in minutes (actual − scheduled); null when unknown. */
+  scheduleDrift: number | null;
+  workloadState: WorkloadState | null;
+  /** Deterministic deviation signals (observable data only — no inference). */
+  deviations: Array<{ kind: string; detail: string; minutes?: number }>;
+  /** Estimate-learning notes the user can act on (base + historic delta). */
+  estimateInsights: Array<{
+    scope: string;
+    label: string;
+    baseMinutes: number;
+    historicalMinutes: number;
+    adjustmentMinutes: number;
+    samples: number;
+    note: string;
+  }>;
+  /** Confirm-first recovery options the planner is currently offering. */
+  recoveryOptions: Array<{
+    id: string;
+    type: string;
+    severity: string;
+    title: string;
+    detail: string;
+    actions: string[];
+    confidence: string;
+    taskId: string | null;
+    blockId: string | null;
+  }>;
+  /** The raw structured snapshot, for any consumer that wants everything. */
+  executionSnapshot: ExecutionSnapshot;
+}
+
+/**
+ * Build the future AI execution context from data the app already has. Pure
+ * and synchronous — no queries, no side effects, no provider call.
+ */
+export function buildAIExecutionContext(options: {
+  persona: PersonaKey;
+  snapshot: ExecutionSnapshot;
+  activeSession?: ExecutionSession | null;
+  recommendations?: ExecutionRecommendation[];
+  insights?: AIExecutionContext["estimateInsights"];
+}): AIExecutionContext {
+  const { snapshot } = options;
+  const active = options.activeSession ?? null;
+  return {
+    persona: options.persona,
+    day: snapshot.date,
+    currentExecution: active
+      ? {
+          id: active._id,
+          title: active.title,
+          kind: active.kind,
+          state: active.state,
+          plannedMinutes: active.plannedMinutes ?? null,
+          startedAt: active.startedAt,
+        }
+      : null,
+    time: {
+      plannedMinutes: snapshot.plannedMinutes,
+      scheduledMinutes: snapshot.scheduledMinutes,
+      availableMinutes: snapshot.availableMinutes,
+      actualMinutes: snapshot.actualMinutes,
+      estimatedMinutes: snapshot.estimatedMinutes,
+      actualVsEstimated: snapshot.actualVsEstimated,
+    },
+    outcomes: {
+      completedSessions: snapshot.completedSessions,
+      partialSessions: snapshot.partialSessions,
+      abandonedSessions: snapshot.abandonedSessions,
+      missedBlocks: snapshot.missedBlocks,
+      blockedTasks: snapshot.blockedTasks,
+      rescheduledTasks: snapshot.rescheduledTasks,
+    },
+    scheduleDrift: snapshot.scheduleDrift,
+    workloadState: snapshot.workloadState,
+    deviations: snapshot.deviations.map((d) => ({
+      kind: d.kind,
+      detail: d.detail,
+      minutes: d.minutes,
+    })),
+    estimateInsights: options.insights ?? [],
+    recoveryOptions: (options.recommendations ?? snapshot.recommendations).map((r) => ({
+      id: r.id,
+      type: r.type,
+      severity: r.severity,
+      title: r.title,
+      detail: r.detail,
+      actions: r.actions,
+      confidence: r.confidence,
+      taskId: r.taskId ?? null,
+      blockId: r.blockId ?? null,
+    })),
+    executionSnapshot: snapshot,
   };
 }
 
@@ -307,7 +462,13 @@ export type AIActionKind =
   | "move_time_block"
   | "create_plan"
   | "update_schedule"
-  | "resolve_conflict";
+  | "resolve_conflict"
+  /* Phase 12 — execution surface (§37): observe + propose only. */
+  | "start_execution"
+  | "pause_execution"
+  | "complete_execution"
+  | "submit_execution_feedback"
+  | "log_recovery_action";
 
 export const AI_ACTION_KINDS: readonly AIActionKind[] = [
   "create_task",
@@ -324,6 +485,11 @@ export const AI_ACTION_KINDS: readonly AIActionKind[] = [
   "create_plan",
   "update_schedule",
   "resolve_conflict",
+  "start_execution",
+  "pause_execution",
+  "complete_execution",
+  "submit_execution_feedback",
+  "log_recovery_action",
 ];
 
 export interface AIActionRequest {
@@ -354,6 +520,9 @@ export const AI_ACTION_POLICY = {
     "goal_or_project_deletion",
     "calendar_commitment_change_without_confirmation",
     "fixed_commitment_move_without_confirmation",
+    "silent_execution_termination",
+    "silent_estimate_rewrite",
+    "auto_bulk_reschedule_without_confirmation",
   ] as const,
   /** Consequential mutations always flow through the existing services. */
   executorNote:

@@ -9,8 +9,7 @@
  * extra database traffic is created (§31).
  */
 import { toFa } from "@/lib/persian";
-import { addDays } from "@/lib/scheduling/time";
-import { minutesOf } from "@/lib/scheduling/time";
+import { addDays, minutesOf } from "@/lib/scheduling/time";
 import { actionOf, isFinishedSession, sessionMinutes } from "./metrics";
 import type {
   ExecutionBlockLite,

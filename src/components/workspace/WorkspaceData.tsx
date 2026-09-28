@@ -42,6 +42,8 @@ export interface TaskDoc {
   tags: string[];
   parentId?: Id<"tasks">;
   estimateMinutes?: number;
+  /** Phase 12: how many times the due date has been moved forward. */
+  postponeCount?: number;
   createdAt: number;
 }
 

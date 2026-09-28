@@ -25,6 +25,14 @@ import { Button } from "@/components/ui/button";
 import { eventTypeLabel } from "@/lib/context-events";
 import { usePlanning } from "@/hooks/use-planning";
 import { useSchedule } from "@/hooks/use-schedule";
+import { useExecution } from "@/hooks/use-execution";
+import { ExecutionAtRisk, ExecutionNow } from "@/components/execution/ExecutionNow";
+import { ExecutionProgress } from "@/components/execution/ExecutionProgress";
+import { ExecutionRecovery } from "@/components/execution/ExecutionRecovery";
+import {
+  ExecutionDailyReview,
+  ExecutionWeeklyReview,
+} from "@/components/execution/ExecutionReview";
 import { PlanningSuggestions } from "@/components/planning/PlanningSuggestions";
 import { DayTimeline, ScheduleStrip } from "@/components/scheduling/DayTimeline";
 import { ScheduleRecommendations } from "@/components/scheduling/ScheduleRecommendations";
@@ -132,6 +140,8 @@ export default function Today() {
   /* Phase 11 — adaptive scheduling consumes the SAME planning result (§25). */
   const schedule = useSchedule(plan);
   const scheduleActions = useScheduleDialogs(schedule);
+  /* Phase 12 — adaptive execution: reality vs the plan, and how to recover. */
+  const execution = useExecution(plan, schedule);
   const mustDo = plan.result.buckets.mustDo;
   const shouldDo = plan.result.buckets.shouldDo;
   const couldDo = plan.result.buckets.couldDo;
@@ -229,6 +239,11 @@ export default function Today() {
         </div>
       )}
 
+      {/* Phase 12 §17 — الان: کار در حال انجام، بعدی و شروع با یک کلیک */}
+      {isToday && (
+        <ExecutionNow execution={execution} plan={plan} schedule={schedule} />
+      )}
+
       {/* LEVEL 2 — Next action, only while actually on today */}
       {isToday && <NextActionCard />}
 
@@ -258,6 +273,10 @@ export default function Today() {
         </div>
         <Bar pct={pct} toneKey="emerald" className="h-2.5" />
       </div>
+
+      {/* Phase 12 §17 — پیشرفت اجرا و کارهای در معرض خطر */}
+      {isToday && <ExecutionProgress execution={execution} />}
+      {isToday && <ExecutionAtRisk plan={plan} />}
 
       {/* Schedule — context engine + routines */}
       {(dayEvents.length > 0) && (
@@ -458,6 +477,19 @@ export default function Today() {
           description="کِی انجام دهی — قطعی، قابل رد زدن، فقط با تأیید تو"
         />
       )}
+      {/* Phase 12 §17 — بازیابی برنامه: چیزهایی که واقعیت تغییر داده است */}
+      {isToday && (
+        <ExecutionRecovery
+          execution={execution}
+          schedule={schedule}
+          actions={scheduleActions}
+        />
+      )}
+
+      {/* Phase 12 §25 / §26 — مرور روز و بازبینی هفته (اختیاری) */}
+      {isToday && <ExecutionDailyReview execution={execution} plan={plan} />}
+      {isToday && <ExecutionWeeklyReview execution={execution} />}
+
       {isToday && scheduleActions.dialogs}
 
       {/* Completed */}

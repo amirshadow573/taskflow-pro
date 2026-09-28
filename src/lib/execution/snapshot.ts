@@ -20,7 +20,6 @@ import {
 import type {
   DeviationSignal,
   ExecutionBlockLite,
-  ExecutionEventRow,
   ExecutionMetrics,
   ExecutionRecommendation,
   ExecutionSession,
@@ -78,7 +77,6 @@ function estimatesForDay(tasks: ExecutionTaskLite[], dayKey: string): number | n
 
 export function buildExecutionSnapshot(input: SnapshotInput): ExecutionSnapshot {
   const metrics = input.metrics ?? buildMetrics(input);
-  const tasksById = new Map(input.tasks.map((t) => [t._id, t]));
 
   const partialSessions = input.sessions.filter(
     (s) => s.feedback === "partial" || (s.state === "abandoned" && sessionMinutes(s, input.nowMs) >= 10),
@@ -131,13 +129,10 @@ export function completedTaskIdsToday(
 ): string[] {
   void nowMs;
   const ids = new Set<string>();
+  const known = new Set(tasks.map((t) => t._id));
   for (const s of sessions) {
     if (!isFinishedSession(s) || s.state !== "completed" || !s.taskId) continue;
-    if (tasksByIdHas(tasks, s.taskId)) ids.add(s.taskId);
+    if (known.has(s.taskId)) ids.add(s.taskId);
   }
   return [...ids];
-}
-
-function tasksByIdHas(tasks: ExecutionTaskLite[], id: string): boolean {
-  return tasks.some((t) => t._id === id);
 }
