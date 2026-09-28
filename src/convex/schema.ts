@@ -80,6 +80,13 @@ export default defineSchema({
     parentId: v.optional(v.id("tasks")), // subtask of another task
     estimateMinutes: v.optional(v.number()),
     completedAt: v.optional(v.number()),
+    /*
+     * Phase 12 — observable postponement data for repeated-delay detection
+     * (§13). Incremented by tasks.update whenever the due date actually moves
+     * forward; nothing is inferred about the user from it.
+     */
+    postponeCount: v.optional(v.number()),
+    lastPostponedAt: v.optional(v.number()),
     sortOrder: v.number(),
     createdAt: v.number(),
     archived: v.boolean(),
@@ -1109,4 +1116,78 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_created", ["userId", "createdAt"]),
+
+  /* ------------------------------------------------------------------ */
+  /* Adaptive Execution & Productivity Feedback Loop (Phase 12)          */
+  /* ------------------------------------------------------------------ */
+
+  /**
+   * One execution attempt: what the user is ACTUALLY doing, right now.
+   *
+   * Task status answers "what is the state of the work"; a session answers
+   * "what happened while the user was attempting it" (§3). Kept as a separate
+   * entity so neither concept can overwrite the other, and so an interrupted
+   * browser session is recoverable (§35).
+   */
+  executionSessions: defineTable({
+    userId: v.id("users"),
+    taskId: v.optional(v.id("tasks")),
+    blockId: v.optional(v.id("timeBlocks")),
+    projectId: v.optional(v.id("projects")),
+    title: v.string(),
+    /** task | focus | study | admin | other — decides the outcome path (§21). */
+    kind: v.string(),
+    /** in_progress | paused | completed | abandoned */
+    state: v.string(),
+    /** Local YYYY-MM-DD the session started on (day-boundary math stays local). */
+    day: v.string(),
+    startedAt: v.number(),
+    endedAt: v.optional(v.number()),
+    /** Completed pause spans only — never counted as work time. */
+    pausedMs: v.number(),
+    /** Timestamp the current pause began (undefined while running). */
+    pausedAt: v.optional(v.number()),
+    /** Wall-clock ms at completion — frozen, never recomputed from "now". */
+    elapsedMs: v.optional(v.number()),
+    /** Estimated/planned minutes (context for variance — never rewritten). */
+    plannedMinutes: v.optional(v.number()),
+    /** Optional minimal feedback (§8): completed | partial | blocked | longer | easier | irrelevant | waiting. */
+    feedback: v.optional(v.string()),
+    feedbackNote: v.optional(v.string()),
+    /** completed | abandoned | replaced — why the session stopped. */
+    endedReason: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId", "startedAt"])
+    .index("by_user_state", ["userId", "state"])
+    .index("by_user_day", ["userId", "day"])
+    .index("by_task", ["userId", "taskId"]),
+
+  /**
+   * Auditable execution event log (§23 / §36). Append-only, user-scoped,
+   * timestamped. Recovery and scheduling adjustments are traceable here; the
+   * progression systems are NEVER driven from this table — they stay on their
+   * existing idempotent paths (xpEvents / stats / quests / achievements).
+   */
+  executionEvents: defineTable({
+    userId: v.id("users"),
+    /** See EXECUTION_EVENT_TYPES in src/lib/execution/types.ts. */
+    type: v.string(),
+    day: v.string(),
+    at: v.number(),
+    sessionId: v.optional(v.id("executionSessions")),
+    taskId: v.optional(v.id("tasks")),
+    blockId: v.optional(v.id("timeBlocks")),
+    projectId: v.optional(v.id("projects")),
+    /** user | system — who caused the event. */
+    source: v.string(),
+    /** Short Persian label, denormalized for the audit trail. */
+    label: v.string(),
+    /** JSON payload (deviation data, recovery action, variance, …). */
+    meta: v.optional(v.string()),
+  })
+    .index("by_user", ["userId", "at"])
+    .index("by_user_day", ["userId", "day"])
+    .index("by_user_task", ["userId", "taskId"]),
 });

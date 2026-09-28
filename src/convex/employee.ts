@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, type MutationCtx } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { handleFocusSession, handleGoalStatusChange } from "./gamification";
 
 /* ================================================================== */
@@ -66,21 +67,63 @@ export const listFocusSessions = query({
   },
 });
 
+/**
+ * Shared focus/study row creation + XP path.
+ *
+ * The employee workspace and the Phase 12 execution engine both record focus
+ * sessions through this ONE helper, so a completed focus session can never
+ * award XP twice (handleFocusSession is itself idempotent per refId).
+ */
+export async function createFocusSessionRow(
+  ctx: MutationCtx,
+  args: {
+    userId: Id<"users">;
+    taskId?: Id<"tasks">;
+    projectId?: Id<"projects">;
+    title?: string;
+    plannedMinutes: number;
+    actualMinutes: number;
+    date: string;
+    completed: boolean;
+    type: string;
+    /** Persian label used in the XP ledger entry. */
+    sourceLabel?: string;
+  },
+): Promise<{
+  id: Id<"focusSessions">;
+  /** Progression result (null when nothing was awarded). */
+  result: Awaited<ReturnType<typeof handleFocusSession>> | null;
+}> {
+  const { sourceLabel = "جلسه تمرکز", ...row } = args;
+  const id = await ctx.db.insert("focusSessions", {
+    ...row,
+    createdAt: Date.now(),
+  });
+  let result: Awaited<ReturnType<typeof handleFocusSession>> | null = null;
+  // XP: only genuinely completed sessions earn focus XP (daily cap applies).
+  if (args.completed) {
+    result = await handleFocusSession(
+      ctx,
+      {
+        userId: args.userId,
+        _id: id,
+        title: args.title,
+        plannedMinutes: args.plannedMinutes,
+        actualMinutes: args.actualMinutes,
+        completed: args.completed,
+      },
+      sourceLabel,
+    );
+  }
+  return { id, result };
+}
+
 export const createFocusSession = mutation({
   args: { taskId: v.optional(v.id("tasks")), projectId: v.optional(v.id("projects")), title: v.optional(v.string()), plannedMinutes: v.number(), actualMinutes: v.number(), date: v.string(), completed: v.boolean(), type: v.string() },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
-    const id = await ctx.db.insert("focusSessions", { userId, taskId: args.taskId, projectId: args.projectId, title: args.title, plannedMinutes: args.plannedMinutes, actualMinutes: args.actualMinutes, date: args.date, completed: args.completed, type: args.type, createdAt: Date.now() });
-    // XP: only genuinely completed sessions earn focus XP (daily cap applies).
-    if (args.completed) {
-      await handleFocusSession(
-        ctx,
-        { userId, _id: id, title: args.title, plannedMinutes: args.plannedMinutes, actualMinutes: args.actualMinutes, completed: args.completed },
-        "جلسه تمرکز",
-      );
-    }
-    return id;
+    return (await createFocusSessionRow(ctx, { userId, ...args })).id;
   },
 });
 

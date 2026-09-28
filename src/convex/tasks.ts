@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import { handleTaskToggle } from "./gamification";
+import { recordExecutionEvent, setTaskDone } from "./taskCore";
 
 function dayKey(offsetDays = 0): string {
   const d = new Date();
@@ -96,6 +96,19 @@ export const update = mutation({
       if (val !== undefined) patch[k] = val === null ? undefined : val;
     }
 
+    /*
+     * Phase 12 — observable postponement data (§13). Only counts a due date
+     * that actually moved forward; nothing is inferred about the user's
+     * reasons, and no history is rewritten.
+     */
+    const nextDue = patch.dueDate as string | undefined;
+    const postponed =
+      nextDue !== undefined && !!task.dueDate && nextDue > task.dueDate;
+    if (postponed) {
+      patch.postponeCount = (task.postponeCount ?? 0) + 1;
+      patch.lastPostponedAt = Date.now();
+    }
+
     // Audit fix: completing a task through the status selector (task detail
     // panel) bypassed the progression engine, so XP / stats / skills /
     // achievements silently diverged from the checkbox path. Keep ONE code
@@ -112,9 +125,23 @@ export const update = mutation({
 
     if (Object.keys(patch).length) await ctx.db.patch(id, patch);
 
+    if (postponed) {
+      await recordExecutionEvent(ctx, {
+        userId,
+        type: "TASK_POSTPONED",
+        label: `به تعویق افتاد: «${task.title}»`,
+        taskId: id,
+        projectId: task.projectId,
+        meta: JSON.stringify({
+          from: task.dueDate,
+          to: nextDue,
+          count: patch.postponeCount,
+        }),
+      });
+    }
+
     if (completionChanged) {
-      const updated = await ctx.db.get(id);
-      if (updated) await handleTaskToggle(ctx, updated, willBeDone);
+      await setTaskDone(ctx, id, willBeDone);
     }
   },
 });
@@ -130,45 +157,13 @@ export const toggleDone = mutation({
     if (userId === null) throw new Error("Not authenticated");
     const task = await ctx.db.get(id);
     if (!task || task.userId !== userId) throw new Error("Not found");
-    if (done) {
-      await ctx.db.patch(id, { status: "done", completedAt: Date.now() });
-    } else {
-      await ctx.db.patch(id, {
-        status: "todo",
-        completedAt: undefined,
-      });
-    }
     /*
-     * Phase 11 — keep the schedule honest in BOTH directions: completing a
-     * scheduled task closes its open time blocks; un-completing reopens them.
-     * No XP flows from the block update itself — XP still comes from
-     * handleTaskToggle below (the existing, single progression path).
+     * Phase 11/12 — ONE completion path (src/convex/taskCore.ts): task status,
+     * linked time blocks and the progression engine stay in sync, whether the
+     * completion came from the checkbox, the status selector or the execution
+     * engine. Returns { level, levelUp, unlocked, xp } so the UI can celebrate.
      */
-    const blocks = await ctx.db
-      .query("timeBlocks")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
-    const now = Date.now();
-    for (const b of blocks) {
-      if (b.taskId !== id) continue;
-      if (done && b.status === "planned") {
-        await ctx.db.patch(b._id, {
-          status: "completed",
-          completedAt: now,
-          updatedAt: now,
-        });
-      } else if (!done && b.status === "completed") {
-        await ctx.db.patch(b._id, {
-          status: "planned",
-          completedAt: undefined,
-          updatedAt: now,
-        });
-      }
-    }
-    const updated = await ctx.db.get(id);
-    if (!updated) return null;
-    // Returns { level, levelUp, unlocked, xp } so the UI can celebrate.
-    return await handleTaskToggle(ctx, updated, done);
+    return await setTaskDone(ctx, id, done);
   },
 });
 
