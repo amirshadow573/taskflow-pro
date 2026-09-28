@@ -77,6 +77,11 @@ export default defineConfig({
     // Only scan the app entry HTML; avoids crawling unrelated *.html files
     // if a legacy snapshot accidentally contains leaked package folders.
     entries: ['index.html'],
+    // Every dependency the client can reach is listed explicitly. Lazy routes
+    // (calendar, command palette, drawers, charts, forms, …) pull deps that the
+    // startup scan never sees, and a dependency discovered mid-session makes
+    // Vite re-optimize and hard-reload the page. That reload races the initial
+    // load in the embedded preview and shows up as "stuck on loading".
     include: [
       'react',
       'react/jsx-runtime',
@@ -84,17 +89,66 @@ export default defineConfig({
       'react-dom/client',
       'react-router',
       '@convex-dev/auth/react',
+      '@radix-ui/react-accordion',
+      '@radix-ui/react-alert-dialog',
+      '@radix-ui/react-aspect-ratio',
+      '@radix-ui/react-avatar',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-collapsible',
+      '@radix-ui/react-context-menu',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-hover-card',
+      '@radix-ui/react-label',
+      '@radix-ui/react-menubar',
+      '@radix-ui/react-navigation-menu',
+      '@radix-ui/react-popover',
+      '@radix-ui/react-progress',
+      '@radix-ui/react-radio-group',
+      '@radix-ui/react-scroll-area',
+      '@radix-ui/react-select',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-slider',
+      '@radix-ui/react-slot',
+      '@radix-ui/react-switch',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-toggle',
+      '@radix-ui/react-toggle-group',
+      '@radix-ui/react-tooltip',
+      '@zumer/snapdom',
+      'class-variance-authority',
+      'clsx',
+      'cmdk',
+      'convex/react',
+      'convex/server',
+      'embla-carousel-react',
       'framer-motion',
+      'input-otp',
+      'jalaali-js',
+      'lucide-react',
+      'next-themes',
+      'react-day-picker',
+      'react-hook-form',
+      'react-resizable-panels',
+      'recharts',
+      'sonner',
+      'tailwind-merge',
+      'vaul',
     ],
   },
   // Performance hints
   server: {
-    // Bind to all interfaces so WebContainer's server-ready event fires.
+    // Bind to all interfaces so the preview proxy — and a normal browser tab —
+    // can reach the dev server instead of only 127.0.0.1.
     host: true,
     port: 5173,
-    // Keep HMR on, but disable full-screen error overlay
-    hmr: {
-      overlay: false,
-    },
+    // Freebuff requires HMR to remain disabled. The proxied HMR websocket is
+    // not reliable here: when it drops, Vite's client polls for the server and
+    // then calls `location.reload()`, which throws away an in-flight first load
+    // and reads as a preview that never finishes loading. Disabling HMR also
+    // skips the React Fast Refresh preamble, so a failed `/@react-refresh`
+    // fetch can no longer break every JSX module with
+    // "$RefreshReg$ is not defined" and leave the page blank.
+    hmr: false,
   },
 });
