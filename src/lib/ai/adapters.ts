@@ -30,6 +30,7 @@ import {
   type UrgencyState,
   type WorkloadAnalysis,
 } from "@/lib/planning";
+import type { ScheduleSnapshot } from "@/lib/scheduling/types";
 
 /* ------------------------------------------------------------------ */
 /* Signal snapshot — the single input a future AI layer would consume   */
@@ -195,6 +196,14 @@ export interface AIPlanningContext {
   progression: WorkspaceSignals["progression"];
   /** The structured daily summary — primary input for any future AI call. */
   planningSnapshot: PlanningSnapshot;
+  /**
+   * Phase 11: the deterministic schedule summary (availability, fixed vs
+   * flexible blocks, conflicts, unscheduled work, week load, next block).
+   * Present whenever the caller had a scheduling result to attach — a future
+   * AI planner receives planning + schedule together and proposes changes
+   * ONLY through the allow-listed actions below, never by writing directly.
+   */
+  schedule?: ScheduleSnapshot;
 }
 
 /**
@@ -210,6 +219,8 @@ export function buildAIPlanningContext(
     todayEvents?: PlanningEvent[];
     /** Per-task system attention from computePlanning (optional). */
     priorities?: Array<{ taskId: string; attention: AttentionBand }>;
+    /** Phase 11: scheduling snapshot (optional — attached when available). */
+    scheduleSnapshot?: ScheduleSnapshot;
   },
 ): AIPlanningContext {
   const { snapshot, goals } = options;
@@ -268,6 +279,7 @@ export function buildAIPlanningContext(
     routines: signals.routines,
     progression: signals.progression,
     planningSnapshot: snapshot,
+    schedule: options.scheduleSnapshot,
   };
 }
 
@@ -289,7 +301,13 @@ export type AIActionKind =
   | "create_calendar_event"
   | "update_priority"
   | "create_project"
-  | "create_goal";
+  | "create_goal"
+  /* Phase 11 — scheduling surface (§36): preview-then-confirm only. */
+  | "suggest_schedule"
+  | "move_time_block"
+  | "create_plan"
+  | "update_schedule"
+  | "resolve_conflict";
 
 export const AI_ACTION_KINDS: readonly AIActionKind[] = [
   "create_task",
@@ -301,6 +319,11 @@ export const AI_ACTION_KINDS: readonly AIActionKind[] = [
   "update_priority",
   "create_project",
   "create_goal",
+  "suggest_schedule",
+  "move_time_block",
+  "create_plan",
+  "update_schedule",
+  "resolve_conflict",
 ];
 
 export interface AIActionRequest {
@@ -327,12 +350,14 @@ export const AI_ACTION_POLICY = {
     "bulk_delete",
     "silent_reschedule",
     "silent_priority_change",
+    "silent_schedule_change",
     "goal_or_project_deletion",
     "calendar_commitment_change_without_confirmation",
+    "fixed_commitment_move_without_confirmation",
   ] as const,
   /** Consequential mutations always flow through the existing services. */
   executorNote:
-    "Future AI actions must call the existing controlled mutations after user confirmation — never a generic db.run.",
+    "Future AI actions must call the existing controlled mutations after user confirmation — never a generic db.run. Bulk schedule changes must be previewed first (§30).",
 } as const;
 
 export function isAIActionAllowed(kind: string): kind is AIActionKind {

@@ -24,7 +24,11 @@ import { Bar, Pill } from "@/components/progress/progress-ui";
 import { Button } from "@/components/ui/button";
 import { eventTypeLabel } from "@/lib/context-events";
 import { usePlanning } from "@/hooks/use-planning";
+import { useSchedule } from "@/hooks/use-schedule";
 import { PlanningSuggestions } from "@/components/planning/PlanningSuggestions";
+import { DayTimeline, ScheduleStrip } from "@/components/scheduling/DayTimeline";
+import { ScheduleRecommendations } from "@/components/scheduling/ScheduleRecommendations";
+import { useScheduleDialogs } from "@/components/scheduling/use-schedule-dialogs";
 import { todayKey, isOverdue } from "@/lib/task-utils";
 import { formatJalaliFull, toFa } from "@/lib/persian";
 import { cn } from "@/lib/utils";
@@ -125,6 +129,9 @@ export default function Today() {
 
   /* Phase 10 — deterministic planning buckets + dismissible suggestions. */
   const plan = usePlanning();
+  /* Phase 11 — adaptive scheduling consumes the SAME planning result (§25). */
+  const schedule = useSchedule(plan);
+  const scheduleActions = useScheduleDialogs(schedule);
   const mustDo = plan.result.buckets.mustDo;
   const shouldDo = plan.result.buckets.shouldDo;
   const couldDo = plan.result.buckets.couldDo;
@@ -286,6 +293,22 @@ export default function Today() {
 
       {isToday && <TodayRoutines />}
 
+      {/* Phase 11 — "کی انجام دهم؟": next block, free time, today's timeline */}
+      {isToday && (
+        <div className="ui-surface flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl px-4 py-3">
+          <ScheduleStrip schedule={schedule} className="min-w-0 flex-1" />
+          <Link
+            to="/planning"
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-primary hover:underline"
+          >
+            مرکز زمان‌بندی
+            <ArrowLeft className="size-3" aria-hidden />
+          </Link>
+        </div>
+      )}
+
+      {isToday && <DayTimeline schedule={schedule} actions={scheduleActions} />}
+
       {/* Overdue */}
       {overdue.length > 0 && (
         <Link
@@ -424,6 +447,18 @@ export default function Today() {
           description="قطعی و قابل رد زدن — بدون تغییر خودکار در کارهایت"
         />
       )}
+
+      {/* Phase 11 — schedule suggestions (confirm-first, never silent) */}
+      {isToday && (
+        <ScheduleRecommendations
+          schedule={schedule}
+          actions={scheduleActions}
+          limit={3}
+          title="پیشنهادهای زمان‌بندی"
+          description="کِی انجام دهی — قطعی، قابل رد زدن، فقط با تأیید تو"
+        />
+      )}
+      {isToday && scheduleActions.dialogs}
 
       {/* Completed */}
       <section className="ui-surface overflow-hidden rounded-2xl">

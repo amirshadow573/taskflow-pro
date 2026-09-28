@@ -11,6 +11,8 @@
 import { Link } from "react-router";
 import { ArrowLeft, Gauge } from "lucide-react";
 import { usePlanning } from "@/hooks/use-planning";
+import { useSchedule } from "@/hooks/use-schedule";
+import { ScheduleStrip } from "@/components/scheduling/DayTimeline";
 import { PlanningSuggestions } from "./PlanningSuggestions";
 import { Pill } from "@/components/progress/progress-ui";
 import {
@@ -26,14 +28,22 @@ const WORKLOAD_TONE: Record<WorkloadState, "emerald" | "blue" | "amber" | "rose"
 };
 
 export function DashboardSuggestions() {
-  const { result, recommendations, dismiss } = usePlanning();
+  const plan = usePlanning();
+  const { result, recommendations, dismiss } = plan;
+  /* Phase 11 §26 — compact scheduling context on the dashboard. */
+  const schedule = useSchedule(plan);
 
   const advice = recommendations.filter((r) => r.type !== "NEXT_ACTION");
+  const hasSchedule =
+    schedule.result.snapshot.nextBlock !== null ||
+    schedule.result.today.scheduledMinutes > 0 ||
+    schedule.recommendations.length > 0;
   const needsAttention =
     advice.length > 0 ||
     result.workload.state === "heavy" ||
     result.workload.state === "overloaded" ||
-    result.snapshot.overdueCount > 0;
+    result.snapshot.overdueCount > 0 ||
+    hasSchedule;
 
   // Nothing relevant for this persona/day → render no module at all.
   if (!needsAttention) return null;
@@ -65,6 +75,13 @@ export function DashboardSuggestions() {
         <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
           {result.workload.explanation}
         </p>
+      )}
+
+      {/* Phase 11 — next block / free time / today's load, one compact row */}
+      {hasSchedule && (
+        <div className="mt-3 rounded-xl border border-border/60 bg-white/50 px-3 py-2 dark:bg-white/5">
+          <ScheduleStrip schedule={schedule} />
+        </div>
       )}
 
       <div className="mt-3">

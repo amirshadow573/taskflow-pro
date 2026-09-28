@@ -338,11 +338,60 @@ export const createTimeBlock = mutation({
     taskId: v.optional(v.id("tasks")),
     projectId: v.optional(v.id("projects")),
     goalId: v.optional(v.id("personalGoals")),
+    /* Phase 11 — adaptive scheduling (optional; legacy callers unaffected) */
+    status: v.optional(v.string()),
+    fixed: v.optional(v.boolean()),
+    source: v.optional(v.string()),
+    priority: v.optional(v.string()),
+    notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
-    return ctx.db.insert("timeBlocks", { userId, ...args, createdAt: Date.now() });
+    const now = Date.now();
+    return ctx.db.insert("timeBlocks", {
+      userId,
+      ...args,
+      status: args.status ?? "planned",
+      fixed: args.fixed ?? false,
+      source: args.source ?? "manual",
+      createdAt: now,
+      updatedAt: now,
+    });
+  },
+});
+
+/**
+ * Phase 11 — explicit rescheduling / status updates.
+ * The ONLY way a block moves: the user confirmed a change. Never automatic.
+ */
+export const updateTimeBlock = mutation({
+  args: {
+    id: v.id("timeBlocks"),
+    title: v.optional(v.string()),
+    day: v.optional(v.string()),
+    startTime: v.optional(v.string()),
+    endTime: v.optional(v.string()),
+    kind: v.optional(v.string()),
+    status: v.optional(v.string()),
+    fixed: v.optional(v.boolean()),
+    source: v.optional(v.string()),
+    priority: v.optional(v.string()),
+    notes: v.optional(v.union(v.string(), v.null())),
+    taskId: v.optional(v.union(v.id("tasks"), v.null())),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const doc = await ctx.db.get(args.id);
+    if (!doc || doc.userId !== userId) throw new Error("Not found");
+    const { id, ...patch } = args;
+    const clean: Record<string, unknown> = {};
+    for (const [k, val] of Object.entries(patch)) {
+      if (val !== undefined) clean[k] = val === null ? undefined : val;
+    }
+    await ctx.db.patch(id, { ...clean, updatedAt: Date.now() });
+    return id;
   },
 });
 

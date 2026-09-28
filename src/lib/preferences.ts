@@ -46,6 +46,7 @@ const K = {
   accent: "taskly-accent",
   start: "taskly-start",
   notifs: "taskly-notifs",
+  schedule: "taskly-schedule",
 } as const;
 
 /* ------------------------------------------------------------------ */
@@ -61,7 +62,7 @@ function emit() {
 }
 function readAll(): string {
   if (typeof localStorage === "undefined") return "";
-  return `${localStorage.getItem(K.theme) ?? ""}|${localStorage.getItem(K.accent) ?? ""}|${localStorage.getItem(K.start) ?? ""}|${localStorage.getItem(K.notifs) ?? ""}`;
+  return `${localStorage.getItem(K.theme) ?? ""}|${localStorage.getItem(K.accent) ?? ""}|${localStorage.getItem(K.start) ?? ""}|${localStorage.getItem(K.notifs) ?? ""}|${localStorage.getItem(K.schedule) ?? ""}`;
 }
 function subscribe(cb: () => void): () => void {
   listeners.add(cb);
@@ -161,6 +162,63 @@ export function useNotifPrefs(): [NotifPrefs, (next: NotifPrefs) => void] {
   usePreferencesVersion();
   const value = readNotifPrefs();
   const setValue = useCallback((next: NotifPrefs) => writeNotifPrefs(next), []);
+  return [value, setValue];
+}
+
+/* ------------------------------------------------------------------ */
+/* Scheduling preferences (Phase 11 — Adaptive Scheduling)             */
+/* ------------------------------------------------------------------ */
+
+/**
+ * User-configurable scheduling inputs. These are the ONLY assumptions the
+ * availability engine makes about the day — it never treats 24 hours as
+ * working time. Stored with the rest of the app preferences (localStorage),
+ * so no separate preference system is introduced.
+ */
+export interface SchedulePrefs {
+  /** Usable day window start (HH:mm). */
+  dayStart: string;
+  /** Usable day window end (HH:mm). */
+  dayEnd: string;
+  /** Buffer kept between adjacent scheduled blocks (minutes). */
+  bufferMinutes: number;
+  /** Preferred break length between focus blocks (minutes). */
+  breakMinutes: number;
+  /** Preferred focus hours for placement scoring. */
+  focusPreference: "morning" | "evening" | "any";
+  /** Longest single focus session the user wants to sit (minutes). */
+  maxFocusMinutes: number;
+}
+
+export const DEFAULT_SCHEDULE_PREFS: SchedulePrefs = {
+  dayStart: "08:00",
+  dayEnd: "22:00",
+  bufferMinutes: 10,
+  breakMinutes: 15,
+  focusPreference: "any",
+  maxFocusMinutes: 90,
+};
+
+export function readSchedulePrefs(): SchedulePrefs {
+  if (typeof localStorage === "undefined") return DEFAULT_SCHEDULE_PREFS;
+  try {
+    const parsed = JSON.parse(localStorage.getItem(K.schedule) ?? "") as Partial<SchedulePrefs>;
+    return { ...DEFAULT_SCHEDULE_PREFS, ...parsed };
+  } catch {
+    return DEFAULT_SCHEDULE_PREFS;
+  }
+}
+
+export function writeSchedulePrefs(next: SchedulePrefs): void {
+  localStorage.setItem(K.schedule, JSON.stringify(next));
+  emit();
+}
+
+/** Hook form — live scheduling preferences (buffer, window, focus style). */
+export function useSchedulePrefs(): [SchedulePrefs, (next: SchedulePrefs) => void] {
+  usePreferencesVersion();
+  const value = readSchedulePrefs();
+  const setValue = useCallback((next: SchedulePrefs) => writeSchedulePrefs(next), []);
   return [value, setValue];
 }
 

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { PlanningCenter } from "@/components/planning/PlanningCenter";
+import { SchedulingCenter } from "@/components/scheduling/SchedulingCenter";
+import { usePlanning } from "@/hooks/use-planning";
 import { emitProgressionEvent } from "@/components/progress/ProgressProvider";
 import { toFa, formatJalaliFull } from "@/lib/persian";
 import { todayKey, addDaysKey } from "@/lib/task-utils";
@@ -23,6 +25,9 @@ const ROUTINE_COLORS = ["#4f46e5", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "
 
 function PlanningPage() {
   const { tasks, projects, toggleDone, openTask, deleteTask } = useWorkspace();
+  /* ONE planning instance shared by Phase 10 (Planning Center) and
+     Phase 11 (Scheduling Center) — compute once per surface (§37). */
+  const plan = usePlanning();
 
   const routines = useQuery(api.routines.listRoutines, {});
   const items = useQuery(api.routines.listAllItems, {});
@@ -101,7 +106,10 @@ function PlanningPage() {
       </header>
 
       {/* Phase 10 — Smart Planning & Decision Support */}
-      <PlanningCenter />
+      <PlanningCenter plan={plan} />
+
+      {/* Phase 11 — Adaptive Scheduling & Time Blocking */}
+      <SchedulingCenter plan={plan} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Routines */}

@@ -138,6 +138,33 @@ export const toggleDone = mutation({
         completedAt: undefined,
       });
     }
+    /*
+     * Phase 11 — keep the schedule honest in BOTH directions: completing a
+     * scheduled task closes its open time blocks; un-completing reopens them.
+     * No XP flows from the block update itself — XP still comes from
+     * handleTaskToggle below (the existing, single progression path).
+     */
+    const blocks = await ctx.db
+      .query("timeBlocks")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    const now = Date.now();
+    for (const b of blocks) {
+      if (b.taskId !== id) continue;
+      if (done && b.status === "planned") {
+        await ctx.db.patch(b._id, {
+          status: "completed",
+          completedAt: now,
+          updatedAt: now,
+        });
+      } else if (!done && b.status === "completed") {
+        await ctx.db.patch(b._id, {
+          status: "planned",
+          completedAt: undefined,
+          updatedAt: now,
+        });
+      }
+    }
     const updated = await ctx.db.get(id);
     if (!updated) return null;
     // Returns { level, levelUp, unlocked, xp } so the UI can celebrate.
@@ -156,6 +183,21 @@ export const remove = mutation({
       .query("tasks")
       .withIndex("by_parent", (q) => q.eq("parentId", id))
       .collect();
+    /*
+     * Phase 11 — a time block never outlives its task: deleting a task (or
+     * its subtasks) removes the associated blocks. Deleting a BLOCK, by
+     * contrast, never touches the task (see personal.deleteTimeBlock).
+     */
+    const removedIds = new Set<string>([id as unknown as string, ...children.map((c) => c._id as unknown as string)]);
+    const blocks = await ctx.db
+      .query("timeBlocks")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .collect();
+    for (const b of blocks) {
+      if (b.taskId && removedIds.has(b.taskId as unknown as string)) {
+        await ctx.db.delete(b._id);
+      }
+    }
     for (const c of children) await ctx.db.delete(c._id);
     await ctx.db.delete(id);
   },

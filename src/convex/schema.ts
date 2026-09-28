@@ -850,10 +850,22 @@ export default defineSchema({
     day: v.string(), // YYYY-MM-DD
     startTime: v.string(), // HH:mm
     endTime: v.string(), // HH:mm
-    kind: v.string(), // focus | exercise | learning | routine | personal | other
+    kind: v.string(), // focus | task | meeting | study | routine | personal | break | review | planning | admin | other
     taskId: v.optional(v.id("tasks")),
     projectId: v.optional(v.id("projects")),
     goalId: v.optional(v.id("personalGoals")),
+    /* Phase 11 — adaptive scheduling (all optional: legacy blocks stay valid) */
+    /** planned | completed | missed | cancelled — defaults to "planned". */
+    status: v.optional(v.string()),
+    /** Fixed commitments never move automatically; flexible ones may be proposed to move. */
+    fixed: v.optional(v.boolean()),
+    /** manual | planning | reschedule — where the block came from. */
+    source: v.optional(v.string()),
+    /** Mirrors the linked task's priority at scheduling time (context only). */
+    priority: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    completedAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
     createdAt: v.number(),
   })
     .index("by_user", ["userId"])

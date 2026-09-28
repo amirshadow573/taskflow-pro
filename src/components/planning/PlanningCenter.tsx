@@ -13,7 +13,7 @@
  * Facts and advice are deliberately separated so nothing appears twice with
  * the same wording. Nothing on this page ever mutates user data.
  */
-import { usePlanning, type UsePlanningResult } from "@/hooks/use-planning";
+import { type UsePlanningResult } from "@/hooks/use-planning";
 import { NextActionCard } from "@/components/workspace/command/NextActionCard";
 import { PlanningSuggestions } from "./PlanningSuggestions";
 import { EmptyHint, Panel, Pill } from "@/components/progress/progress-ui";
@@ -367,8 +367,7 @@ const SECTION_OWNED_TYPES = new Set<PlanningRecommendation["type"]>([
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
 
-export function PlanningCenter() {
-  const plan = usePlanning();
+export function PlanningCenter({ plan }: { plan: UsePlanningResult }) {
   const { result, recommendations, dismiss } = plan;
   const advice = recommendations.filter((r) => !SECTION_OWNED_TYPES.has(r.type));
   const gaps = recommendations.filter(
