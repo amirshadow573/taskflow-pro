@@ -46,6 +46,8 @@ const FuturePage = lazy(() => import("./pages/Future.tsx"));
 const AIPlanningPage = lazy(() => import("./pages/AIPlanning.tsx"));
 // Phase 15 — full-screen AI assistant workspace (contextual, NOT in primary nav)
 const AIWorkspace = lazy(() => import("./pages/AIWorkspace.tsx"));
+// Phase 16 — AI Insights Center (evidence → insight → recommendation)
+const AIInsights = lazy(() => import("./pages/AIInsights.tsx"));
 const SettingsPage = lazy(() => import("./pages/Settings.tsx"));
 const Help = lazy(() => import("./pages/Help.tsx"));
 
@@ -299,6 +301,8 @@ const WORKSPACE_PAGES = [
   { path: "/ai-planning", Page: AIPlanningPage },
   // Phase 15 — AI Productivity Assistant (full screen / mobile)
   { path: "/assistant", Page: AIWorkspace },
+  // Phase 16 — AI Insights Center
+  { path: "/ai-insights", Page: AIInsights },
   { path: "/archive", Page: ArchivePage },
   { path: "/settings", Page: SettingsPage },
   { path: "/help", Page: Help },

@@ -2,6 +2,7 @@ import { WorkspaceRouter } from "@/components/workspaces/WorkspaceRouter";
 import { FutureFeatureSection } from "@/components/future/ComingSoonFeature";
 import { AIPlanEntryCard } from "@/components/ai-planning/AIPlanEntryCard";
 import { AIOverviewCard } from "@/components/ai/AIOverviewCard";
+import { AIInsightStrip } from "@/components/ai/AIInsightStrip";
 
 /**
  * Dashboard page — routes to the persona-specific workspace.
@@ -28,6 +29,9 @@ export default function Dashboard() {
       */}
       {/* Phase 15 — compact assistant strip. Real numbers only (§29). */}
       <AIOverviewCard />
+
+      {/* Phase 16 — top 1–3 deterministic findings. No model call (§15). */}
+      <AIInsightStrip />
 
       <AIPlanEntryCard />
       {/*

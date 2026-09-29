@@ -15,6 +15,7 @@ import {
   CircleDot,
   Clock,
   FileJson,
+  Lightbulb,
   FolderKanban,
   Inbox,
   LayoutDashboard,
@@ -53,6 +54,8 @@ const PRIMARY_NAV: NavItem[] = [
   { to: "/planning", label: "برنامه‌ریزی", icon: Clock },
   // Phase 10.5 — persona-aware import of a plan from the user's own external AI
   { to: "/ai-planning", label: "برنامه با AI", icon: FileJson },
+  // Phase 16 — evidence-based AI insights (advanced group, not primary nav)
+  { to: "/ai-insights", label: "بینش‌های هوشمند", icon: Lightbulb },
   // پیشرفت من = level / XP / stats / skills / quests / achievements / unlocks
   { to: "/progress", label: "پیشرفت من", icon: Trophy },
   { to: "/analytics", label: "تحلیل", icon: LineChart },
@@ -73,7 +76,7 @@ const NAV_GROUPS: { label: string; paths: string[] }[] = [
     paths: ["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning", "/ai-planning"],
   },
   { label: "پیشرفت", paths: ["/progress"] },
-  { label: "پیشرفته", paths: ["/analytics", "/future", "/archive", "/settings"] },
+  { label: "پیشرفته", paths: ["/analytics", "/ai-insights", "/future", "/archive", "/settings"] },
 ];
 
 /** Persona-specific ordering inside the "روزمره" group (priorities first). */

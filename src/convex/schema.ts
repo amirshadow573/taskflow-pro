@@ -1387,4 +1387,45 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_user_at", ["userId", "createdAt"]),
+
+  /**
+   * Phase 16 — AI Insights history (§14, §23).
+   *
+   * One row per generated insight or review. The row keeps BOTH layers so the
+   * history can be audited months later:
+   *   patterns  — what the DETERMINISTIC engine proved (the ground truth)
+   *   plan      — the interpreted/recommended actions awaiting confirmation
+   *
+   * Without `patterns` the history would degrade into a log of model opinions,
+   * which is exactly what §11 forbids.
+   */
+  aiInsights: defineTable({
+    userId: v.id("users"),
+    persona: v.string(),
+    /** insight | daily_review | weekly_review */
+    kind: v.string(),
+    /** 7d | 14d | 30d — the window the evidence was measured over. */
+    window: v.string(),
+    summary: v.string(),
+    /** JSON: DetectedPattern[] — proven patterns, never model-authored. */
+    patterns: v.string(),
+    /** JSON: AIInsightInterpretation[] — the model's reading of those. */
+    interpretations: v.optional(v.string()),
+    /** JSON: ReviewSection[] for review kinds. */
+    sections: v.optional(v.string()),
+    /** JSON: the validated action plan, applied via ai.applyProposal (§6). */
+    plan: v.optional(v.string()),
+    /** FK into aiMessages when actions are pending confirmation. */
+    messageId: v.optional(v.id("aiMessages")),
+    /** strong_pattern | emerging_pattern | limited_data */
+    confidence: v.string(),
+    /** True when there was not enough activity to say anything. */
+    insufficient: v.boolean(),
+    /** JSON: labels of the context sections actually transmitted (§27). */
+    contextSources: v.optional(v.string()),
+    provider: v.optional(v.string()),
+    model: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user_at", ["userId", "createdAt"]),
 });

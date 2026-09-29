@@ -80,7 +80,7 @@ export const FUTURE_FEATURES: FutureFeatureDefinition[] = [
     key: "ai_insights",
     title: "بینش‌های هوشمند",
     description:
-      "تحلیل هوشمند رفتار کاری و ارائه بینش‌های شخصی‌سازی‌شده درباره بهره‌وری شما.",
+      "پیش‌بینی خودکار و هشدار پیشگیرانه، وقتی دادهٔ کافی برای الگو وجود داشته باشد.",
     category: "insights",
     personas: ALL,
     status: "coming_soon",
@@ -455,11 +455,19 @@ export const CURRENT_CAPABILITIES: CurrentCapability[] = [
     route: "/assistant",
     state: "active",
   },
+  {
+    key: "ai_insights",
+    title: "بینش‌های هوشمند",
+    description:
+      "الگوهای اجرا، دقت برنامه‌ریزی، بار کاری و پیشرفت اهداف به‌صورت قطعی محاسبه می‌شوند، توسط دستیار تفسیر می‌شوند و هر تغییری پیش از اعمال به تأیید شما نیاز دارد.",
+    route: "/ai-insights",
+    state: "active",
+  },
 ];
 
 /** The one honest sentence shown wherever future capabilities appear. */
 export const FUTURE_NOTE =
-  "دستیار بهره‌وری و واردسازی برنامه فعال هستند؛ همهٔ آنچه در فهرست بالا می‌بینید هنوز «به‌زودی» است. موتورهای قطعی برنامه‌ریزی، زمان‌بندی، اجرا و تحلیل در هیچ حالتی به هوش مصنوعی وابسته نیستند.";
+  "دستیار بهره‌وری، بینش‌های هوشمند و واردسازی برنامه فعال هستند؛ همهٔ آنچه در فهرست بالا می‌بینید هنوز «به‌زودی» است. الگوهای بهره‌وری همیشه توسط موتور قطعی محاسبه می‌شوند و هوش مصنوعی فقط آن‌ها را توضیح می‌دهد.";
 
 /* ------------------------------------------------------------------ */
 /* Selectors (pure, deterministic — the UI only reads these)          */

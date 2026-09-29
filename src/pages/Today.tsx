@@ -29,6 +29,7 @@ import { useExecution } from "@/hooks/use-execution";
 import { ExecutionAtRisk, ExecutionNow } from "@/components/execution/ExecutionNow";
 import { ExecutionProgress } from "@/components/execution/ExecutionProgress";
 import { AIAssistantButton } from "@/components/ai/AIAssistantPanel";
+import { CalendarRange } from "lucide-react";
 import { ExecutionRecovery } from "@/components/execution/ExecutionRecovery";
 import {
   ExecutionDailyReview,
@@ -242,12 +243,20 @@ export default function Today() {
 
       {/* Phase 15 (§30) — contextual assistant action for this day's plan. */}
       {isToday && (
-        <AIAssistantButton
-          feature="today"
-          prompt="امروزم را بهینه کن"
-          label="بهینه‌سازی امروز با دستیار"
-          className="w-full sm:w-auto"
-        />
+        <div className="flex flex-wrap gap-2">
+          <AIAssistantButton
+            feature="today"
+            prompt="امروزم را بهینه کن"
+            label="بهینه‌سازی امروز با دستیار"
+          />
+          {/* Phase 16 (§16) — contextual daily intelligence, always available. */}
+          <Button asChild variant="outline" size="sm" className="h-8 text-[11px]">
+            <Link to="/ai-insights">
+              <CalendarRange className="size-3.5" aria-hidden="true" />
+              مرور روز و الگوها
+            </Link>
+          </Button>
+        </div>
       )}
 
       {/* Phase 12 §17 — الان: کار در حال انجام، بعدی و شروع با یک کلیک */}
