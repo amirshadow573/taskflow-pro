@@ -44,6 +44,8 @@ const GrowthPathDetail = lazy(() => import("./pages/GrowthPathDetail.tsx"));
 const ArchivePage = lazy(() => import("./pages/Archive.tsx"));
 const FuturePage = lazy(() => import("./pages/Future.tsx"));
 const AIPlanningPage = lazy(() => import("./pages/AIPlanning.tsx"));
+// Phase 15 — full-screen AI assistant workspace (contextual, NOT in primary nav)
+const AIWorkspace = lazy(() => import("./pages/AIWorkspace.tsx"));
 const SettingsPage = lazy(() => import("./pages/Settings.tsx"));
 const Help = lazy(() => import("./pages/Help.tsx"));
 
@@ -295,6 +297,8 @@ const WORKSPACE_PAGES = [
   { path: "/future", Page: FuturePage },
   // Phase 10.5 — import a plan produced by the user's OWN external AI
   { path: "/ai-planning", Page: AIPlanningPage },
+  // Phase 15 — AI Productivity Assistant (full screen / mobile)
+  { path: "/assistant", Page: AIWorkspace },
   { path: "/archive", Page: ArchivePage },
   { path: "/settings", Page: SettingsPage },
   { path: "/help", Page: Help },

@@ -62,7 +62,7 @@ export const FUTURE_FEATURES: FutureFeatureDefinition[] = [
     key: "ai_planning",
     title: "برنامه‌ریزی هوشمند",
     description:
-      "برنامه‌ریزی هوشمند بر اساس اهداف، وظایف، تقویم، زمان آزاد و شرایط کاری شما.",
+      "پس از گفتگو با دستیار، برنامهٔ پیشنهادی به‌صورت بلوک زمانی و کار در فضای کاری ثبت می‌شود؛ آنچه هنوز باقی مانده، پیشنهاد خودکار و بدون تأیید برای هفت روز آینده است.",
     category: "planning",
     personas: ALL,
     status: "coming_soon",
@@ -71,19 +71,11 @@ export const FUTURE_FEATURES: FutureFeatureDefinition[] = [
     surfaces: ["advanced"],
   },
   {
-    id: "ai-assistant",
-    key: "ai_assistant",
-    title: "دستیار بهره‌وری",
-    description:
-      "دستیار هوشمند شما برای تحلیل برنامه، پیشنهاد اقدام‌ها و مدیریت بهتر فضای کاری.",
-    category: "assistant",
-    personas: ALL,
-    status: "coming_soon",
-    icon: "message-square",
-    order: 20,
-    surfaces: ["dashboard", "advanced"],
-  },
-  {
+    /*
+     * Phase 15 shipped the assistant itself, so per §28 this entry leaves the
+     * coming-soon grid entirely and is listed under CURRENT_CAPABILITIES below.
+     * Kept as a comment so the history of the catalog stays legible.
+     */
     id: "ai-insights",
     key: "ai_insights",
     title: "بینش‌های هوشمند",
@@ -455,11 +447,19 @@ export const CURRENT_CAPABILITIES: CurrentCapability[] = [
     route: "/ai-planning",
     state: "active",
   },
+  {
+    key: "ai_assistant",
+    title: "دستیار بهره‌وری",
+    description:
+      "دستیار داخلی که فضای کاری شما را می‌خواند، پیشنهاد ساختاریافته می‌دهد و فقط پس از تأیید شما آن را اعمال می‌کند. کلید API فقط روی سرور نگهداری می‌شود.",
+    route: "/assistant",
+    state: "active",
+  },
 ];
 
 /** The one honest sentence shown wherever future capabilities appear. */
 export const FUTURE_NOTE =
-  "هیچ سرویس هوش مصنوعی در این نسخه فعال نیست. تنها بخش مرتبط، «واردسازی برنامه از AI خارجی» است که در آن شما از حساب خودتان استفاده می‌کنید و فقط فایل خروجی را وارد می‌کنید.";
+  "دستیار بهره‌وری و واردسازی برنامه فعال هستند؛ همهٔ آنچه در فهرست بالا می‌بینید هنوز «به‌زودی» است. موتورهای قطعی برنامه‌ریزی، زمان‌بندی، اجرا و تحلیل در هیچ حالتی به هوش مصنوعی وابسته نیستند.";
 
 /* ------------------------------------------------------------------ */
 /* Selectors (pure, deterministic — the UI only reads these)          */

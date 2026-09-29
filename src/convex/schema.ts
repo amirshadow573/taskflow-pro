@@ -1317,4 +1317,74 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_at", ["userId", "createdAt"]),
+
+  /* ---------------------------------------------------------------- */
+  /* Phase 15 — AI Intelligence Layer                                   */
+  /*                                                                   */
+  /* The assistant is NOT a second memory system (§22). Conversations  */
+  /* and messages exist so a thread can keep its recent turns, but no   */
+  /* field here is ever read back as a source of truth about the user.  */
+  /* Persistent facts stay in tasks/projects/goals/contextTables.       */
+  /* ---------------------------------------------------------------- */
+
+  /** One assistant thread. Bounded and short-lived by design. */
+  aiConversations: defineTable({
+    userId: v.id("users"),
+    persona: v.string(),
+    /** Which surface started it: dashboard | today | planning | assistant. */
+    feature: v.string(),
+    title: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    /** Set when the thread is archived from the UI. */
+    archivedAt: v.optional(v.number()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_at", ["userId", "createdAt"]),
+
+  /** One user turn + one assistant turn, with the proposal made in it. */
+  aiMessages: defineTable({
+    userId: v.id("users"),
+    conversationId: v.id("aiConversations"),
+    /** user | assistant | system */
+    role: v.string(),
+    /** User text, or the assistant's rendered summary. */
+    content: v.string(),
+    /** analysis | action_plan | refusal | clarify */
+    responseType: v.optional(v.string()),
+    /**
+     * JSON: the VALIDATED action plan shown at confirmation time.
+     * Stored so a refresh cannot silently re-target different records (§25).
+     */
+    plan: v.optional(v.string()),
+    /** JSON: labels of the context sections actually transmitted (§27). */
+    contextSources: v.optional(v.string()),
+    /** applied | discarded | pending | no_actions */
+    status: v.optional(v.string()),
+    /** JSON: ids actually written, for the audit trail. */
+    appliedIds: v.optional(v.string()),
+    appliedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_conversation", ["conversationId"])
+    .index("by_user_at", ["userId", "createdAt"]),
+
+  /**
+   * AI usage accounting (§23). Present so free limits, quotas and provider
+   * fallback can be built later WITHOUT changing the schema or the call sites.
+   * Never surfaced to normal users.
+   */
+  aiUsage: defineTable({
+    userId: v.id("users"),
+    provider: v.string(),
+    model: v.string(),
+    feature: v.string(),
+    latencyMs: v.number(),
+    ok: v.boolean(),
+    promptTokens: v.optional(v.number()),
+    completionTokens: v.optional(v.number()),
+    errorKind: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_user_at", ["userId", "createdAt"]),
 });
