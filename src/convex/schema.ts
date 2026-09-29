@@ -866,7 +866,7 @@ export default defineSchema({
     status: v.optional(v.string()),
     /** Fixed commitments never move automatically; flexible ones may be proposed to move. */
     fixed: v.optional(v.boolean()),
-    /** manual | planning | reschedule — where the block came from. */
+    /** manual | planning | reschedule | ai_import — where the block came from. */
     source: v.optional(v.string()),
     /** Mirrors the linked task's priority at scheduling time (context only). */
     priority: v.optional(v.string()),
@@ -1269,4 +1269,52 @@ export default defineSchema({
     .index("by_user_at", ["userId", "at"])
     .index("by_user_auto_key", ["userId", "automationId", "dedupeKey"])
     .index("by_day", ["day"]),
+
+  /* Phase 10.5 — external AI planning import (user-supplied file)        */
+  /* ------------------------------------------------------------------ */
+  /**
+   * One row per uploaded external-AI plan: the full audit trail of Phase 10.5
+   * (upload → validated → needs review → applied / partially applied /
+   * rejected). The platform never calls an AI API — this table only records
+   * what the USER imported, what the validator found, and what actually landed
+   * in the workspace.
+   *
+   * Layer separation (§12 of the spec) is preserved: `contextSnapshot` stores
+   * the USER INPUT layer, `planSnapshot` the AI-GENERATED layer. Nothing is
+   * ever executed from the file — it is stored as plain JSON text.
+   */
+  aiPlanningImports: defineTable({
+    userId: v.id("users"),
+    /** uploaded | validated | needs_review | applied | partially_applied | rejected | failed */
+    status: v.string(),
+    persona: v.string(),
+    /** external_chatgpt | external_gemini | external_claude | future_api | future_provider */
+    sourceType: v.string(),
+    sourceProvider: v.string(),
+    schemaVersion: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    appliedAt: v.optional(v.number()),
+    /** JSON: per-entity counts found in the file. */
+    inputCounts: v.string(),
+    /** JSON: per-entity counts actually written. */
+    appliedCounts: v.string(),
+    /** JSON: created ids per entity (audit + review). */
+    appliedIds: v.optional(v.string()),
+    /** JSON: PlanIssue[] (errors, warnings, dropped items). */
+    issues: v.optional(v.string()),
+    /** JSON: PlanConflict[] (overlaps, capacity, references, past dates). */
+    conflicts: v.optional(v.string()),
+    /** JSON: PlanDuplicate[] (title matches against existing data). */
+    duplicates: v.optional(v.string()),
+    /** JSON: the USER INPUT layer (context + inputs + assumptions). */
+    contextSnapshot: v.optional(v.string()),
+    /** JSON: the normalized AI-GENERATED plan (capped), for review only. */
+    planSnapshot: v.optional(v.string()),
+    /** JSON: what the user chose at confirmation time. */
+    applyOptions: v.optional(v.string()),
+    notes: v.optional(v.string()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_at", ["userId", "createdAt"]),
 });

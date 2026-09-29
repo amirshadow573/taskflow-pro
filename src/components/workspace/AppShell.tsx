@@ -14,6 +14,7 @@ import {
   ChevronsRight,
   CircleDot,
   Clock,
+  FileJson,
   FolderKanban,
   Inbox,
   LayoutDashboard,
@@ -50,6 +51,8 @@ const PRIMARY_NAV: NavItem[] = [
   { to: "/projects", label: "پروژه‌ها", icon: FolderKanban },
   { to: "/calendar", label: "تقویم", icon: CalendarDays },
   { to: "/planning", label: "برنامه‌ریزی", icon: Clock },
+  // Phase 10.5 — persona-aware import of a plan from the user's own external AI
+  { to: "/ai-planning", label: "برنامه با AI", icon: FileJson },
   // پیشرفت من = level / XP / stats / skills / quests / achievements / unlocks
   { to: "/progress", label: "پیشرفت من", icon: Trophy },
   { to: "/analytics", label: "تحلیل", icon: LineChart },
@@ -67,7 +70,7 @@ const PRIMARY_NAV: NavItem[] = [
 const NAV_GROUPS: { label: string; paths: string[] }[] = [
   {
     label: "روزمره",
-    paths: ["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning"],
+    paths: ["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning", "/ai-planning"],
   },
   { label: "پیشرفت", paths: ["/progress"] },
   { label: "پیشرفته", paths: ["/analytics", "/future", "/archive", "/settings"] },
@@ -75,14 +78,14 @@ const NAV_GROUPS: { label: string; paths: string[] }[] = [
 
 /** Persona-specific ordering inside the "روزمره" group (priorities first). */
 const CORE_ORDER_PER_PERSONA: Record<string, string[]> = {
-  student: ["/today", "/dashboard", "/calendar", "/tasks", "/projects", "/planning", "/inbox"],
-  employee: ["/today", "/tasks", "/calendar", "/projects", "/dashboard", "/planning", "/inbox"],
-  freelancer: ["/today", "/projects", "/tasks", "/calendar", "/dashboard", "/inbox", "/planning"],
-  manager: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/inbox"],
-  business_owner: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/inbox"],
-  personal: ["/today", "/tasks", "/dashboard", "/projects", "/calendar", "/planning", "/inbox"],
-  team: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/inbox"],
-  custom: ["/today", "/dashboard", "/tasks", "/projects", "/calendar", "/planning", "/inbox"],
+  student: ["/today", "/dashboard", "/calendar", "/tasks", "/projects", "/planning", "/ai-planning", "/inbox"],
+  employee: ["/today", "/tasks", "/calendar", "/projects", "/dashboard", "/planning", "/ai-planning", "/inbox"],
+  freelancer: ["/today", "/projects", "/tasks", "/calendar", "/dashboard", "/ai-planning", "/inbox", "/planning"],
+  manager: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/ai-planning", "/inbox"],
+  business_owner: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/ai-planning", "/inbox"],
+  personal: ["/today", "/tasks", "/dashboard", "/projects", "/calendar", "/planning", "/ai-planning", "/inbox"],
+  team: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/ai-planning", "/inbox"],
+  custom: ["/today", "/dashboard", "/tasks", "/projects", "/calendar", "/planning", "/ai-planning", "/inbox"],
 };
 
 const MOBILE_NAV: NavItem[] = [

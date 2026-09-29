@@ -1,5 +1,6 @@
 import { WorkspaceRouter } from "@/components/workspaces/WorkspaceRouter";
 import { FutureFeatureSection } from "@/components/future/ComingSoonFeature";
+import { AIPlanEntryCard } from "@/components/ai-planning/AIPlanEntryCard";
 
 /**
  * Dashboard page — routes to the persona-specific workspace.
@@ -19,6 +20,12 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <WorkspaceRouter />
+      {/*
+        Phase 10.5 — one compact entry point for the external-AI plan import.
+        It is deliberately small: the dashboard shows the resulting plan, not
+        the import mechanism (§22).
+      */}
+      <AIPlanEntryCard />
       {/*
         Future capabilities — a SMALL, persona-aware preview (max 3 cards) at
         the bottom of the dashboard. It never competes with the live modules

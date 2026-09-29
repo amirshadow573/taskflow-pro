@@ -447,11 +447,19 @@ export const CURRENT_CAPABILITIES: CurrentCapability[] = [
     route: "/progress",
     state: "active",
   },
+  {
+    key: "external_ai_import",
+    title: "واردسازی برنامه از AI خارجی",
+    description:
+      "پرامپت آمادهٔ شخصیت‌محور می‌گیرید، خروجی هوش مصنوعی خودتان را وارد می‌کنید و پس از اعتبارسنجی و تأیید، به فضای کاری اضافه می‌شود.",
+    route: "/ai-planning",
+    state: "active",
+  },
 ];
 
 /** The one honest sentence shown wherever future capabilities appear. */
 export const FUTURE_NOTE =
-  "هیچ قابلیت هوش مصنوعی فعال نیست. این بخش فقط مسیر آیندهٔ محصول را نشان می‌دهد و موتورهای قطعی فعلی را جایگزین نمی‌کند.";
+  "هیچ سرویس هوش مصنوعی در این نسخه فعال نیست. تنها بخش مرتبط، «واردسازی برنامه از AI خارجی» است که در آن شما از حساب خودتان استفاده می‌کنید و فقط فایل خروجی را وارد می‌کنید.";
 
 /* ------------------------------------------------------------------ */
 /* Selectors (pure, deterministic — the UI only reads these)          */
