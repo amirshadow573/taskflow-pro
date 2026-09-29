@@ -45,6 +45,12 @@ export interface TaskDoc {
   /** Phase 12: how many times the due date has been moved forward. */
   postponeCount?: number;
   createdAt: number;
+  /**
+   * Real completion timestamp (returned by `tasks.list`). Phase 13 reads it to
+   * derive completion days, deadline reliability and activity history — never
+   * guessed, always the stored value.
+   */
+  completedAt?: number;
 }
 
 export interface ProjectDoc {
