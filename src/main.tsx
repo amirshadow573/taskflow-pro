@@ -42,6 +42,7 @@ function GatedAnalytics() {
 const MyProgress = lazy(() => import("./pages/MyProgress.tsx"));
 const GrowthPathDetail = lazy(() => import("./pages/GrowthPathDetail.tsx"));
 const ArchivePage = lazy(() => import("./pages/Archive.tsx"));
+const FuturePage = lazy(() => import("./pages/Future.tsx"));
 const SettingsPage = lazy(() => import("./pages/Settings.tsx"));
 const Help = lazy(() => import("./pages/Help.tsx"));
 
@@ -289,6 +290,8 @@ const WORKSPACE_PAGES = [
   { path: "/progress/paths/:pathKey", Page: GrowthPathDetail },
   // تحلیل — historical productivity analytics (unlocked via progress)
   { path: "/analytics", Page: GatedAnalytics },
+  // قابلیت‌های آینده (AI) — structured «به‌زودی» showcase in the Advanced group
+  { path: "/future", Page: FuturePage },
   { path: "/archive", Page: ArchivePage },
   { path: "/settings", Page: SettingsPage },
   { path: "/help", Page: Help },

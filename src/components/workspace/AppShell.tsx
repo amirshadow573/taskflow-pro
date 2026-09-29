@@ -23,6 +23,7 @@ import {
   Moon,
   Search,
   Settings,
+  Sparkles,
   Sun,
   HelpCircle,
   Trophy,
@@ -37,6 +38,8 @@ export interface NavItem {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   badge?: number;
+  /** Marks a planned capability (renders a «به‌زودی» pill, never a route to a fake feature). */
+  preview?: boolean;
 }
 
 const PRIMARY_NAV: NavItem[] = [
@@ -50,6 +53,8 @@ const PRIMARY_NAV: NavItem[] = [
   // پیشرفت من = level / XP / stats / skills / quests / achievements / unlocks
   { to: "/progress", label: "پیشرفت من", icon: Trophy },
   { to: "/analytics", label: "تحلیل", icon: LineChart },
+  // قابلیت‌های آینده — preview surface for planned (disabled) capabilities
+  { to: "/future", label: "آیندهٔ محصول", icon: Sparkles, preview: true },
   { to: "/archive", label: "بایگانی", icon: Archive },
   { to: "/settings", label: "تنظیمات", icon: Settings },
 ];
@@ -65,7 +70,7 @@ const NAV_GROUPS: { label: string; paths: string[] }[] = [
     paths: ["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning"],
   },
   { label: "پیشرفت", paths: ["/progress"] },
-  { label: "پیشرفته", paths: ["/analytics", "/archive", "/settings"] },
+  { label: "پیشرفته", paths: ["/analytics", "/future", "/archive", "/settings"] },
 ];
 
 /** Persona-specific ordering inside the "روزمره" group (priorities first). */
@@ -164,6 +169,11 @@ export function AppShell({
                       {toFa(item.badge)}
                     </span>
                   )}
+                  {item.preview && (
+                    <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground dark:bg-white/10">
+                      به‌زودی
+                    </span>
+                  )}
                   {item.to === "/analytics" && capabilities?.analytics === false && (
                     <span
                       title="تحلیل پیشرفته هنوز باز نشده"
@@ -249,6 +259,11 @@ export function AppShell({
                         {item.badge !== undefined && item.badge > 0 && (
                           <span className="min-w-5 rounded-full bg-gradient-to-l from-primary to-[#5B5FE6] px-1.5 text-center text-[10px] font-bold leading-5 text-white shadow-[0_3px_10px_-4px_rgba(37,99,235,0.9)]">
                             {toFa(item.badge)}
+                          </span>
+                        )}
+                        {item.preview && (
+                          <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-[9px] font-bold text-muted-foreground dark:bg-white/10">
+                            به‌زودی
                           </span>
                         )}
                         {item.to === "/analytics" &&

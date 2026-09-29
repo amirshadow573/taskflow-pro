@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { PlanningCenter } from "@/components/planning/PlanningCenter";
 import { SchedulingCenter } from "@/components/scheduling/SchedulingCenter";
+import { FutureFeatureSection } from "@/components/future/ComingSoonFeature";
 import { usePlanning } from "@/hooks/use-planning";
 import { emitProgressionEvent } from "@/components/progress/ProgressProvider";
 import { toFa, formatJalaliFull } from "@/lib/persian";
@@ -267,6 +268,19 @@ function PlanningPage() {
           ))}
         </section>
       </div>
+
+      {/*
+        برنامه‌ریزی هوشمند — future preview. The deterministic Planning and
+        Scheduling centers above stay exactly as they are; this block only
+        communicates the direction and is explicitly «به‌زودی».
+      */}
+      <FutureFeatureSection
+        title="برنامه‌ریزی هوشمند"
+        surface="planning"
+        limit={2}
+        showNote
+        description="موتور برنامه‌ریزی و زمان‌بندی فعلی قطعی است؛ نسخهٔ هوشمند در آینده و روی همین داده‌ها اضافه می‌شود."
+      />
     </div>
   );
 }

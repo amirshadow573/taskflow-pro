@@ -1,4 +1,5 @@
 import { WorkspaceRouter } from "@/components/workspaces/WorkspaceRouter";
+import { FutureFeatureSection } from "@/components/future/ComingSoonFeature";
 
 /**
  * Dashboard page — routes to the persona-specific workspace.
@@ -15,5 +16,23 @@ import { WorkspaceRouter } from "@/components/workspaces/WorkspaceRouter";
  * but renders different modules, layouts, and features.
  */
 export default function Dashboard() {
-  return <WorkspaceRouter />;
+  return (
+    <div className="space-y-6">
+      <WorkspaceRouter />
+      {/*
+        Future capabilities — a SMALL, persona-aware preview (max 3 cards) at
+        the bottom of the dashboard. It never competes with the live modules
+        above it and it is not a loading state: everything renders instantly
+        from a static catalog.
+      */}
+      <div className="mx-auto max-w-6xl px-4 pb-8 md:px-8">
+        <FutureFeatureSection
+          title="قابلیت‌های آینده"
+          surface="dashboard"
+          limit={3}
+          description="مسیر بعدی محصول برای شخصیت شما — همه در مرحله «به‌زودی» هستند."
+        />
+      </div>
+    </div>
+  );
 }

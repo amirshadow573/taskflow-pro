@@ -1,4 +1,5 @@
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { FutureFeatureSection } from "@/components/future/ComingSoonFeature";
 import { toFa, JALALI_MONTHS, toJalaliDate } from "@/lib/persian";
 import { todayKey, addDaysKey } from "@/lib/task-utils";
 import {
@@ -14,7 +15,6 @@ import {
 } from "recharts";
 import { CheckCircle2, Flame, ListTodo, TrendingUp, TriangleAlert } from "lucide-react";
 import { useMemo } from "react";
-import type { Id } from "@/convex/_generated/dataModel";
 
 const DAY_LABELS = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
 
@@ -222,6 +222,17 @@ export default function ProgressPage() {
           </div>
         </section>
       </div>
+
+      {/*
+        AI Insights — future preview ONLY. The charts and stats above are the
+        real deterministic Productivity Intelligence and keep working as-is.
+      */}
+      <FutureFeatureSection
+        title="بینش‌های هوشمند"
+        surface="insights"
+        category="insights"
+        description="تحلیل فعلی بهره‌وری کاملاً قطعی است؛ تحلیل هوشمند شخصی‌سازی‌شده در نسخه‌های آینده اضافه خواهد شد."
+      />
     </div>
   );
 }
