@@ -11,6 +11,7 @@ import {
 import { toFa, formatJalaliShort } from "@/lib/persian";
 import { Archive, RotateCcw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useEffect, useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function ArchivePage() {
@@ -18,6 +19,17 @@ export default function ArchivePage() {
   const projects = useQuery(api.projects.list, {});
   const updateTask = useMutation(api.tasks.update);
   const removeTask = useMutation(api.tasks.remove);
+
+  // Never let the skeleton become a terminal state: if the query is slow or
+  // stalled, fall through to the empty state after a few seconds so this
+  // section always renders (the list fills in reactively once data arrives).
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
+  useEffect(() => {
+    if (archived !== undefined) return;
+    const id = window.setTimeout(() => setLoadTimedOut(true), 4000);
+    return () => window.clearTimeout(id);
+  }, [archived]);
+  const rows = archived ?? (loadTimedOut ? [] : null);
 
   const projectOf = (id?: string) =>
     (projects ?? []).find((p) => p._id === id);
@@ -53,13 +65,13 @@ export default function ArchivePage() {
         </p>
       </header>
 
-      {archived === undefined ? (
+      {rows === null ? (
         <div className="space-y-2">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="skeleton h-14 rounded-xl" />
           ))}
         </div>
-      ) : archived.length === 0 ? (
+      ) : rows.length === 0 ? (
         <Empty className="p-12">
           <EmptyMedia variant="icon">
             <Archive />
@@ -74,7 +86,7 @@ export default function ArchivePage() {
       ) : (
         <section className="ui-surface overflow-hidden rounded-2xl">
           <ul>
-            {archived.map((t) => {
+            {rows.map((t) => {
               const p = projectOf(t.projectId);
               return (
                 <li

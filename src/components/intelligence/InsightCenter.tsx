@@ -198,7 +198,10 @@ export function InsightCenter() {
 
           {tab === "execution" && (
             <div className="grid gap-3 lg:grid-cols-2">
-              <ExecutionPanel intel={intel} />
+              <ExecutionPanel
+                intel={intel}
+                todayScheduled={execution.result.snapshot.scheduledMinutes}
+              />
               <DeviationsPanel deviations={execution.result.deviations} />
             </div>
           )}
@@ -422,8 +425,15 @@ function PatternsPanel({ intel }: { intel: Intel }) {
   );
 }
 
-function ExecutionPanel({ intel }: { intel: Intel }) {
-  const { metrics, execution } = intel.data;
+function ExecutionPanel({
+  intel,
+  todayScheduled,
+}: {
+  intel: Intel;
+  /** Today's scheduled minutes — read from the execution engine snapshot. */
+  todayScheduled: number | null;
+}) {
+  const { metrics } = intel.data;
   return (
     <Panel title="خلاصه اجرا" description={windowLabelFa(intel.data.window)}>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
@@ -434,7 +444,7 @@ function ExecutionPanel({ intel }: { intel: Intel }) {
         <Stat label="جابه‌جایی برنامه" value={toFa(metrics.rescheduledTasks)} />
         <Stat
           label="برنامه امروز"
-          value={execution.snapshot.scheduledMinutes != null ? `${toFa(Math.round(execution.snapshot.scheduledMinutes))} دقیقه` : "—"}
+          value={todayScheduled != null ? `${toFa(Math.round(todayScheduled))} دقیقه` : "—"}
         />
       </div>
     </Panel>

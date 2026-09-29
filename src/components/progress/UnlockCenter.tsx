@@ -20,7 +20,7 @@
  */
 import { api } from "@/convex/_generated/api";
 import { useMutation, useQuery } from "convex/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { toFa } from "@/lib/persian";
@@ -336,14 +336,28 @@ export function CapabilityGate({
 }) {
   const cap = useQuery(api.unlocks.capability, { featureKey });
 
+  // A pending check must never become a PERMANENT loading state: the skeleton
+  // is only held for a few seconds, then the gate fails OPEN (same policy as an
+  // unknown feature key) so an advanced section always renders its content
+  // instead of spinning forever when the capability query is slow or stalled.
+  const [gateTimedOut, setGateTimedOut] = useState(false);
+  useEffect(() => {
+    if (cap !== undefined) return;
+    const id = window.setTimeout(() => setGateTimedOut(true), 4000);
+    return () => window.clearTimeout(id);
+  }, [cap]);
+
   // Loading: keep layout alive without flashing the gated content.
   if (cap === undefined) {
-    return (
-      <div className="mx-auto max-w-6xl space-y-4 p-4 md:p-8">
-        <div className="skeleton h-9 w-56" />
-        <div className="skeleton h-48 rounded-2xl" />
-      </div>
-    );
+    if (!gateTimedOut) {
+      return (
+        <div className="mx-auto max-w-6xl space-y-4 p-4 md:p-8">
+          <div className="skeleton h-9 w-56" />
+          <div className="skeleton h-48 rounded-2xl" />
+        </div>
+      );
+    }
+    return <>{children}</>;
   }
 
   // Unknown feature keys fail OPEN — a future module can never lock by accident.

@@ -204,6 +204,17 @@ export function WorkspaceData({
 
   const loading = tasks === undefined || projects === undefined;
 
+  // A loading page must never stay loading forever: if the workspace queries
+  // are slow or the connection stalls, render the page with empty data after a
+  // few seconds — it fills in reactively as soon as the queries resolve.
+  const [loadTimedOut, setLoadTimedOut] = useState(false);
+  useEffect(() => {
+    if (!loading) return;
+    const id = window.setTimeout(() => setLoadTimedOut(true), 4000);
+    return () => window.clearTimeout(id);
+  }, [loading]);
+  const showSkeleton = loading && !loadTimedOut;
+
   // Derived notification list
   const todayKeyStr = (() => {
     const d = new Date();
@@ -294,11 +305,11 @@ export function WorkspaceData({
               overdueCount={overdue.length}
               notifications={notifications}
             >
-              {loading ? <PageSkeleton /> : children}
+              {showSkeleton ? <PageSkeleton /> : children}
             </AppShell>
             {palette}
           </>
-        ) : loading ? (
+        ) : showSkeleton ? (
           <PageSkeleton />
         ) : (
           children
