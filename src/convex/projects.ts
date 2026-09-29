@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { fireAutomationEvent } from "./automations";
 import { handleProjectStatusChange } from "./gamification";
 
 export const list = query({
@@ -28,7 +29,7 @@ export const create = mutation({
   handler: async (ctx, { name, description, color, deadline, goalRef }) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Not authenticated");
-    return await ctx.db.insert("projects", {
+    const id = await ctx.db.insert("projects", {
       userId,
       name: name.trim(),
       description: description?.trim() || undefined,
@@ -39,6 +40,14 @@ export const create = mutation({
       archived: false,
       goalRef: goalRef || undefined,
     });
+    // Phase 14 — `project_created` event trigger for the automation engine.
+    const created = await ctx.db.get(id);
+    await fireAutomationEvent(ctx, userId, "project_created", {
+      entity: "project",
+      id,
+      doc: created,
+    });
+    return id;
   },
 });
 
@@ -67,6 +76,13 @@ export const update = mutation({
     if (rest.status !== undefined && rest.status !== prevStatus) {
       await handleProjectStatusChange(ctx, project, rest.status);
     }
+    // Phase 14 — `project_updated` event trigger for the automation engine.
+    const after = await ctx.db.get(id);
+    await fireAutomationEvent(ctx, userId, "project_updated", {
+      entity: "project",
+      id,
+      doc: after,
+    });
   },
 });
 

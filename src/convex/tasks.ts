@@ -2,6 +2,7 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { recordExecutionEvent, setTaskDone } from "./taskCore";
+import { fireAutomationEvent } from "./automations";
 
 function dayKey(offsetDays = 0): string {
   const d = new Date();
@@ -53,7 +54,7 @@ export const create = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (userId === null) throw new Error("Not authenticated");
-    return await ctx.db.insert("tasks", {
+    const id = await ctx.db.insert("tasks", {
       userId,
       title: args.title.trim(),
       description: args.description?.trim() || undefined,
@@ -69,6 +70,14 @@ export const create = mutation({
       createdAt: Date.now(),
       archived: false,
     });
+    // Phase 14 — `task_created` event trigger for the automation engine.
+    const created = await ctx.db.get(id);
+    await fireAutomationEvent(ctx, userId, "task_created", {
+      entity: "task",
+      id,
+      doc: created,
+    });
+    return id;
   },
 });
 
@@ -142,6 +151,15 @@ export const update = mutation({
 
     if (completionChanged) {
       await setTaskDone(ctx, id, willBeDone);
+    } else {
+      // Phase 14 — `task_updated` event trigger (non-completion edits; the
+      // completion path already fired task_completed inside setTaskDone).
+      const after = await ctx.db.get(id);
+      await fireAutomationEvent(ctx, userId, "task_updated", {
+        entity: "task",
+        id,
+        doc: after,
+      });
     }
   },
 });

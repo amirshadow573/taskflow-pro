@@ -15,6 +15,7 @@
  */
 import type { Id } from "./_generated/dataModel";
 import type { MutationCtx } from "./_generated/server";
+import { fireAutomationEvent } from "./automations";
 import { handleTaskToggle } from "./gamification";
 
 export type TaskEngineResult = Awaited<ReturnType<typeof handleTaskToggle>>;
@@ -120,5 +121,18 @@ export async function setTaskDone(
 
   const updated = await ctx.db.get(taskId);
   if (!updated) return null;
-  return await handleTaskToggle(ctx, updated, done);
+  const result = await handleTaskToggle(ctx, updated, done);
+
+  // Phase 14 — `task_completed` event trigger. Checkbox, status selector and
+  // execution engine all funnel through here, so the automation engine sees
+  // every completion exactly once. fireAutomationEvent never throws.
+  if (done) {
+    await fireAutomationEvent(ctx, task.userId, "task_completed", {
+      entity: "task",
+      id: taskId,
+      doc: updated,
+      token: String(updated.completedAt ?? now),
+    });
+  }
+  return result;
 }

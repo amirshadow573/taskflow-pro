@@ -1190,4 +1190,83 @@ export default defineSchema({
     .index("by_user", ["userId", "at"])
     .index("by_user_day", ["userId", "day"])
     .index("by_user_task", ["userId", "taskId"]),
+
+  /* ---------------------------------------------------------------- */
+  /* Phase 14 — Smart Workflow & Automation Engine                     */
+  /* ---------------------------------------------------------------- */
+  /**
+   * One user-defined automation rule (WHEN → IF → THEN). All definitions are
+   * validated against the shared catalog in automationRules.ts before they
+   * are stored; trigger / conditions / actions are structured JSON so the
+   * engine, the builder and the dry-run preview read the exact same shape.
+   * Strictly user-scoped: an automation can only ever touch its owner's rows.
+   */
+  automations: defineTable({
+    userId: v.id("users"),
+    name: v.string(),
+    description: v.optional(v.string()),
+    enabled: v.boolean(),
+    /** { kind: "event" | "state" | "time", key, config? } — see automationRules. */
+    trigger: v.any(),
+    /** AutomationCondition[] — AND semantics. */
+    conditions: v.array(v.any()),
+    /** AutomationAction[] — executed in order through the action service. */
+    actions: v.array(v.any()),
+    /** Template key when the rule was created from a template. */
+    createdFromTemplate: v.optional(v.string()),
+    /** Fixed-offset timezone captured at save time (minutes east of UTC). */
+    tzOffsetMinutes: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+    lastExecutedAt: v.optional(v.number()),
+    /** Next due fire for time triggers (epoch ms, computed in the owner tz). */
+    nextExecutionAt: v.optional(v.number()),
+    /** Cadence guard for state sweeps (epoch ms). */
+    lastEvaluatedAt: v.optional(v.number()),
+    runCount: v.number(),
+    lastStatus: v.optional(v.string()),
+    lastFailureReason: v.optional(v.string()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_enabled", ["userId", "enabled"])
+    .index("by_enabled", ["enabled"]),
+
+  /**
+   * Append-only execution history (audit trail) — successes AND failures are
+   * stored, never hidden. Doubles as the idempotency ledger: one row per
+   * (automation, dedupeKey), so the same occurrence can never run twice.
+   * `notify*` rows are the automation notification channel — they surface in
+   * the EXISTING bell/popover list (no second notification system).
+   */
+  automationExecutions: defineTable({
+    userId: v.id("users"),
+    automationId: v.id("automations"),
+    /** Denormalized so history stays readable after an automation is deleted. */
+    automationName: v.string(),
+    /** Idempotency key — unique per (userId, automationId, dedupeKey). */
+    dedupeKey: v.string(),
+    /** success | failed | skipped */
+    status: v.string(),
+    /** time | state | event:<key> | manual */
+    origin: v.string(),
+    /** Persian summary of what fired (shown in history). */
+    triggerLabel: v.string(),
+    /** Persian summary of what the actions did. */
+    actionSummary: v.string(),
+    /** Persian failure / skip reason — always surfaced, never swallowed. */
+    reason: v.optional(v.string()),
+    /** JSON details per action (ids, values) for the inspect view. */
+    details: v.optional(v.string()),
+    /** Loop-protection chain depth (0 = top level). */
+    depth: v.number(),
+    at: v.number(),
+    day: v.string(),
+    /** Notification-producing execution (surfaces in the bell). */
+    notify: v.optional(v.boolean()),
+    notifyTitle: v.optional(v.string()),
+    notifyBody: v.optional(v.string()),
+  })
+    .index("by_user_at", ["userId", "at"])
+    .index("by_user_auto_key", ["userId", "automationId", "dedupeKey"])
+    .index("by_day", ["day"]),
 });
