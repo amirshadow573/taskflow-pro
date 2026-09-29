@@ -629,7 +629,7 @@ function PlanningContextView({ importId }: { importId: Id<"aiPlanningImports"> }
                 <dt className="text-[11px] font-bold text-muted-foreground">
                   {INPUT_LABELS[key] ?? key}
                 </dt>
-                <dd className="text-[11px] leading-5">{values.join(" • ")}</dd>
+                <dd className="break-words text-[11px] leading-5">{values.join(" • ")}</dd>
               </div>
             ))}
           </dl>
@@ -665,7 +665,7 @@ function PlanningContextView({ importId }: { importId: Id<"aiPlanningImports"> }
               .map((k) => (
                 <li key={k} className="text-[11px] leading-5">
                   <span className="font-bold">{ENTITY_LABELS[k]}:</span>{" "}
-                  <span className="text-muted-foreground">
+                  <span className="break-words text-muted-foreground">
                     {plan[k].map((i) => i.title).join(" • ")}
                   </span>
                 </li>
@@ -864,7 +864,7 @@ function ImportPreview({
                     onChange={(e) => onToggle(key, e.target.checked)}
                     className="size-4 accent-primary"
                   />
-                  <span className="flex-1">{ENTITY_LABELS[key]}</span>
+                  <span className="min-w-0 flex-1 break-words">{ENTITY_LABELS[key]}</span>
                   <span className="font-extrabold tabular-nums">{toFa(n)}</span>
                 </label>
               );
@@ -883,7 +883,7 @@ function ImportPreview({
                 .map((k) => (
                   <li key={k} className="text-[11px] leading-5">
                     <span className="font-bold">{ENTITY_LABELS[k]}:</span>{" "}
-                    <span className="text-muted-foreground">{titles[k].join(" • ")}</span>
+                    <span className="break-words text-muted-foreground">{titles[k].join(" • ")}</span>
                   </li>
                 ))}
             </ul>
@@ -916,7 +916,7 @@ function ImportPreview({
                 <li
                   key={idx}
                   className={cn(
-                    "rounded-lg border px-2.5 py-1.5 text-[11px]",
+                    "rounded-lg border px-2.5 py-1.5 text-[11px] break-words",
                     c.blocking ? "border-amber-500/50 bg-amber-500/5" : "border-border/60",
                   )}
                 >
@@ -924,7 +924,7 @@ function ImportPreview({
                   {c.day && <span> — {c.day}</span>}
                   <p className="text-muted-foreground">{c.detail}</p>
                   {c.items.length > 0 && (
-                    <p className="mt-0.5 text-muted-foreground">موارد: {c.items.join("، ")}</p>
+                    <p className="mt-0.5 break-words text-muted-foreground">موارد: {c.items.join("، ")}</p>
                   )}
                 </li>
               ))}
@@ -946,7 +946,7 @@ function ImportPreview({
             <p className="text-xs font-extrabold">موارد تکراری (در فضای کاری وجود دارند)</p>
             <ul className="space-y-1">
               {analysis.duplicates.slice(0, 8).map((d, idx) => (
-                <li key={idx} className="text-[11px] text-muted-foreground">
+                <li key={idx} className="break-words text-[11px] text-muted-foreground">
                   • {d.importedTitle} ← {d.existingTitle}
                 </li>
               ))}
