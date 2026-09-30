@@ -469,84 +469,65 @@
 }
 
 /* ────────────────────────────────────────────────────────────────
-   GLOBAL page canvas — ONE continuous environment behind the whole
-   homepage (header → hero → sections → CTA → footer).
-   Grid runs the full document height; radial glows are distributed
-   top / upper-middle / middle / lower-middle / bottom.
+   LANDING CANVAS — ONE continuous, FLAT, neutral surface behind the
+   whole marketing page (header → hero → sections → CTA → footer),
+   at EVERY viewport width (§5 / §32):
+     light mode = #F3F4F6, dark mode = deep navy.
+   No mesh gradients, no grid pattern, no glow, no blobs: the landing
+   page no longer mounts InteractiveGrid, the top fade band or the
+   hero orbs at all — this is the only canvas rule it needs.
    ──────────────────────────────────────────────────────────────── */
-.bg-page-light {
-  background-color: transparent;
-  background-image:
-    radial-gradient(circle 700px at 14% 4%, rgba(139, 92, 246, 0.14), transparent),
-    radial-gradient(circle 700px at 86% 10%, rgba(59, 130, 246, 0.16), transparent),
-    radial-gradient(circle 800px at 12% 30%, rgba(59, 130, 246, 0.09), transparent),
-    radial-gradient(circle 800px at 88% 48%, rgba(139, 92, 246, 0.09), transparent),
-    radial-gradient(circle 800px at 18% 68%, rgba(59, 130, 246, 0.08), transparent),
-    radial-gradient(circle 700px at 82% 88%, rgba(139, 92, 246, 0.07), transparent);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+.landing-page {
+  background-color: #f3f4f6;
+  background-image: none;
 }
-.bg-page-dark {
-  background-color: transparent;
-  background-image:
-    radial-gradient(circle 700px at 14% 4%, rgba(139, 92, 246, 0.12), transparent),
-    radial-gradient(circle 700px at 86% 10%, rgba(59, 130, 246, 0.13), transparent),
-    radial-gradient(circle 800px at 12% 30%, rgba(59, 130, 246, 0.08), transparent),
-    radial-gradient(circle 800px at 88% 48%, rgba(139, 92, 246, 0.08), transparent),
-    radial-gradient(circle 800px at 18% 68%, rgba(59, 130, 246, 0.07), transparent),
-    radial-gradient(circle 700px at 82% 88%, rgba(139, 92, 246, 0.06), transparent);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+.dark .landing-page {
+  background-color: #0a1120;
+  background-image: none;
+}
+/* Paint the document/overscroll region with the same canvas so no
+   older background (desktop mesh, app surface) flashes above the
+   header or below the footer while scrolling. `:has` specificity
+   beats the bare `body` mesh rule in every media query. */
+body:has(.landing-page) {
+  background-color: #f3f4f6;
+  background-image: none;
+}
+.dark body:has(.landing-page) {
+  background-color: #0a1120;
+  background-image: none;
+}
+#root:has(.landing-page) {
+  background-color: #f3f4f6;
+  background-image: none;
+}
+.dark #root:has(.landing-page) {
+  background-color: #0a1120;
+  background-image: none;
 }
 
 /* ────────────────────────────────────────────────────────────────
-   MOBILE HOMEPAGE CANVAS (< 768px) — ONE SOLID GRAY.
+   LANDING DECOR — HARD OFF ON MOBILE (< 768px).
 
-   The decorative mobile page background is removed COMPLETELY at the
-   source at this breakpoint (not faded, not reduced):
-     • the blue/purple radial mesh on .bg-page-light / .bg-page-dark
-     • the InteractiveGrid layer (grid lines + cursor glow blobs)
-     • the top white→transparent fade band
-     • the three blurred hero orbs (.orb)
-   What remains is one continuous flat #F3F4F6 canvas covering
-   header → all sections → footer, top to bottom. Component surfaces
-   (cards, buttons, header surface, CTA card) are untouched.
-   Desktop (≥768px) keeps its existing design exactly as before.
+   The landing page itself no longer mounts the InteractiveGrid layer,
+   the top fade band or the hero orbs at all (the canvas above is flat
+   #F3F4F6 at every width). These guards remain as a safety net so no
+   decorative layer can ever reappear on small screens.
    ──────────────────────────────────────────────────────────────── */
 @media (max-width: 767.98px) {
-  /* 1. Page canvas: solid, flat, neutral — no image layer at all. */
-  .bg-page-light,
-  .landing-page {
-    background-color: #f3f4f6;
-    background-image: none;
-  }
-  .dark .bg-page-dark,
-  .dark .landing-page {
-    background-color: #0a1120;
-    background-image: none;
-  }
-
-  /* Also paint the document/overscroll region so no older background
-     can flash above the header or below the footer while scrolling. */
-  body:has(.landing-page) {
-    background-color: #f3f4f6;
-  }
-  .dark body:has(.landing-page) {
-    background-color: #0a1120;
-  }
-
-  /* 2. Remove the grid pattern and its glow layers entirely. */
-  .landing-decor {
-    display: none;
-  }
-
-  /* 3. Remove the top gradient fade (would break the flat canvas). */
-  .landing-top-fade {
-    display: none;
-  }
-
-  /* 4. Remove the blurred decorative blobs behind the hero. */
+  .landing-decor,
+  .landing-top-fade,
   .orb {
     display: none;
   }
+}
+
+/* ── Accessible accordion rows (landing FAQ uses native <details>) ── */
+details summary::-webkit-details-marker {
+  display: none;
+}
+summary::marker {
+  content: "";
 }
 
 
