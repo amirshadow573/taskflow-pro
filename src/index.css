@@ -497,6 +497,58 @@
   background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
 }
 
+/* ────────────────────────────────────────────────────────────────
+   MOBILE HOMEPAGE CANVAS (< 768px) — ONE SOLID GRAY.
+
+   The decorative mobile page background is removed COMPLETELY at the
+   source at this breakpoint (not faded, not reduced):
+     • the blue/purple radial mesh on .bg-page-light / .bg-page-dark
+     • the InteractiveGrid layer (grid lines + cursor glow blobs)
+     • the top white→transparent fade band
+     • the three blurred hero orbs (.orb)
+   What remains is one continuous flat #F3F4F6 canvas covering
+   header → all sections → footer, top to bottom. Component surfaces
+   (cards, buttons, header surface, CTA card) are untouched.
+   Desktop (≥768px) keeps its existing design exactly as before.
+   ──────────────────────────────────────────────────────────────── */
+@media (max-width: 767.98px) {
+  /* 1. Page canvas: solid, flat, neutral — no image layer at all. */
+  .bg-page-light,
+  .landing-page {
+    background-color: #f3f4f6;
+    background-image: none;
+  }
+  .dark .bg-page-dark,
+  .dark .landing-page {
+    background-color: #0a1120;
+    background-image: none;
+  }
+
+  /* Also paint the document/overscroll region so no older background
+     can flash above the header or below the footer while scrolling. */
+  body:has(.landing-page) {
+    background-color: #f3f4f6;
+  }
+  .dark body:has(.landing-page) {
+    background-color: #0a1120;
+  }
+
+  /* 2. Remove the grid pattern and its glow layers entirely. */
+  .landing-decor {
+    display: none;
+  }
+
+  /* 3. Remove the top gradient fade (would break the flat canvas). */
+  .landing-top-fade {
+    display: none;
+  }
+
+  /* 4. Remove the blurred decorative blobs behind the hero. */
+  .orb {
+    display: none;
+  }
+}
+
 
 /* ── Slow float animation ── */
 @keyframes gentle-float {

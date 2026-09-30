@@ -21,7 +21,10 @@ export function InteractiveGrid() {
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-    if (reduced || !canHover) return;
+    // Mobile (<768px): this layer is fully hidden by CSS (flat #F3F4F6
+    // canvas) — don't run the loop against invisible elements.
+    const isMobile = window.matchMedia("(max-width: 767.98px)").matches;
+    if (reduced || !canHover || isMobile) return;
 
     const target = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
     const pos = { x: target.x, y: target.y };
@@ -79,7 +82,7 @@ export function InteractiveGrid() {
   }, []);
 
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden className="landing-decor pointer-events-none absolute inset-0 overflow-hidden">
       {/* Oversized interactive grid layer */}
       <div ref={gridRef} className="grid-lines absolute -inset-8 will-change-transform" />
 

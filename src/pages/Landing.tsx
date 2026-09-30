@@ -8,12 +8,9 @@ import {
   ChevronLeft,
   Clock,
   Flame,
-  FolderKanban,
   Inbox,
   LayoutDashboard,
   ListChecks,
-  Plus,
-  Search,
   Sparkles,
   Target,
   TrendingUp,
@@ -325,13 +322,16 @@ export default function Landing() {
   ];
 
   return (
-    <div className="relative min-h-svh" dir="rtl">
-      {/* ═══════════ GLOBAL BACKGROUND CANVAS ═══════════ */}
+    <div className="landing-page relative min-h-svh" dir="rtl">
+      {/* ═══════════ GLOBAL BACKGROUND CANVAS ═══════════
+          On mobile (<768px) this whole layer is replaced at the source by
+          one flat solid #F3F4F6 canvas — see the MOBILE HOMEPAGE CANVAS
+          block in index.css. Desktop keeps the mesh + interactive grid. */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0">
         <div className="bg-page-light absolute inset-0 dark:hidden" />
         <div className="bg-page-dark absolute inset-0 hidden dark:block" />
         <InteractiveGrid />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-white/60 to-transparent dark:from-[#0c1222]/80" />
+        <div className="landing-top-fade pointer-events-none absolute inset-x-0 top-0 h-80 bg-gradient-to-b from-white/60 to-transparent dark:from-[#0c1222]/80" />
       </div>
 
       <div className="relative z-10">
