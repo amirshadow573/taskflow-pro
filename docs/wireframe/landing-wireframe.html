@@ -1,0 +1,1314 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>وایرفریم صفحه فرود — سیستم بهره‌وری شخصی (Low-Fidelity)</title>
+<style>
+/* ============================================================
+   LOW-FIDELITY WIREFRAME — grayscale only, RTL, full-width
+   Purpose: communicate WHAT GOES WHERE, not final visual identity.
+   ============================================================ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#1a1a1a;         /* dark gray typography            */
+  --ink-2:#4a4a4a;       /* secondary text                  */
+  --ink-3:#7a7a7a;       /* muted / annotation text         */
+  --line:#d4d4d4;        /* hairline borders                */
+  --line-2:#b0b0b0;      /* stronger borders                */
+  --g-1:#ffffff;         /* white                           */
+  --g-2:#f4f4f4;         /* light gray surface              */
+  --g-3:#e9e9e9;         /* placeholder block               */
+  --g-4:#dcdcdc;         /* placeholder block (darker)      */
+  --g-5:#c4c4c4;         /* placeholder bar / chart         */
+  --g-6:#9a9a9a;         /* muted chart                     */
+  --g-7:#6f6f6f;         /* strong chart                    */
+  --g-8:#3d3d3d;         /* dark surface (footer / CTA)     */
+  --g-9:#2b2b2b;         /* darkest                          */
+  --gut:6%;              /* outer side margin                */
+  --max:none;            /* FULL WIDTH — not a narrow blog   */
+}
+html{scroll-behavior:smooth}
+body{
+  background:var(--g-1);
+  color:var(--ink);
+  font-family:"Vazirmatn","IRANSans",Tahoma,"Segoe UI",system-ui,sans-serif;
+  line-height:1.9;
+  direction:rtl;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{width:100%;padding-inline:var(--gut);max-width:var(--max)}
+.narrow{max-width:760px;margin-inline:auto}
+
+/* ---------- wireframe annotation chrome ---------- */
+.anno{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px;letter-spacing:.06em;color:var(--ink-3);
+  border:1px dashed var(--line-2);border-radius:3px;
+  padding:3px 9px;display:inline-block;background:var(--g-1);
+}
+.anno-bar{
+  display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+  padding:10px 0;border-block:1px dashed var(--line-2);
+}
+.anno-bar .tag{font-size:12px;color:var(--ink-2)}
+
+/* ---------- typography ---------- */
+h1{font-size:clamp(30px,4.6vw,62px);line-height:1.45;font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(24px,3.1vw,42px);line-height:1.55;font-weight:800}
+h3{font-size:clamp(17px,1.5vw,22px);line-height:1.7;font-weight:700}
+h4{font-size:16px;font-weight:700;line-height:1.7}
+p{font-size:clamp(15px,1.15vw,18px);color:var(--ink-2)}
+.lead{font-size:clamp(16px,1.45vw,21px);color:var(--ink-2);line-height:2.05}
+.small{font-size:14px;color:var(--ink-3);line-height:1.9}
+.tiny{font-size:12px;color:var(--ink-3);line-height:1.8}
+.center{text-align:center}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;direction:ltr;unicode-bidi:isolate}
+.gray{color:var(--g-7)}
+.strength{font-weight:700;color:var(--ink)}
+
+/* ---------- layout primitives ---------- */
+section{padding:clamp(56px,7vw,110px) 0;border-top:1px solid var(--line)}
+section:first-of-type{border-top:none}
+.band{background:var(--g-2)}
+.band-dark{background:var(--g-8);color:var(--g-1)}
+.band-dark p,.band-dark .lead,.band-dark .small,.band-dark .tiny{color:#d0d0d0}
+.band-dark h1,.band-dark h2,.band-dark h3,.band-dark h4{color:var(--g-1)}
+.band-dark .anno{background:transparent;color:#c0c0c0;border-color:#5f5f5f}
+.rule{height:1px;background:var(--line);margin:0}
+.gap-s{margin-top:14px}.gap-m{margin-top:26px}.gap-l{margin-top:48px}
+.mt-a{margin-top:auto}
+.cols-2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,4.4vw,76px);align-items:center}
+.cols-2.reverse>*:first-child{order:2}
+.cols-2.reverse>*:last-child{order:1}
+.cols-3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,30px)}
+.cols-4{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(16px,2vw,28px)}
+.cols-6{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.7vw,24px)}
+.stack{display:flex;flex-direction:column}
+.grow{flex:1}
+
+/* ---------- buttons (basic shapes) ---------- */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1.5px solid var(--line-2);background:var(--g-1);color:var(--ink);
+  padding:12px 22px;border-radius:4px;font-size:16px;font-weight:700;
+}
+.btn.primary{background:var(--g-9);color:var(--g-1);border-color:var(--g-9)}
+.btn.ghost{background:transparent}
+.btn.lg{padding:15px 30px;font-size:18px}
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.band-dark .btn{background:transparent;color:var(--g-1);border-color:#8f8f8f}
+.band-dark .btn.primary{background:var(--g-1);color:var(--ink);border-color:var(--g-1)}
+.btn .ph-icon{width:14px;height:14px;background:var(--g-5)}
+
+/* ---------- wireframe cards ---------- */
+.card{border:1.5px solid var(--line);background:var(--g-1);border-radius:6px;padding:clamp(16px,1.8vw,26px)}
+.card.fill{background:var(--g-2)}
+.card.strong{border-width:2px;border-color:var(--g-8)}
+.card-head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ic{
+  width:40px;height:40px;flex:0 0 40px;border:1.5px solid var(--line-2);
+  border-radius:5px;background:var(--g-3);display:flex;align-items:center;justify-content:center;
+}
+.ic .x{width:14px;height:14px;background:var(--g-6)}
+.ic.sm{width:30px;height:30px;flex:0 0 30px}
+.ic.lg{width:52px;height:52px;flex:0 0 52px}
+.pill{
+  display:inline-block;font-size:12px;border:1px solid var(--line-2);
+  border-radius:999px;padding:2px 11px;color:var(--ink-2);background:var(--g-1)
+}
+.pill.dark{background:var(--g-9);color:var(--g-1);border-color:var(--g-9)}
+.pill.disabled{background:var(--g-3);color:var(--ink-3);border-style:dashed}
+
+/* ---------- bullets ---------- */
+ul.bul{list-style:none;display:flex;flex-direction:column;gap:11px}
+ul.bul li{position:relative;padding-inline-start:26px;color:var(--ink-2);font-size:16px}
+ul.bul li::before{
+  content:"";position:absolute;inset-inline-start:0;top:11px;
+  width:12px;height:12px;border:1.5px solid var(--line-2);border-radius:2px;background:var(--g-3)
+}
+ul.bul.check li::before{
+  content:"";background:var(--g-6);border-color:var(--g-6);border-radius:50%;
+}
+ul.bul.check li::after{
+  content:"";position:absolute;inset-inline-start:4px;top:12px;width:5px;height:9px;
+  border:1.5px solid var(--g-1);border-width:0 1.5px 1.5px 0;transform:rotate(45deg)
+}
+
+/* ---------- PHOTO / SCREENSHOT PLACEHOLDERS ---------- */
+.ph{
+  position:relative;border:2px dashed var(--line-2);background:var(--g-2);
+  border-radius:6px;display:flex;align-items:center;justify-content:center;
+  min-height:150px;padding:22px;text-align:center;
+}
+.ph .ph-label{
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:12px;letter-spacing:.05em;color:var(--ink-2);
+  border:1px solid var(--line-2);background:var(--g-1);border-radius:3px;padding:6px 12px;
+}
+.ph .ph-sub{font-size:12px;color:var(--ink-3);margin-top:8px}
+.ph .badge-corner{
+  position:absolute;top:8px;inset-inline-start:8px;font-size:10px;letter-spacing:.08em;
+  color:var(--ink-3);border:1px solid var(--line);background:var(--g-1);
+  border-radius:2px;padding:2px 6px;
+}
+.ph.sm{min-height:104px;padding:14px}
+.ph.xs{min-height:64px;padding:10px}
+.ph.lg{min-height:340px}
+.ph.xl{min-height:460px}
+.ph.dark{background:#3a3a3a;border-color:#6f6f6f}
+.ph.dark .ph-label{background:#2b2b2b;color:#e2e2e2;border-color:#8f8f8f}
+.ph.dark .ph-sub{color:#bdbdbd}
+.ph.overlay-note{position:absolute;bottom:12px;inset-inline-end:12px;font-size:11px;color:var(--ink-3)}
+
+/* ---------- fake app chrome (inside placeholders) ---------- */
+.app{border:1.5px solid var(--line-2);border-radius:6px;background:var(--g-1);overflow:hidden;width:100%}
+.app-top{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:8px 12px;background:var(--g-2)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--g-5)}
+.app-url{margin-inline-start:auto;font-size:10px;color:var(--ink-3);border:1px solid var(--line);border-radius:3px;padding:2px 8px;background:var(--g-1)}
+.app-body{display:flex;min-height:200px}
+.app-side{width:22%;border-inline-end:1px solid var(--line);padding:12px;background:var(--g-2);display:flex;flex-direction:column;gap:9px}
+.app-main{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px}
+.nav-item{height:12px;background:var(--g-3);border-radius:2px}
+.nav-item.on{background:var(--g-6)}
+.row{height:14px;background:var(--g-3);border-radius:2px}
+.cardline{border:1px solid var(--line);border-radius:4px;padding:10px;background:var(--g-1)}
+.cardline .row{margin-bottom:7px}
+.cardline .row:last-child{margin-bottom:0}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+
+/* ---------- charts ---------- */
+.bars{display:flex;align-items:flex-end;gap:6px;height:92px}
+.bars i{flex:1;background:var(--g-5);border-radius:2px 2px 0 0;display:block}
+.bars i.alt{background:var(--g-4)}
+.bars i.hi{background:var(--g-7)}
+.line-chart{position:relative;height:96px;border-bottom:1.5px solid var(--line-2);background:
+  repeating-linear-gradient(to top,var(--line) 0 1px,transparent 1px 24px)}
+.line-chart svg{position:absolute;inset:0;width:100%;height:100%}
+.spark{height:52px;background:linear-gradient(to top,var(--g-4) 0 60%,transparent 60%)}
+.donut{width:96px;height:96px;border-radius:50%;border:16px solid var(--g-4);position:relative;margin-inline:auto}
+.donut::after{content:"";position:absolute;inset:14px;border-radius:50%;border:12px solid var(--g-6)}
+.meter{height:10px;background:var(--g-3);border-radius:999px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--g-7)}
+
+/* ---------- timeline ---------- */
+.tl{border:1.5px solid var(--line-2);border-radius:6px;background:var(--g-1);padding:14px}
+.tl-hours{position:relative;height:18px;margin-inline-start:64px;margin-bottom:6px}
+.tl-hours span{position:absolute;top:0;font-size:10px;color:var(--ink-3);transform:translateX(50%)}
+.tl-grid{position:relative;height:270px;border:1px solid var(--line);background:var(--g-1)}
+.tl-hour{position:absolute;inset-inline-start:0;width:100%;border-top:1px solid var(--line)}
+.tl-hour.major{border-top:1.5px solid var(--g-5)}
+.tl-label{position:absolute;inset-inline-end:calc(100% + 8px);font-size:10px;color:var(--ink-3);transform:translateY(-50%)}
+.tl-track{position:absolute;inset:0}
+.tl-block{position:absolute;border-radius:4px;border:1.5px solid var(--g-7);background:var(--g-3);padding:8px 10px;overflow:hidden}
+.tl-block b{display:block;font-size:12px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-block em{font-style:normal;font-size:10px;color:var(--ink-3)}
+.tl-block.t1{background:#e4e4e4}.tl-block.t2{background:#d6d6d6}
+.tl-block.t3{background:#c8c8c8}.tl-block.t4{background:#bdbdbd}
+.tl-now{position:absolute;inset-inline:0;top:96px;border-top:1.5px dashed var(--g-9)}
+.tl-now::after{content:"";position:absolute;top:-4px;inset-inline-end:-1px;width:7px;height:7px;background:var(--g-9);border-radius:50%}
+
+/* ---------- flow / hierarchy chains ---------- */
+.chain{display:flex;flex-direction:column;gap:0;align-items:stretch}
+.chain .node{
+  border:1.5px solid var(--line-2);background:var(--g-1);border-radius:5px;
+  padding:13px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between
+}
+.chain .node.strong{border-color:var(--g-8);background:var(--g-2)}
+.chain .node .t{font-size:15px;font-weight:700}
+.chain .node .s{font-size:12px;color:var(--ink-3)}
+.chain .arrow{height:26px;position:relative}
+.chain .arrow::before{content:"";position:absolute;inset-inline-start:50%;top:0;width:1.5px;height:18px;background:var(--line-2);transform:translateX(50%)}
+.chain .arrow::after{content:"";position:absolute;inset-inline-start:50%;bottom:0;width:8px;height:8px;border:1.5px solid var(--line-2);border-width:0 0 1.5px 1.5px;transform:translateX(50%) rotate(45deg)}
+.flow-h{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.flow-h .fnode{
+  flex:1;min-width:112px;border:1.5px solid var(--line-2);background:var(--g-1);border-radius:5px;
+  padding:14px 10px;text-align:center
+}
+.flow-h .fnode.on{background:var(--g-2);border-color:var(--g-8)}
+.flow-h .fnode b{display:block;font-size:13px;font-weight:700}
+.flow-h .fnode span{font-size:10px;color:var(--ink-3)}
+.flow-h .fsep{display:flex;align-items:center;color:var(--line-2);font-size:16px;padding:0 8px}
+
+/* ---------- levels ---------- */
+.levels{display:flex;align-items:center;gap:0;flex-wrap:wrap}
+.levels .lv{
+  border:1.5px solid var(--line-2);background:var(--g-1);border-radius:5px;padding:12px 14px;
+  text-align:center;min-width:120px
+}
+.levels .lv.on{background:var(--g-8);color:var(--g-1);border-color:var(--g-8)}
+.levels .lv b{display:block;font-size:13px;font-weight:800;letter-spacing:.04em}
+.levels .lv span{font-size:10px;color:var(--ink-3)}
+.levels .lv.on span{color:#d5d5d5}
+.levels .sep{display:flex;align-items:center;padding:0 10px;color:var(--line-2)}
+.bar-track{height:34px;border:1.5px solid var(--line-2);border-radius:4px;background:var(--g-1);position:relative;overflow:hidden}
+.bar-fill{position:absolute;inset-block:0;inset-inline-end:0;background:var(--g-4);border-inline-start:1.5px dashed var(--g-7)}
+.bar-fill.b{background:var(--g-5)}
+
+/* ---------- comparison ---------- */
+.cmp{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(18px,3vw,44px);align-items:stretch}
+.cmp .col{border:1.5px solid var(--line-2);border-radius:6px;background:var(--g-1);padding:clamp(16px,2vw,28px)}
+.cmp .col.plain{background:var(--g-2)}
+.cmp .col.rich{border-color:var(--g-8);border-width:2px}
+.cmp .head{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.cmp .mid{display:flex;align-items:center;justify-content:center;color:var(--ink-3);font-size:12px;letter-spacing:.1em}
+
+/* ---------- personas ---------- */
+.p-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(14px,1.8vw,24px)}
+.p-card{border:1.5px solid var(--line);border-radius:6px;background:var(--g-1);padding:16px;display:flex;flex-direction:column;gap:12px}
+.p-card .ph{background:var(--g-2)}
+.p-card h4{font-size:15px}
+.p-card .tags{display:flex;flex-wrap:wrap;gap:6px}
+.p-card .tags span{font-size:11px;color:var(--ink-2);border:1px solid var(--line);background:var(--g-2);border-radius:3px;padding:2px 7px}
+
+/* ---------- pricing ---------- */
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,2vw,28px);align-items:start}
+.price{border:1.5px solid var(--line);border-radius:8px;background:var(--g-1);padding:clamp(20px,2.2vw,32px);display:flex;flex-direction:column;gap:16px;height:100%}
+.price.feature{border-width:2px;border-color:var(--g-8);background:var(--g-2)}
+.price .pname{font-size:18px;font-weight:800}
+.price .pdesc{font-size:13px;color:var(--ink-3);min-height:44px}
+.price .pamount{font-size:24px;font-weight:800;letter-spacing:.02em}
+.price .pamount small{display:block;font-size:11px;font-weight:400;color:var(--ink-3);letter-spacing:0;margin-top:4px}
+.price ul.bul li{font-size:14px}
+.price ul.bul li::before{top:9px;width:10px;height:10px}
+.price .btn{width:100%;justify-content:center}
+.price.soon{background:repeating-linear-gradient(45deg,#f7f7f7,#f7f7f7 9px,#efefef 9px,#efefef 18px);border-style:dashed}
+
+/* ---------- future / disabled ---------- */
+.future{
+  border:1.5px dashed var(--line-2);border-radius:6px;background:var(--g-2);
+  padding:20px;position:relative;opacity:.92
+}
+.future h4{font-size:15px;color:var(--ink-2)}
+.future p{font-size:13px;color:var(--ink-3)}
+.future::after{content:"";position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(45deg,rgba(255,255,255,.0) 0 8px,rgba(160,160,160,.10) 8px 9px);pointer-events:none}
+
+/* ---------- FAQ ---------- */
+details{border:1.5px solid var(--line);border-radius:5px;background:var(--g-1);padding:0;overflow:hidden}
+details+details{margin-top:10px}
+summary{
+  list-style:none;cursor:pointer;padding:16px 18px;font-size:16px;font-weight:700;
+  display:flex;align-items:center;gap:12px;background:var(--g-1)
+}
+summary::-webkit-details-marker{display:none}
+summary .pm{width:16px;height:16px;border:1.5px solid var(--line-2);border-radius:3px;flex:0 0 16px;position:relative}
+summary .pm::before,summary .pm::after{content:"";position:absolute;background:var(--g-6)}
+summary .pm::before{top:6px;left:2.5px;right:2.5px;height:1.5px}
+summary .pm::after{left:6px;top:2.5px;bottom:2.5px;width:1.5px}
+details[open] summary{background:var(--g-2);border-bottom:1px solid var(--line)}
+details[open] summary .pm::after{display:none}
+.dbody{padding:16px 18px;font-size:15px;color:var(--ink-2);line-height:2.05}
+
+/* ---------- testimonials ---------- */
+.t-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(14px,1.8vw,22px)}
+.t-card{border:1.5px solid var(--line);border-radius:6px;background:var(--g-1);padding:20px;display:flex;flex-direction:column;gap:14px}
+.avatar{width:44px;height:44px;border-radius:50%;background:var(--g-3);border:1.5px solid var(--line-2);flex:0 0 44px;display:flex;align-items:center;justify-content:center}
+.avatar .x{width:16px;height:16px;background:var(--g-5)}
+.quote{font-size:14px;color:var(--ink-2);line-height:2;flex:1}
+.t-meta b{display:block;font-size:14px}
+.t-meta span{font-size:11px;color:var(--ink-3)}
+
+/* ---------- header ---------- */
+.header{border-bottom:1px solid var(--line);background:var(--g-1);position:sticky;top:0;z-index:50}
+.header .wrap{display:flex;align-items:center;gap:clamp(10px,1.6vw,26px);height:66px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px;white-space:nowrap}
+.logo .mark{width:30px;height:30px;border:2px solid var(--g-9);border-radius:5px;display:flex;align-items:center;justify-content:center}
+.logo .mark i{width:12px;height:12px;background:var(--g-9);display:block}
+.nav{display:flex;align-items:center;gap:clamp(10px,1.4vw,24px);margin-inline-start:auto}
+.nav a{color:var(--ink-2);text-decoration:none;font-size:15px;white-space:nowrap}
+.nav a.on{color:var(--ink);font-weight:700;border-bottom:2px solid var(--g-9);padding-bottom:2px}
+.h-actions{display:flex;align-items:center;gap:10px;margin-inline-start:auto}
+.burger{display:none;width:34px;height:34px;border:1.5px solid var(--line-2);border-radius:4px;position:relative;background:var(--g-1)}
+.burger::before,.burger::after,.burger i{content:"";position:absolute;inset-inline-start:8px;right:8px;height:1.5px;background:var(--g-6)}
+.burger::before{top:11px}.burger i{top:16px}.burger::after{top:21px}
+
+/* ---------- footer ---------- */
+.footer{background:var(--g-8);color:var(--g-1);padding:clamp(48px,6vw,86px) 0 0;border-top:none}
+.footer h4{color:var(--g-1);font-size:14px;margin-bottom:14px}
+.footer ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.footer a{color:#c4c4c4;text-decoration:none;font-size:14px}
+.footer a:hover{color:var(--g-1)}
+.f-bottom{border-top:1px solid #4d4d4d;margin-top:40px;padding:22px 0;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
+.f-bottom .tiny{color:#a0a0a0}
+
+/* ---------- wireframe-only helpers ---------- */
+.guide{border:1.5px dashed var(--line-2);border-radius:6px;background:var(--g-2);padding:16px 18px}
+.guide h4{font-size:13px;margin-bottom:8px}
+.guide p,.guide li{font-size:13px;color:var(--ink-2)}
+.spacer{height:clamp(30px,4vw,60px)}
+.divider-dash{height:0;border-top:1px dashed var(--line-2);margin:clamp(26px,3.4vw,48px) 0}
+.watermark{
+  position:absolute;inset-inline-start:12px;top:10px;
+  font-family:ui-monospace,monospace;font-size:10px;letter-spacing:.14em;color:#b5b5b5
+}
+
+/* ---------- responsive (wireframe stays legible when scaled) ---------- */
+@media (max-width:1080px){
+  :root{--gut:5%}
+  .cols-2{grid-template-columns:1fr}
+  .cols-2.reverse>*:first-child{order:1}
+  .cols-2.reverse>*:last-child{order:2}
+  .cols-3,.cols-4,.cols-6,.p-grid,.price-grid,.t-grid{grid-template-columns:1fr 1fr}
+  .cmp{grid-template-columns:1fr}
+  .cmp .mid{padding:6px 0}
+}
+@media (max-width:720px){
+  .nav{display:none}
+  .burger{display:block}
+  .cols-3,.cols-4,.cols-6,.p-grid,.price-grid,.t-grid{grid-template-columns:1fr}
+  .tl-grid{height:220px}
+}
+@media print{
+  .header{position:static}
+  section{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════
+     WIREFRAME ANNOTATION BAR (not part of the final page)
+     ══════════════════════════════════════════════════════════ -->
+<div style="background:#efefef;border-bottom:2px solid #1a1a1a;padding:14px 0">
+  <div class="wrap">
+    <div class="anno-bar" style="border:none;padding:0">
+      <span class="anno">LOW-FIDELITY WIREFRAME</span>
+      <span class="anno">راست‌چین / فارسی</span>
+      <span class="anno">تک‌ستون عریض (حاشیه ۶٪)</span>
+      <span class="anno">خاکستری — بدون رنگ برند</span>
+      <span class="tag">هر کادر خط‌چین = تصویر/اسکرین‌شات واقعی محصول که بعداً جایگزین می‌شود.</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ 01 — HEADER ══════════════════ -->
+<header class="header">
+  <div class="wrap">
+    <div class="logo"><span class="mark"><i></i></span><span>نام محصول</span></div>
+    <nav class="nav">
+      <a href="#">محصول</a>
+      <a href="#">امکانات</a>
+      <a href="#">برای چه کسانی؟</a>
+      <a href="#">قیمت‌گذاری</a>
+      <a href="#">سوالات متداول</a>
+    </nav>
+    <div class="h-actions">
+      <a class="btn ghost" href="#">ورود</a>
+      <a class="btn primary" href="#">شروع رایگان</a>
+      <span class="burger" aria-hidden="true"><i></i></span>
+    </div>
+  </div>
+</header>
+
+<!-- ══════════════════ 02 — HERO ══════════════════ -->
+<section style="padding-top:clamp(48px,5.5vw,88px)">
+  <div class="wrap">
+    <div class="center narrow" style="max-width:900px;margin-inline:auto">
+      <span class="anno" style="margin-bottom:18px">بخش ۰۲ — هیرو (متن وسط‌چین)</span>
+      <h1>همه‌چیز برای یک زندگی و کار منظم‌تر، در یک فضای شخصی</h1>
+      <p class="lead gap-m" style="max-width:720px;margin-inline:auto">
+        این پلتفرم یک فضای کاری بهره‌وری شخصی‌سازی‌شده می‌سازد؛ بر اساس نیازها، اهداف،
+        سبک کار و شرایط زندگی خودت. برنامه‌ریزی، اجرا و پیشرفتت در یک سیستم واحد.
+      </p>
+      <div class="btn-row gap-m" style="justify-content:center">
+        <a class="btn primary lg" href="#"><span class="ph-icon" style="background:#9a9a9a"></span>شروع رایگان</a>
+        <a class="btn lg" href="#">مشاهده امکانات</a>
+      </div>
+      <p class="tiny gap-s">بدون نیاز به کارت بانکی · فضای کاری در چند دقیقه آماده می‌شود</p>
+    </div>
+
+    <!-- HERO PRODUCT IMAGE — largest visual on the page -->
+    <div class="gap-l" style="position:relative">
+      <span class="anno" style="position:absolute;top:-14px;inset-inline-start:0;z-index:2">بخش ۰۲ — تصویر محصول (بزرگ‌ترین عنصر بصری صفحه)</span>
+      <div class="ph xl" style="padding:0;overflow:hidden">
+        <div class="app" style="border:none;border-radius:0">
+          <div class="app-top">
+            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+            <span class="app-url mono">app.product.ir / dashboard</span>
+          </div>
+          <div class="app-body" style="min-height:360px">
+            <aside class="app-side">
+              <div class="nav-item on"></div>
+              <div class="nav-item"></div>
+              <div class="nav-item"></div>
+              <div class="nav-item"></div>
+              <div class="nav-item"></div>
+              <div class="nav-item"></div>
+              <div class="nav-item"></div>
+              <div class="nav-item"></div>
+            </aside>
+            <div class="app-main">
+              <div class="row" style="width:34%;background:var(--g-5)"></div>
+              <div class="grid-4">
+                <div class="cardline"><div class="row" style="width:60%"></div><div class="row" style="width:40%;background:var(--g-5)"></div></div>
+                <div class="cardline"><div class="row" style="width:60%"></div><div class="row" style="width:40%;background:var(--g-5)"></div></div>
+                <div class="cardline"><div class="row" style="width:60%"></div><div class="row" style="width:40%;background:var(--g-5)"></div></div>
+                <div class="cardline"><div class="row" style="width:60%"></div><div class="row" style="width:40%;background:var(--g-5)"></div></div>
+              </div>
+              <div class="cols-2" style="display:grid;gap:10px">
+                <div class="cardline" style="display:flex;flex-direction:column;gap:8px">
+                  <div class="row" style="width:45%"></div>
+                  <div class="bars" style="height:74px"><i style="height:40%"></i><i style="height:62%"></i><i style="height:35%"></i><i style="height:78%" class="hi"></i><i style="height:55%"></i><i style="height:88%" class="hi"></i><i style="height:66%"></i></div>
+                </div>
+                <div class="cardline" style="display:flex;flex-direction:column;gap:8px">
+                  <div class="row" style="width:45%"></div>
+                  <div class="grid-2">
+                    <div class="row" style="height:34px;background:var(--g-2)"></div>
+                    <div class="row" style="height:34px;background:var(--g-2)"></div>
+                    <div class="row" style="height:34px;background:var(--g-2)"></div>
+                    <div class="row" style="height:34px;background:var(--g-2)"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <span class="ph-label" style="position:absolute;bottom:14px;inset-inline-start:50%;transform:translateX(50%);z-index:3">
+          [ REAL DASHBOARD SCREENSHOT ]
+        </span>
+      </div>
+      <p class="tiny center gap-s">تصویر واقعی از داشبورد اصلی محصول، با همان چیدمان واقعی (Today / Tasks / Progress / Planning / Calendar)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 03 — PRODUCT VALUE ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="center" style="max-width:760px;margin-inline:auto">
+      <span class="anno">بخش ۰۳ — ارزش محصول</span>
+      <h2 class="gap-s">یک سیستم بهره‌وری که با شما سازگار می‌شود</h2>
+      <p class="gap-s">چهار ستون که کل محصول را می‌سازند.</p>
+    </div>
+
+    <div class="cols-4 gap-l">
+      <div class="card">
+        <div class="card-head"><span class="ic"><i class="x"></i></span><h3>فضای کاری شخصی</h3></div>
+        <p class="small">فضای کاری متناسب با نقش و نیازهای شما.</p>
+        <div class="ph xs gap-s"><span class="ph-label">[ ICON ]</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="ic"><i class="x"></i></span><h3>برنامه‌ریزی هوشمند</h3></div>
+        <p class="small">برنامه‌ریزی بر اساس اهداف، زمان و محدودیت‌های واقعی.</p>
+        <div class="ph xs gap-s"><span class="ph-label">[ ICON ]</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="ic"><i class="x"></i></span><h3>بهره‌وری یکپارچه</h3></div>
+        <p class="small">وظایف، پروژه‌ها، تقویم، روتین‌ها و اهداف در یک سیستم.</p>
+        <div class="ph xs gap-s"><span class="ph-label">[ ICON ]</span></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="ic"><i class="x"></i></span><h3>پیشرفت و رشد</h3></div>
+        <p class="small">پیشرفت شما اندازه‌گیری می‌شود و مسیر رشدتان نشان داده می‌شود.</p>
+        <div class="ph xs gap-s"><span class="ph-label">[ ICON ]</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 04 — PERSONALIZED WORKSPACE ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="cols-2">
+      <div class="stack gap-s">
+        <span class="anno">بخش ۰۴ — فضای کاری شخصی (متن | تصویر)</span>
+        <h2>فضای کاری برای خودت، نه یک داشبورد عمومی</h2>
+        <p class="lead">
+          داشبورد بر اساس شخصیت کاری تو تغییر می‌کند. هر بخش، هر ستون و هر نمودار
+          بر اساس اینکه چه کسی هستی و چه چیزی برایت مهم است چیده می‌شود.
+        </p>
+        <ul class="bul check gap-s">
+          <li>انتخاب شخصیت کاری: دانشجو، کارمند، فریلنسر، مدیر، صاحب کسب‌وکار، شخصی</li>
+          <li>چیدمان و اولویت‌های داشبورد بر اساس همان شخصیت</li>
+          <li>اهداف، محدودیت‌ها و الگوی کاری تو ثبت و در برنامه‌ریزی لحاظ می‌شود</li>
+          <li>هر بخش قابل جابه‌جایی، پنهان یا سفارشی‌سازی است</li>
+        </ul>
+        <div class="btn-row gap-s"><a class="btn primary" href="#">شروع رایگان</a><a class="btn" href="#">مشاهده امکانات</a></div>
+      </div>
+      <div>
+        <div class="ph lg" style="min-height:400px">
+          <div class="ph-label">[ REAL PERSONA DASHBOARD ]</div>
+          <div class="ph-sub">داشبورد شخصی‌سازی‌شده بر اساس نقش کاربر</div>
+        </div>
+        <p class="tiny center gap-s">اسکرین‌شات واقعی از داشبورد در حالت شخصی‌سازی‌شده</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 05 — PERSONA PERSONALIZATION ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="center" style="max-width:780px;margin-inline:auto">
+      <span class="anno">بخش ۰۵ — شخصیت‌سازی (۶ کارت کوچک، شبکه ۳×۲)</span>
+      <h2 class="gap-s">یک پلتفرم، شش فضای کاری متفاوت</h2>
+      <p class="gap-s">همان سیستم، برای آدم‌های مختلف، کاملاً متفاوت ظاهر و رفتار می‌شود.</p>
+    </div>
+
+    <div class="p-grid gap-l">
+      <div class="p-card">
+        <div class="ph sm"><span class="ph-label">[ PERSONA CARD ]</span></div>
+        <h4>دانشجو</h4>
+        <div class="tags"><span>داشبورد آموزشی</span><span>تقویم ترم</span></div>
+      </div>
+      <div class="p-card">
+        <div class="ph sm"><span class="ph-label">[ PERSONA CARD ]</span></div>
+        <h4>کارمند</h4>
+        <div class="tags"><span>جلسات</span><span>تمرکز روزانه</span></div>
+      </div>
+      <div class="p-card">
+        <div class="ph sm"><span class="ph-label">[ PERSONA CARD ]</span></div>
+        <h4>فریلنسر</h4>
+        <div class="tags"><span>مشتری‌ها</span><span>تحویل‌ها</span></div>
+      </div>
+      <div class="p-card">
+        <div class="ph sm"><span class="ph-label">[ PERSONA CARD ]</span></div>
+        <h4>مدیر</h4>
+        <div class="tags"><span>تیم</span><span>تفویض کار</span></div>
+      </div>
+      <div class="p-card">
+        <div class="ph sm"><span class="ph-label">[ PERSONA CARD ]</span></div>
+        <h4>صاحب کسب‌وکار</h4>
+        <div class="tags"><span>فروش</span><span>عملیات</span></div>
+      </div>
+      <div class="p-card">
+        <div class="ph sm"><span class="ph-label">[ PERSONA CARD ]</span></div>
+        <h4>شخصی</h4>
+        <div class="tags"><span>زندگی</span><span>عادت‌ها</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 06 — SMART PLANNING ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="cols-2 reverse">
+      <div class="stack gap-s">
+        <span class="anno">بخش ۰۶ — برنامه‌ریزی هوشمند (تصویر | متن)</span>
+        <h2>بدان امروز چه چیزی واقعاً مهم است</h2>
+        <p class="lead">
+          برنامه‌ریزی بر اساس اولویت، مهلت و ظرفیت واقعی زمانت انجام می‌شود؛
+          نه یک چک‌لیست ساده.
+        </p>
+        <ul class="bul gap-s">
+          <li><span class="strength">باید انجام شود</span> — کارهای غیرقابل‌تعویق امروز</li>
+          <li><span class="strength">مهم</span> — ارزشمند ولی قابل‌جابه‌جایی</li>
+          <li><span class="strength">انعطاف‌پذیر</span> — هر زمان در روز ممکن است</li>
+          <li><span class="strength">برای روزهای بعد</span> — بافر آینده</li>
+          <li><span class="strength">مهلت‌ها</span> — نزدیک‌ترین ضرب‌الاجل‌ها</li>
+          <li><span class="strength">ظرفیت</span> — چقدر واقعاً جا داری</li>
+          <li><span class="strength">اولویت‌ها</span> — رتبه‌بندی خودکار کارها</li>
+        </ul>
+      </div>
+      <div>
+        <div class="ph lg" style="min-height:420px;padding:16px">
+          <span class="badge-corner mono">planning</span>
+          <div class="app" style="border:none;background:transparent">
+            <div class="grid-2" style="gap:10px">
+              <div class="cardline"><div class="row" style="width:70%;background:var(--g-5)"></div><div class="row"></div><div class="row" style="width:85%"></div><div class="row" style="width:60%"></div></div>
+              <div class="cardline"><div class="row" style="width:60%;background:var(--g-5)"></div><div class="row" style="width:90%"></div><div class="row" style="width:75%"></div></div>
+              <div class="cardline"><div class="row" style="width:65%;background:var(--g-5)"></div><div class="row" style="width:80%"></div></div>
+              <div class="cardline"><div class="row" style="width:55%;background:var(--g-5)"></div><div class="row" style="width:70%"></div><div class="row" style="width:88%"></div></div>
+            </div>
+            <div class="cardline gap-s" style="margin-top:10px">
+              <div class="row" style="width:40%;background:var(--g-5)"></div>
+              <div class="bar-track" style="height:26px;margin-top:8px"><div class="bar-fill" style="inset-inline-end:35%"></div></div>
+              <div class="bar-track" style="height:26px;margin-top:6px"><div class="bar-fill b" style="inset-inline-end:60%"></div></div>
+            </div>
+          </div>
+          <span class="ph-label" style="position:absolute;bottom:12px;inset-inline-start:50%;transform:translateX(50%)">[ REAL PLANNING SCREENSHOT ]</span>
+        </div>
+        <p class="tiny center gap-s">اسکرین‌شات واقعی از مرکز برنامه‌ریزی محصول</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 07 — TIMELINE / TIME BLOCKING ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="cols-2">
+      <div class="stack gap-s">
+        <span class="anno">بخش ۰۷ — خط زمانی (متن | تصویر بزرگ)</span>
+        <h2>روزت را روی زمان واقعی زندگی‌ات برنامه‌ریزی کن</h2>
+        <p class="lead">
+          به‌جای لیست کارها، زمان واقعی روز را می‌بینی: کارها، جلسه‌ها و روتین‌ها
+          روی یک محور زمانی کنار هم می‌نشینند.
+        </p>
+        <ul class="bul check gap-s">
+          <li>خط زمانی روزانه و هفتگی</li>
+          <li>بلوک‌های زمانی (Time Block) با جابه‌جایی کشیدن و رها کردن</li>
+          <li>وظایف به‌صورت خودکار وارد برنامه زمانی می‌شوند</li>
+          <li>روتین‌ها خودکار در زمان‌های تعریف‌شده ظاهر می‌شوند</li>
+          <li>اتصال به تقویم و جلسات</li>
+          <li>زمان‌بندی تا سطح دقیقه</li>
+        </ul>
+      </div>
+      <div>
+        <div class="ph lg" style="min-height:430px;padding:16px;justify-content:flex-start">
+          <span class="badge-corner mono">timeline</span>
+          <div class="tl" style="margin-top:22px">
+            <div class="tl-hours">
+              <span style="inset-inline-start:0%">07:00</span>
+              <span style="inset-inline-start:16.67%">08:00</span>
+              <span style="inset-inline-start:33.33%">09:00</span>
+              <span style="inset-inline-start:50%">10:00</span>
+              <span style="inset-inline-start:66.67%">11:00</span>
+              <span style="inset-inline-start:83.33%">12:00</span>
+            </div>
+            <div class="tl-grid">
+              <div class="tl-hour major" style="top:0"></div>
+              <div class="tl-hour" style="top:45px"></div>
+              <div class="tl-hour major" style="top:90px"></div>
+              <div class="tl-hour" style="top:135px"></div>
+              <div class="tl-hour major" style="top:180px"></div>
+              <div class="tl-hour" style="top:225px"></div>
+              <span class="tl-label" style="top:0">07:00</span>
+              <span class="tl-label" style="top:45px">08:00</span>
+              <span class="tl-label" style="top:90px">09:00</span>
+              <span class="tl-label" style="top:135px">10:00</span>
+              <span class="tl-label" style="top:180px">11:00</span>
+              <span class="tl-label" style="top:225px">12:00</span>
+              <div class="tl-now"></div>
+              <div class="tl-track">
+                <div class="tl-block t1" style="inset-inline-start:0%;width:16.6%;top:4px;height:38px">
+                  <b>ورزش صبحگاهی</b><em>روتین · ۷:۰۰</em>
+                </div>
+                <div class="tl-block t2" style="inset-inline-start:33.3%;width:16.6%;top:49px;height:38px">
+                  <b>جلسه تیم محصول</b><em>تقویم · ۸:۰۰</em>
+                </div>
+                <div class="tl-block t3" style="inset-inline-start:50%;width:25%;top:94px;height:38px">
+                  <b>مطالعه زیست</b><em>وظیفه · ۹:۰۰</em>
+                </div>
+                <div class="tl-block t4" style="inset-inline-start:66.6%;width:33.3%;top:184px;height:38px">
+                  <b>پروژه / ارائه پایان‌ترم</b><em>پروژه · ۱۰:۰۰ تا ۱۱:۰۰</em>
+                </div>
+              </div>
+            </div>
+            <div class="tiny gap-s" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:10px">
+              <span>— بکش و رها کن (Drag &amp; Drop)</span>
+              <span>— زمان فعلی</span>
+              <span>— بلوک خودکار از تقویم</span>
+            </div>
+          </div>
+          <span class="ph-label" style="position:absolute;bottom:12px;inset-inline-start:50%;transform:translateX(50%)">[ REAL TIMELINE SCREENSHOT ]</span>
+        </div>
+        <p class="tiny center gap-s">کمپوننت واقعی Timeline محصول، جایگزین این کادر می‌شود</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 08 — GOALS → PROJECTS → TASKS ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="cols-2 reverse">
+      <div class="stack gap-s">
+        <span class="anno">بخش ۰۸ — زنجیره هدف تا اجرا (تصویر | متن)</span>
+        <h2>از هدف بزرگ تا کاری که همین حالا باید انجام دهی</h2>
+        <p class="lead">
+          هر کار بی‌پشتوانه نیست. زنجیره از هدف شروع می‌شود، به پروژه می‌رسد،
+          به وظیفه تبدیل می‌شود، در زمان قرار می‌گیرد و در پایان به پیشرفت تبدیل می‌شود.
+        </p>
+        <div class="chain gap-s">
+          <div class="node strong"><span class="t">هدف</span><span class="s">GOAL</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">پروژه</span><span class="s">PROJECT</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">وظیفه</span><span class="s">TASK</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">بلوک زمانی</span><span class="s">TIME BLOCK</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">اجرا</span><span class="s">EXECUTION</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">پیشرفت</span><span class="s">PROGRESS</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="ph lg" style="min-height:420px">
+          <div class="ph-label">[ REAL TASK / PROJECT SCREENSHOT ]</div>
+          <div class="ph-sub">مدیریت پروژه و وظایف با نمایش پیوند به هدف</div>
+        </div>
+        <p class="tiny center gap-s">اسکرین‌شات واقعی از صفحه پروژه‌ها یا وظایف</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 09 — ROUTINES + HABITS ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="cols-2">
+      <div class="stack gap-s">
+        <span class="anno">بخش ۰۹ — روتین و عادت (متن | تصویر)</span>
+        <h2>کارهای تکرارشونده را یک‌بار تعریف کن</h2>
+        <p class="lead">
+          روتین‌ها را یک‌بار می‌سازی و از آن به بعد خودکار وارد برنامه روزانه و
+          خط زمانی می‌شوند.
+        </p>
+        <ul class="bul check gap-s">
+          <li>تعریف یک‌باره برای کارهای تکراری روزانه و هفتگی</li>
+          <li>قرارگیری خودکار در تقویم و خط زمانی</li>
+          <li>پیگیری پیوستگی (Streak) و انعطاف در روزهای شلوغ</li>
+          <li>ساختار روزانه بدون تصمیم‌گیری‌های تکراری</li>
+        </ul>
+      </div>
+      <div>
+        <div class="ph lg" style="min-height:400px">
+          <div class="ph-label">[ REAL ROUTINE SCREENSHOT ]</div>
+          <div class="ph-sub">روتین‌ها، عادت‌ها و کارهای تکرارشونده</div>
+        </div>
+        <p class="tiny center gap-s">اسکرین‌شات واقعی از صفحه روتین‌ها</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 10 — PROGRESS & ANALYTICS ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="center" style="max-width:780px;margin-inline:auto">
+      <span class="anno">بخش ۱۰ — تحلیل و پیشرفت (داشبورد تمام‌عرض)</span>
+      <h2 class="gap-s">فقط کار نکن؛ پیشرفتت را ببین</h2>
+      <p class="gap-s">داده‌های واقعی بهره‌وری تو، تبدیل به بینش قابل‌فهم می‌شود.</p>
+    </div>
+
+    <div class="ph xl gap-l" style="padding:16px;align-items:stretch;justify-content:flex-start">
+      <span class="badge-corner mono">progress / analytics</span>
+      <div class="app" style="border:none;background:transparent">
+        <div class="grid-4">
+          <div class="cardline"><div class="row" style="width:65%"></div><div class="row" style="width:45%;background:var(--g-5);height:20px"></div><div class="tiny">وظایف انجام‌شده</div></div>
+          <div class="cardline"><div class="row" style="width:60%"></div><div class="row" style="width:55%;background:var(--g-5);height:20px"></div><div class="tiny">زمان تمرکز</div></div>
+          <div class="cardline"><div class="row" style="width:70%"></div><div class="row" style="width:38%;background:var(--g-5);height:20px"></div><div class="tiny">دقت برنامه‌ریزی</div></div>
+          <div class="cardline"><div class="row" style="width:58%"></div><div class="row" style="width:70%;background:var(--g-5);height:20px"></div><div class="tiny">پیوستگی</div></div>
+        </div>
+        <div class="grid-2 gap-s" style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+          <div class="cardline" style="display:flex;flex-direction:column;gap:10px">
+            <div class="row" style="width:40%;background:var(--g-5)"></div>
+            <div class="bars" style="height:130px">
+              <i style="height:45%"></i><i style="height:62%"></i><i style="height:38%"></i><i style="height:74%"></i>
+              <i style="height:90%" class="hi"></i><i style="height:57%"></i><i style="height:80%" class="hi"></i>
+              <i style="height:66%" class="alt"></i><i style="height:95%" class="hi"></i>
+            </div>
+            <div class="tiny">روند بهره‌وری هفتگی</div>
+          </div>
+          <div class="cardline" style="display:flex;flex-direction:column;gap:10px;align-items:center">
+            <div class="row" style="width:60%;background:var(--g-5);align-self:flex-start"></div>
+            <div class="donut"></div>
+            <div class="tiny">ترکیب نوع کارها</div>
+          </div>
+        </div>
+        <div class="grid-3 gap-s">
+          <div class="cardline"><div class="row" style="width:70%"></div><div class="bar-track" style="height:22px;margin-top:8px"><div class="bar-fill" style="inset-inline-end:42%"></div></div><div class="tiny">پیشرفت اهداف</div></div>
+          <div class="cardline"><div class="row" style="width:62%"></div><div class="bar-track" style="height:22px;margin-top:8px"><div class="bar-fill b" style="inset-inline-end:58%"></div></div><div class="tiny">سلامت پروژه‌ها</div></div>
+          <div class="cardline"><div class="row" style="width:66%"></div><div class="bar-track" style="height:22px;margin-top:8px"><div class="bar-fill" style="inset-inline-end:25%"></div></div><div class="tiny">بار کاری</div></div>
+        </div>
+      </div>
+      <span class="ph-label" style="position:absolute;bottom:12px;inset-inline-start:50%;transform:translateX(50%)">[ REAL PROGRESS SCREENSHOT ]</span>
+    </div>
+
+    <div class="cols-4 gap-l">
+      <div class="card fill"><h4>وظایف انجام‌شده</h4><p class="tiny">تعداد و الگوی تکمیل کارها</p></div>
+      <div class="card fill"><h4>زمان تمرکز</h4><p class="tiny">مجموع بلوک‌های تمرکز واقعی</p></div>
+      <div class="card fill"><h4>دقت برنامه‌ریزی</h4><p class="tiny">چقدر برنامه واقعاً اجرا شد</p></div>
+      <div class="card fill"><h4>بار کاری و روند</h4><p class="tiny">تعادل و روند بهره‌وری</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 11 — PROGRESSION / EVOLUTION ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="cols-2 reverse">
+      <div class="stack gap-s">
+        <span class="anno">بخش ۱۱ — پیشرفت سطح و تکامل (تصویر | متن)</span>
+        <h2>بهره‌وری فقط انجام کار نیست؛ رشد کردن هم هست</h2>
+        <p class="lead">
+          مسیر رشد شما هم اندازه‌گیری می‌شود: سطح‌ها، مهارت‌ها، مأموریت‌ها و دستاوردها،
+          بدون حس بازی‌وار و کودکانه.
+        </p>
+        <div class="levels gap-s">
+          <div class="lv on"><b>LEVEL 01</b><span>شروع</span></div>
+          <span class="sep">←</span>
+          <div class="lv"><b>LEVEL 02</b><span>تثبیت</span></div>
+          <span class="sep">←</span>
+          <div class="lv"><b>LEVEL 03</b><span>پیشرفت</span></div>
+        </div>
+        <div class="levels gap-s">
+          <div class="lv"><b>SKILLS</b><span>مهارت‌ها</span></div>
+          <span class="sep">←</span>
+          <div class="lv"><b>QUESTS</b><span>مأموریت‌ها</span></div>
+          <span class="sep">←</span>
+          <div class="lv"><b>ACHIEVEMENTS</b><span>دستاوردها</span></div>
+          <span class="sep">←</span>
+          <div class="lv on"><b>EVOLUTION</b><span>تکامل</span></div>
+        </div>
+        <p class="tiny">زبان جدی و حرفه‌ای — بدون گرافیک کودکانه یا بازی‌وار.</p>
+      </div>
+      <div>
+        <div class="ph lg" style="min-height:400px">
+          <div class="ph-label">[ REAL PROGRESSION SCREENSHOT ]</div>
+          <div class="ph-sub">سطح، مهارت، مأموریت و دستاورد</div>
+        </div>
+        <p class="tiny center gap-s">اسکرین‌شات واقعی از صفحه پیشرفت</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 12 — PERSONA USE CASES ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="center" style="max-width:780px;margin-inline:auto">
+      <span class="anno">بخش ۱۲ — کاربردها (۶ کارت)</span>
+      <h2 class="gap-s">برای هر سبک زندگی و کاری</h2>
+    </div>
+
+    <div class="p-grid gap-l">
+      <div class="p-card">
+        <div class="card-head"><span class="ic sm"><i class="x"></i></span><h4>دانشجو</h4></div>
+        <div class="ph xs"><span class="ph-label">[ UI ]</span></div>
+        <p class="tiny">مطالعه، امتحانات، تکالیف، برنامه هفتگی</p>
+      </div>
+      <div class="p-card">
+        <div class="card-head"><span class="ic sm"><i class="x"></i></span><h4>کارمند</h4></div>
+        <div class="ph xs"><span class="ph-label">[ UI ]</span></div>
+        <p class="tiny">کارهای روزانه، جلسات، پروژه‌ها، تمرکز</p>
+      </div>
+      <div class="p-card">
+        <div class="card-head"><span class="ic sm"><i class="x"></i></span><h4>فریلنسر</h4></div>
+        <div class="ph xs"><span class="ph-label">[ UI ]</span></div>
+        <p class="tiny">مشتری‌ها، پروژه‌ها، تحویل‌ها، زمان و درآمد</p>
+      </div>
+      <div class="p-card">
+        <div class="card-head"><span class="ic sm"><i class="x"></i></span><h4>مدیر</h4></div>
+        <div class="ph xs"><span class="ph-label">[ UI ]</span></div>
+        <p class="tiny">تیم، تفویض کار، پروژه‌ها، ظرفیت و عملکرد</p>
+      </div>
+      <div class="p-card">
+        <div class="card-head"><span class="ic sm"><i class="x"></i></span><h4>صاحب کسب‌وکار</h4></div>
+        <div class="ph xs"><span class="ph-label">[ UI ]</span></div>
+        <p class="tiny">فروش، مشتری، عملیات، درآمد و اهداف</p>
+      </div>
+      <div class="p-card">
+        <div class="card-head"><span class="ic sm"><i class="x"></i></span><h4>شخصی</h4></div>
+        <div class="ph xs"><span class="ph-label">[ UI ]</span></div>
+        <p class="tiny">زندگی، اهداف، عادت‌ها، روتین‌ها و برنامه‌ریزی</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 13 — PRODUCT ECOSYSTEM ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="center" style="max-width:800px;margin-inline:auto">
+      <span class="anno">بخش ۱۳ — اکوسیستم محصول (دیاگرام)</span>
+      <h2 class="gap-s">همه‌چیز به هم وصل است</h2>
+      <p class="gap-s">این یک مجموعه ابزار جدا از هم نیست؛ یک سیستم عامل است.</p>
+    </div>
+
+    <div class="gap-l" style="max-width:520px;margin-inline:auto">
+      <div class="chain">
+        <div class="node strong" style="justify-content:center"><span class="t">شخصیت کاربر</span><span class="s mono">PERSONA</span></div>
+        <div class="arrow"></div>
+        <div class="node strong" style="justify-content:center"><span class="t">شرایط و زمینه</span><span class="s mono">CONTEXT</span></div>
+        <div class="arrow"></div>
+        <div class="node strong" style="justify-content:center"><span class="t">اهداف</span><span class="s mono">GOALS</span></div>
+        <div class="arrow"></div>
+      </div>
+      <div class="grid-3" style="gap:10px">
+        <div class="node" style="justify-content:center"><span class="t">وظایف</span><span class="s mono">TASKS</span></div>
+        <div class="node" style="justify-content:center"><span class="t">پروژه‌ها</span><span class="s mono">PROJECTS</span></div>
+        <div class="node" style="justify-content:center"><span class="t">تقویم</span><span class="s mono">CALENDAR</span></div>
+      </div>
+      <div class="arrow" style="height:26px;position:relative"></div>
+      <div class="chain">
+        <div class="node strong" style="justify-content:center"><span class="t">برنامه‌ریزی</span><span class="s mono">PLANNING</span></div>
+        <div class="arrow"></div>
+        <div class="node strong" style="justify-content:center"><span class="t">اجرا</span><span class="s mono">EXECUTION</span></div>
+        <div class="arrow"></div>
+        <div class="node strong" style="justify-content:center"><span class="t">پیشرفت</span><span class="s mono">PROGRESS</span></div>
+        <div class="arrow"></div>
+        <div class="node strong" style="justify-content:center;background:var(--g-8);color:var(--g-1);border-color:var(--g-8)"><span class="t" style="color:var(--g-1)">تکامل</span><span class="s mono" style="color:#c8c8c8">EVOLUTION</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 14 — WHY IT IS DIFFERENT ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="center" style="max-width:780px;margin-inline:auto">
+      <span class="anno">بخش ۱۴ — تفاوت (بدون تخریب رقیب)</span>
+      <h2 class="gap-s">این یک اپلیکیشن لیست کار نیست</h2>
+      <p class="gap-s">تفاوت در معماری است، نه در تعداد قابلیت‌ها.</p>
+    </div>
+
+    <div class="cmp gap-l">
+      <div class="col plain">
+        <div class="head"><span class="ic sm"><i class="x"></i></span><h3>اپلیکیشن لیست کار</h3></div>
+        <div class="chain">
+          <div class="node"><span class="t">لیست وظایف</span><span class="s mono">TASKS</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">تیک زدن</span><span class="s mono">DONE</span></div>
+        </div>
+        <p class="tiny gap-s">بدون زمینه، بدون اهداف، بدون برنامه‌ریزی، بدون اندازه‌گیری.</p>
+      </div>
+      <div class="mid">در مقابل</div>
+      <div class="col rich">
+        <div class="head"><span class="ic sm"><i class="x"></i></span><h3>این پلتفرم</h3></div>
+        <div class="chain">
+          <div class="node strong"><span class="t">فضای کاری شخصی</span><span class="s mono">WORKSPACE</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">زمینه و نقش</span><span class="s mono">CONTEXT</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">برنامه‌ریزی</span><span class="s mono">PLANNING</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">اجرا</span><span class="s mono">EXECUTION</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">پیشرفت</span><span class="s mono">PROGRESS</span></div>
+          <div class="arrow"></div>
+          <div class="node"><span class="t">تکامل</span><span class="s mono">EVOLUTION</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 15 — PRICING ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="center" style="max-width:700px;margin-inline:auto">
+      <span class="anno">بخش ۱۵ — قیمت‌گذاری</span>
+      <h2 class="gap-s">پلن‌ها</h2>
+      <p class="gap-s">ساختار پلن‌ها نهایی شده؛ اعداد قیمت در این وایرفریم عمداً نوشته نشده‌اند.</p>
+    </div>
+
+    <div class="price-grid gap-l">
+      <div class="price">
+        <div>
+          <div class="pname">رایگان</div>
+          <div class="pdesc">بهره‌وری پایه برای شروع</div>
+        </div>
+        <div class="pamount mono">XX تومان / ماه<small>جای قیمت — بدون محدودیت زمانی</small></div>
+        <ul class="bul">
+          <li>فضای کاری پایه</li>
+          <li>وظایف و پروژه‌ها</li>
+          <li>تقویم و برنامه روزانه</li>
+          <li>پیشرفت پایه</li>
+        </ul>
+        <a class="btn" href="#">شروع رایگان</a>
+      </div>
+
+      <div class="price feature">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="pname">حرفه‌ای</div>
+          <span class="pill dark">پیشنهاد محصول</span>
+        </div>
+        <div class="pdesc">بهره‌وری پیشرفته با برنامه‌ریزی کامل</div>
+        <div class="pamount mono">XX تومان / ماه<small>جای قیمت</small></div>
+        <ul class="bul check">
+          <li>همه امکانات نسخه رایگان</li>
+          <li>خط زمانی و بلوک زمانی</li>
+          <li>برنامه‌ریزی هوشمند و اولویت‌بندی</li>
+          <li>روتین‌ها و عادت‌ها</li>
+          <li>تحلیل و پیشرفت کامل</li>
+          <li>شخصی‌سازی فضای کاری</li>
+        </ul>
+        <a class="btn primary" href="#">انتخاب پلن حرفه‌ای</a>
+      </div>
+
+      <div class="price soon">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <div class="pname">پریمیوم / آینده</div>
+          <span class="pill disabled">به‌زودی</span>
+        </div>
+        <div class="pdesc">هوشمندی پیشرفته و قابلیت‌های تکمیلی</div>
+        <div class="pamount mono">XX تومان / ماه<small>قیمت نهایی اعلام می‌شود</small></div>
+        <ul class="bul">
+          <li>همه امکانات پلن حرفه‌ای</li>
+          <li>برنامه‌ریزی هوش مصنوعی</li>
+          <li>دستیار بهره‌وری</li>
+          <li>بینش‌های تحلیلی</li>
+          <li>فضای کاری اختصاصی</li>
+        </ul>
+        <a class="btn ghost" href="#" aria-disabled="true">اطلاع‌رسانی شوید</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 16 — FUTURE INTELLIGENCE ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="center" style="max-width:760px;margin-inline:auto">
+      <span class="anno">بخش ۱۶ — قابلیت‌های آینده (غیرفعال)</span>
+      <h2 class="gap-s">آنچه در راه است</h2>
+      <p class="gap-s">این بخش عمداً غیرفعال و کم‌رنگ نمایش داده می‌شود تا قابلیت فعال اشتباه برداشت نشود.</p>
+    </div>
+
+    <div class="grid-3 gap-l" style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+      <div class="future">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h4>برنامه‌ریزی با هوش مصنوعی</h4><span class="pill disabled">به‌زودی</span>
+        </div>
+        <p>ساخت خودکار برنامه روزانه بر اساس اولویت‌ها و محدودیت‌ها</p>
+      </div>
+      <div class="future">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h4>دستیار بهره‌وری</h4><span class="pill disabled">به‌زودی</span>
+        </div>
+        <p>پاسخ‌گویی درباره کارها، اولویت‌ها و برنامه شخصی</p>
+      </div>
+      <div class="future">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h4>بینش‌های تحلیلی</h4><span class="pill disabled">به‌زودی</span>
+        </div>
+        <p>تحلیل الگوهای کاری و پیشنهاد بهبود بهره‌وری</p>
+      </div>
+      <div class="future">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h4>برنامه‌ریزی تطبیقی</h4><span class="pill disabled">به‌زودی</span>
+        </div>
+        <p>تنظیم خودکار برنامه وقتی روز طبق انتظار پیش نمی‌رود</p>
+      </div>
+      <div class="future">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h4>فضای کاری هوشمند</h4><span class="pill disabled">به‌زودی</span>
+        </div>
+        <p>ساخت خودکار داشبورد متناسب با نقش و اهداف</p>
+      </div>
+      <div class="future">
+        <div class="row" style="justify-content:space-between;align-items:center">
+          <h4>یکپارچه‌سازی‌ها</h4><span class="pill disabled">به‌زودی</span>
+        </div>
+        <p>اتصال به تقویم، ایمیل و سرویس‌های بیرونی</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 17 — FAQ ══════════════════ -->
+<section class="band">
+  <div class="wrap">
+    <div class="center" style="max-width:700px;margin-inline:auto">
+      <span class="anno">بخش ۱۷ — سوالات متداول (آکاردئون ۷ ردیفی)</span>
+      <h2 class="gap-s">سوالات متداول</h2>
+    </div>
+
+    <div class="gap-l" style="max-width:860px;margin-inline:auto">
+      <details open>
+        <summary><span class="pm"></span>این سیستم چه تفاوتی با یک Task Manager دارد؟</summary>
+        <div class="dbody">اینجا وظایف فقط فهرست نمی‌شوند؛ هر کار به هدف، پروژه، بازه زمانی و الگوی بهره‌وری تو وصل است. تفاوت در لایه برنامه‌ریزی و اندازه‌گیری است، نه در ثبت کار.</div>
+      </details>
+      <details>
+        <summary><span class="pm"></span>آیا می‌توانم فضای کاری خودم را شخصی‌سازی کنم؟</summary>
+        <div class="dbody">بله. شخصیت کاری، اهداف و اولویت‌هایت را انتخاب می‌کنی و داشبورد و برنامه‌ریزی بر اساس آن تنظیم می‌شود. هر بخش را می‌توانی جابه‌جا یا پنهان کنی.</div>
+      </details>
+      <details>
+        <summary><span class="pm"></span>آیا برای دانشجوها مناسب است؟</summary>
+        <div class="dbody">بله. حالت دانشجو برای مطالعه، تکالیف، امتحانات و برنامه هفتگی تنظیم شده است و بلوک‌های مطالعه را روی خط زمانی می‌چیند.</div>
+      </details>
+      <details>
+        <summary><span class="pm"></span>آیا وظایف من وارد برنامه زمانی می‌شوند؟</summary>
+        <div class="dbody">بله. وظایف بر اساس اولویت، مهلت و ظرفیت روزت به بلوک زمانی تبدیل می‌شوند و قابل جابه‌جایی هستند.</div>
+      </details>
+      <details>
+        <summary><span class="pm"></span>آیا روتین‌ها به‌صورت خودکار برنامه‌ریزی می‌شوند؟</summary>
+        <div class="dbody">بله. هر روتین یک‌بار تعریف می‌شود و به‌صورت خودکار در روزهای تعریف‌شده به تقویم و خط زمانی اضافه می‌شود.</div>
+      </details>
+      <details>
+        <summary><span class="pm"></span>آیا نسخه موبایل دارد؟</summary>
+        <div class="dbody">برنامه موبایل در دست توسعه است. در حال حاضر نسخه وب روی دسکتاپ و تبلت بهینه شده است.</div>
+      </details>
+      <details>
+        <summary><span class="pm"></span>آیا می‌توانم از تقویم و پروژه‌ها استفاده کنم؟</summary>
+        <div class="dbody">بله. تقویم، پروژه‌ها، وظایف، اهداف و گزارش‌ها همگی در یک سیستم به هم متصل‌اند و داده تکراری وارد نمی‌شود.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 18 — TESTIMONIALS ══════════════════ -->
+<section>
+  <div class="wrap">
+    <div class="center" style="max-width:720px;margin-inline:auto">
+      <span class="anno">بخش ۱۸ — نظر کاربران (متن نمونه)</span>
+      <h2 class="gap-s">تجربه کاربران</h2>
+      <p class="gap-s">در این وایرفریم، متن‌ها و نام‌ها صرفاً جای‌نگهدار ساختار هستند.</p>
+    </div>
+
+    <div class="t-grid gap-l">
+      <div class="t-card">
+        <span class="avatar"><i class="x"></i></span>
+        <div class="quote">«متن نظر نمونه — دانشجو. جای نقل‌قول کوتاه درباره برنامه‌ریزی درسی و کاهش استرس هفتگی.»</div>
+        <div class="row" style="height:1px;background:var(--line)"></div>
+        <div class="t-meta"><b>نام نمونه</b><span>دانشجو</span></div>
+      </div>
+      <div class="t-card">
+        <span class="avatar"><i class="x"></i></span>
+        <div class="quote">«متن نظر نمونه — فریلنسر. جای نقل‌قول کوتاه درباره مدیریت هم‌زمان چند مشتری و تحویل به‌موقع.»</div>
+        <div class="row" style="height:1px;background:var(--line)"></div>
+        <div class="t-meta"><b>نام نمونه</b><span>فریلنسر</span></div>
+      </div>
+      <div class="t-card">
+        <span class="avatar"><i class="x"></i></span>
+        <div class="quote">«متن نظر نمونه — کارمند. جای نقل‌قول کوتاه درباره ساختن روز کاری منظم‌تر با جلسات پراکنده.»</div>
+        <div class="row" style="height:1px;background:var(--line)"></div>
+        <div class="t-meta"><b>نام نمونه</b><span>کارمند</span></div>
+      </div>
+      <div class="t-card">
+        <span class="avatar"><i class="x"></i></span>
+        <div class="quote">«متن نظر نمونه — صاحب کسب‌وکار. جای نقل‌قول کوتاه درباره دیدن یک تصویر کامل از فروش و عملیات.»</div>
+        <div class="row" style="height:1px;background:var(--line)"></div>
+        <div class="t-meta"><b>نام نمونه</b><span>صاحب کسب‌وکار</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 19 — FINAL CTA ══════════════════ -->
+<section class="band-dark">
+  <div class="wrap">
+    <div class="cols-2">
+      <div class="stack gap-s">
+        <span class="anno">بخش ۱۹ — دعوت نهایی</span>
+        <h2>فضای کاری شخصی خودت را بساز</h2>
+        <p class="lead">از امروز برنامه‌ریزی، اجرا و پیشرفتت را در یک سیستم واحد مدیریت کن.</p>
+        <div class="btn-row gap-s">
+          <a class="btn primary lg" href="#">شروع رایگان</a>
+          <a class="btn lg" href="#">مشاهده امکانات</a>
+        </div>
+        <p class="tiny">رایگان شروع کن · فضای کاری خودت را بساز</p>
+      </div>
+      <div>
+        <div class="ph dark lg" style="min-height:320px">
+          <div class="ph-label">[ REAL DASHBOARD SCREENSHOT ]</div>
+          <div class="ph-sub">نمای نهایی محصول در پایین صفحه</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 20 — FOOTER ══════════════════ -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="cols-4" style="grid-template-columns:1.4fr 1fr 1fr 1fr;gap:clamp(18px,3vw,40px)">
+      <div class="stack gap-s">
+        <div class="logo" style="color:var(--g-1)">
+          <span class="mark" style="border-color:#e2e2e2"><i style="background:#e2e2e2"></i></span>
+          <span>نام محصول</span>
+        </div>
+        <p class="small">سیستم بهره‌وری شخصی: برنامه‌ریزی، اجرا، پیشرفت و رشد در یک سیستم واحد.</p>
+        <div class="btn-row gap-s"><a class="btn" href="#" style="color:#e2e2e2;border-color:#8f8f8f">شروع رایگان</a></div>
+      </div>
+      <div>
+        <h4>محصول</h4>
+        <ul>
+          <li><a href="#">داشبورد</a></li>
+          <li><a href="#">برنامه‌ریزی</a></li>
+          <li><a href="#">وظایف</a></li>
+          <li><a href="#">پروژه‌ها</a></li>
+          <li><a href="#">تقویم</a></li>
+          <li><a href="#">پیشرفت</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>شخصیت‌ها</h4>
+        <ul>
+          <li><a href="#">دانشجو</a></li>
+          <li><a href="#">کارمند</a></li>
+          <li><a href="#">فریلنسر</a></li>
+          <li><a href="#">مدیر</a></li>
+          <li><a href="#">صاحب کسب‌وکار</a></li>
+          <li><a href="#">شخصی</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>منابع</h4>
+        <ul>
+          <li><a href="#">سوالات متداول</a></li>
+          <li><a href="#">راهنما</a></li>
+          <li><a href="#">وبلاگ</a></li>
+        </ul>
+        <h4 class="gap-m">شرکت</h4>
+        <ul>
+          <li><a href="#">درباره ما</a></li>
+          <li><a href="#">تماس</a></li>
+          <li><a href="#">حریم خصوصی</a></li>
+          <li><a href="#">شرایط استفاده</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <span class="tiny">© ۱۴۰۴ نام محصول — تمامی حقوق محفوظ است.</span>
+      <div class="row" style="display:flex;gap:16px;align-items:center">
+        <a class="tiny" href="#">حریم خصوصی</a>
+        <a class="tiny" href="#">شرایط استفاده</a>
+        <a class="tiny" href="#">بازگشت به بالا ↑</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════════
+     WIREFRAME NOTES (developer handoff — not part of the page)
+     ══════════════════════════════════════════════════════════ -->
+<div style="background:#efefef;border-top:2px solid #1a1a1a;padding:40px 0">
+  <div class="wrap">
+    <h3 class="mono" style="direction:ltr;text-align:left">WIREFRAME HANDOFF NOTES</h3>
+    <div class="guide gap-m">
+      <h4>هدف این سند</h4>
+      <p>این یک وایرفریم کم‌وفاداری است. فقط ساختار، ترتیب بخش‌ها، نسبت‌ها و مسیر روایت را مشخص می‌کند. هویت بصری نهایی (رنگ، تایپوگرافی، آیکون، حرکت) بعداً ساخته می‌شود.</p>
+    </div>
+    <div class="grid-2 gap-m" style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="guide">
+        <h4>قواعد ثابت</h4>
+        <ul style="padding-inline-start:18px;list-style:disc;display:flex;flex-direction:column;gap:6px">
+          <li>راست‌چین کامل، فونت فارسی، جهت همه نمودارها RTL</li>
+          <li>عرض کامل با حاشیه کناری حدود ۶٪ — بدون کانتینر باریک</li>
+          <li>فقط خاکستری؛ بدون گرادیان، شیشه‌ای، سایه سنگین یا تصویر تزئینی</li>
+          <li>فاصله زیاد بین بخش‌ها و تکرار الگو: متن + تصویر / تصویر + متن</li>
+        </ul>
+      </div>
+      <div class="guide">
+        <h4>جایگزینی کادرهای خط‌چین</h4>
+        <p>هر کادر خط‌چین با تصویر واقعی محصول جایگزین می‌شود:</p>
+        <ul class="mono" style="padding-inline-start:18px;list-style:disc;direction:ltr;text-align:left;font-size:12px;margin-top:8px">
+          <li>[ REAL DASHBOARD SCREENSHOT ]</li>
+          <li>[ REAL PERSONA DASHBOARD ]</li>
+          <li>[ REAL PLANNING SCREENSHOT ]</li>
+          <li>[ REAL TIMELINE SCREENSHOT ]</li>
+          <li>[ REAL TASK / PROJECT SCREENSHOT ]</li>
+          <li>[ REAL ROUTINE SCREENSHOT ]</li>
+          <li>[ REAL PROGRESS SCREENSHOT ]</li>
+          <li>[ REAL PROGRESSION SCREENSHOT ]</li>
+        </ul>
+        <p class="tiny" style="margin-top:10px">ممنوع: اسکرین‌شات استاک، داشبوردهای نامرتبط، یا رابط کاربری حوزه دیگر.</p>
+      </div>
+    </div>
+    <div class="guide gap-s">
+      <h4>ترتیب بخش‌ها</h4>
+      <p class="mono" style="direction:ltr;text-align:left;font-size:12.5px">
+        01 HEADER → 02 HERO → 03 PRODUCT VALUE → 04 PERSONALIZED WORKSPACE →
+        05 PERSONA PERSONALIZATION → 06 SMART PLANNING → 07 TIMELINE →
+        08 GOALS+PROJECTS+TASKS → 09 ROUTINES+HABITS → 10 PROGRESS+ANALYTICS →
+        11 PROGRESSION → 12 PERSONA USE CASES → 13 ECOSYSTEM → 14 WHY DIFFERENT →
+        15 PRICING → 16 FUTURE INTELLIGENCE → 17 FAQ → 18 TESTIMONIALS →
+        19 FINAL CTA → 20 FOOTER
+      </p>
+    </div>
+    <div class="guide gap-s">
+      <h4>مواردی که عمداً خالی گذاشته شده‌اند</h4>
+      <p>قیمت‌ها (فقط «XX تومان / ماه»)، نام و متن نظر کاربران، و همه قابلیت‌های بخش ۱۶ که با «به‌زودی» مشخص شده‌اند. هیچ عدد یا ادعایی در این وایرفریم ساخته نشده است.</p>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
