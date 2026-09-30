@@ -13,6 +13,7 @@ import {
   ListTree,
   Plus,
   Route as RouteIcon,
+  Rows3,
   Search,
   Settings as SettingsIcon,
   Tag,
@@ -84,6 +85,7 @@ export function CommandPalette({
       // unreachable on mobile (mobile bottom-nav shows only 5 destinations).
       { id: "act-tasks", label: "برو به کارهای من", icon: ListTree, run: () => navigate("/tasks") },
       { id: "act-calendar", label: "برو به تقویم", icon: Calendar, run: () => navigate("/calendar") },
+      { id: "act-timeline", label: "برو به برنامه زمانی", icon: Rows3, run: () => navigate("/timeline") },
       { id: "act-planning", label: "برو به برنامه‌ریزی", icon: Clock, run: () => navigate("/planning") },
       { id: "act-settings", label: "برو به تنظیمات", icon: SettingsIcon, run: () => navigate("/settings") },
       { id: "act-help", label: "برو به راهنما", icon: HelpCircle, run: () => navigate("/help") },

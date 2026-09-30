@@ -28,6 +28,8 @@ const MyTasks = lazy(() => import("./pages/MyTasks.tsx"));
 const Projects = lazy(() => import("./pages/Projects.tsx"));
 const ProjectDetail = lazy(() => import("./pages/ProjectDetail.tsx"));
 const CalendarPage = lazy(() => import("./pages/Calendar.tsx"));
+// Phase 17 — visual timeline (time-grid view of the existing schedule)
+const TimelinePage = lazy(() => import("./pages/Timeline.tsx"));
 const Planning = lazy(() => import("./pages/Planning.tsx"));
 const AnalyticsPage = lazy(() => import("./pages/Progress.tsx"));
 
@@ -288,6 +290,8 @@ const WORKSPACE_PAGES = [
   { path: "/projects", Page: Projects },
   { path: "/projects/:id", Page: ProjectDetail },
   { path: "/calendar", Page: CalendarPage },
+  // برنامه زمانی — visual day/week time grid over the same timeBlocks
+  { path: "/timeline", Page: TimelinePage },
   { path: "/planning", Page: Planning },
   // پیشرفت من — level-up / missions / growth paths
   { path: "/progress", Page: MyProgress },

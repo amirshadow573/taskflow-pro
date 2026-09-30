@@ -870,7 +870,22 @@ export default defineSchema({
     source: v.optional(v.string()),
     /** Mirrors the linked task's priority at scheduling time (context only). */
     priority: v.optional(v.string()),
+    /**
+     * Visual Timeline (Phase 17) — the block's multi-line description.
+     * Reuses the existing free-text `notes` field rather than adding a
+     * duplicate one.
+     */
     notes: v.optional(v.string()),
+    /**
+     * Visual Timeline (Phase 17) — user-chosen colour from the timeline
+     * palette. Purely visual: the engine never assigns meaning to it, and
+     * blocks created before this field simply fall back to their kind tone.
+     */
+    color: v.optional(v.string()),
+    /** Traceability: the routine item this block was scheduled for (§21). */
+    routineId: v.optional(v.id("routineItems")),
+    /** Traceability: the habit this block was scheduled for (§22). */
+    habitId: v.optional(v.id("habits")),
     completedAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
     createdAt: v.number(),

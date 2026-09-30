@@ -32,6 +32,7 @@ import {
   Lock,
   LogOut,
   Menu,
+  Rows3,
   Moon,
   Search,
   Settings,
@@ -72,6 +73,8 @@ const PRIMARY_NAV: NavItem[] = [
   { to: "/tasks", label: "کارهای من", icon: CircleDot },
   { to: "/projects", label: "پروژه‌ها", icon: FolderKanban },
   { to: "/calendar", label: "تقویم", icon: CalendarDays },
+  // برنامه زمانی — visual day/week time grid over the same schedule
+  { to: "/timeline", label: "برنامه زمانی", icon: Rows3 },
   { to: "/planning", label: "برنامه‌ریزی", icon: Clock },
   // Phase 10.5 — persona-aware import of a plan from the user's own external AI
   { to: "/ai-planning", label: "برنامه با AI", icon: FileJson },
@@ -102,7 +105,7 @@ const ALL_NAV: NavItem[] = [...PRIMARY_NAV, ...SECONDARY_NAV];
 const NAV_GROUPS: { label: string; paths: string[] }[] = [
   {
     label: "روزمره",
-    paths: ["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/planning", "/ai-planning"],
+    paths: ["/dashboard", "/today", "/inbox", "/tasks", "/projects", "/calendar", "/timeline", "/planning", "/ai-planning"],
   },
   { label: "پیشرفت", paths: ["/progress"] },
   { label: "پیشرفته", paths: ["/analytics", "/ai-insights", "/future", "/settings"] },
@@ -110,14 +113,14 @@ const NAV_GROUPS: { label: string; paths: string[] }[] = [
 
 /** Persona-specific ordering inside the "روزمره" group (priorities first). */
 const CORE_ORDER_PER_PERSONA: Record<string, string[]> = {
-  student: ["/today", "/dashboard", "/calendar", "/tasks", "/projects", "/planning", "/ai-planning", "/inbox"],
-  employee: ["/today", "/tasks", "/calendar", "/projects", "/dashboard", "/planning", "/ai-planning", "/inbox"],
-  freelancer: ["/today", "/projects", "/tasks", "/calendar", "/dashboard", "/ai-planning", "/inbox", "/planning"],
-  manager: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/ai-planning", "/inbox"],
-  business_owner: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/ai-planning", "/inbox"],
-  personal: ["/today", "/tasks", "/dashboard", "/projects", "/calendar", "/planning", "/ai-planning", "/inbox"],
-  team: ["/dashboard", "/today", "/projects", "/calendar", "/tasks", "/planning", "/ai-planning", "/inbox"],
-  custom: ["/today", "/dashboard", "/tasks", "/projects", "/calendar", "/planning", "/ai-planning", "/inbox"],
+  student: ["/today", "/dashboard", "/calendar", "/timeline", "/tasks", "/projects", "/planning", "/ai-planning", "/inbox"],
+  employee: ["/today", "/tasks", "/calendar", "/timeline", "/projects", "/dashboard", "/planning", "/ai-planning", "/inbox"],
+  freelancer: ["/today", "/projects", "/tasks", "/calendar", "/timeline", "/dashboard", "/ai-planning", "/inbox", "/planning"],
+  manager: ["/dashboard", "/today", "/projects", "/calendar", "/timeline", "/tasks", "/planning", "/ai-planning", "/inbox"],
+  business_owner: ["/dashboard", "/today", "/projects", "/calendar", "/timeline", "/tasks", "/planning", "/ai-planning", "/inbox"],
+  personal: ["/today", "/tasks", "/dashboard", "/timeline", "/projects", "/calendar", "/planning", "/ai-planning", "/inbox"],
+  team: ["/dashboard", "/today", "/projects", "/calendar", "/timeline", "/tasks", "/planning", "/ai-planning", "/inbox"],
+  custom: ["/today", "/dashboard", "/tasks", "/timeline", "/projects", "/calendar", "/planning", "/ai-planning", "/inbox"],
 };
 
 /** Touch-target floor for every navigation row (WCAG / mobile ergonomics). */

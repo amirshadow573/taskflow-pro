@@ -344,6 +344,10 @@ export const createTimeBlock = mutation({
     source: v.optional(v.string()),
     priority: v.optional(v.string()),
     notes: v.optional(v.string()),
+    /* Visual Timeline (Phase 17) */
+    color: v.optional(v.string()),
+    routineId: v.optional(v.id("routineItems")),
+    habitId: v.optional(v.id("habits")),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -379,6 +383,10 @@ export const updateTimeBlock = mutation({
     priority: v.optional(v.string()),
     notes: v.optional(v.union(v.string(), v.null())),
     taskId: v.optional(v.union(v.id("tasks"), v.null())),
+    /* Visual Timeline (Phase 17) */
+    color: v.optional(v.union(v.string(), v.null())),
+    routineId: v.optional(v.union(v.id("routineItems"), v.null())),
+    habitId: v.optional(v.union(v.id("habits"), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
