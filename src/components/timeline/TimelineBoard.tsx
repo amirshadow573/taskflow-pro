@@ -36,7 +36,7 @@ const hhmmOf = (minutes: number): string => {
 
 export function TimelineBoard() {
   const navigate = useNavigate();
-  const { tasks, openTask, toggleDone } = useWorkspace();
+  const { tasks, openTask, toggleDone, updateTask } = useWorkspace();
   const [view, setView] = useState<TimelineView>("day");
   const [anchor, setAnchor] = useState<string>(() => todayKey());
   const [sheet, setSheet] = useState<SheetState>(null);
@@ -212,8 +212,19 @@ export function TimelineBoard() {
         columns={tl.dayKeys.length}
         onOpenActivity={(activity) => setSheet({ mode: "edit", activity })}
         onCreateAt={(day, start, end) => setSheet({ mode: "create", draft: { day, start, end } })}
-        onMoveBlock={async (id, patch) => {
-          await tl.updateBlock(id, { ...patch, source: "reschedule" });
+        onMove={async (activity, next) => {
+          if (activity.blockId) {
+            // SchedulingEngine mutation — the block is the source of truth.
+            await tl.updateBlock(activity.blockId as Id<"timeBlocks">, {
+              day: next.day,
+              startTime: hhmmOf(next.start),
+              endTime: hhmmOf(next.end),
+              source: "reschedule",
+            });
+          } else if (activity.taskId) {
+            // Derived row: write back onto the task so My Tasks agrees.
+            await tl.moveDerivedTask(activity.taskId, next);
+          }
         }}
         onToggleTask={onToggleTask}
       />
@@ -242,6 +253,18 @@ export function TimelineBoard() {
             }
           }}
           onDelete={tl.deleteBlock}
+          onUpdateDerived={async (taskId, next) => {
+            await tl.moveDerivedTask(taskId, {
+              day: next.day,
+              start: next.start,
+              end: next.end,
+            });
+            // Title / description live on the task, not the schedule.
+            await updateTask(taskId as Id<"tasks">, {
+              title: next.title,
+              description: next.description ?? null,
+            });
+          }}
           onToggleTask={onToggleTask}
           onOpenTask={(id) => {
             openTask(id as Id<"tasks">);

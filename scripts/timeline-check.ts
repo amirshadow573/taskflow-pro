@@ -35,6 +35,7 @@ import {
   TIMELINE_COLORS,
 } from "../src/lib/timeline/timeline-colors";
 import {
+  activityAsBlock,
   buildDayActivities,
   hhmm,
   layoutDay,
@@ -46,6 +47,7 @@ import {
   type TimelineBlockRow,
 } from "../src/lib/timeline/timeline-model";
 import { DEFAULT_SCHEDULE_PREFS } from "../src/lib/preferences";
+import { expandCommitments } from "../src/lib/scheduling";
 
 let passed = 0;
 let failed = 0;
@@ -258,6 +260,74 @@ const empty = buildDayActivities({
   blocks: [], commitments: [],
 });
 check("فضای کاری خالی، داده ساختگی نمی‌سازد", empty.length === 0);
+
+console.log("\n── CRITICAL FIX #1: scheduled tasks from «کارهای من» (§11, §18) ──");
+const myTasks = [
+  // Test 1 — a task the user scheduled in My Tasks: date + start time.
+  { _id: "m1", title: "مطالعه زیست", status: "todo", priority: "high", dueDate: "2026-10-01", dueTime: "09:00", estimateMinutes: 90 },
+  // A date but NO time — it has no place on a time grid.
+  { _id: "m2", title: "کار بدون ساعت", status: "todo", priority: "low", dueDate: "2026-10-01" },
+  // Scheduled for a different day.
+  { _id: "m3", title: "کار فردا", status: "todo", priority: "low", dueDate: "2026-10-02", dueTime: "11:00" },
+  // Has a start time but no estimate → UI default, not a fabricated record.
+  { _id: "m4", title: "کار بدون تخمین", status: "todo", priority: "medium", dueDate: "2026-10-01", dueTime: "14:00" },
+  // ALREADY has a time block → must not be shown twice (§31).
+  { _id: "m5", title: "کار دوباره‌ای", status: "todo", priority: "medium", dueDate: "2026-10-01", dueTime: "16:00" },
+];
+const fromTasks = buildDayActivities({
+  day: "2026-10-01",
+  tasks: myTasks, projects: [], goals: [], routineItems: [], habits: [],
+  blocks: [block({ _id: "tb1", taskId: "m5", startTime: "16:00", endTime: "17:00" })],
+  commitments: [],
+});
+const m1 = fromTasks.find((a) => a.taskId === "m1");
+check("کار زمان‌بندی‌شده خودکار ظاهر می‌شود (Test 1)", m1 !== undefined);
+check("ساعت شروع از خود کار می‌آید", m1?.start === 9 * 60);
+check("مدت از estimateMinutes کار می‌آید", m1?.end - m1?.start === 90);
+check("ردیف مشتق‌شده است (بدون بلوک)", m1?.derived === true && m1?.blockId === undefined);
+check("پروژه/منبع کار حفظ می‌شود", m1?.origin === "task" && m1?.day === "2026-10-01");
+check("کار بدون ساعت نمایش داده نمی‌شود (زمان ساخته نمی‌شود)", fromTasks.every((a) => a.taskId !== "m2"));
+check("کار روز دیگر در این روز نمی‌آید", fromTasks.every((a) => a.taskId !== "m3"));
+const m4 = fromTasks.find((a) => a.taskId === "m4");
+check("بدون تخمین، ارتفاع پیش‌فرض ۳۰ دقیقه‌ای می‌گیرد", m4 !== undefined && m4.end - m4.start === 30);
+const seen = fromTasks.filter((a) => a.taskId === "m5");
+check("کار دارای بلوک دوباره نمایش داده نمی‌شود (بدون رکورد تکراری)", seen.length === 1);
+check("همان ردیف، ردیفِ بلوک است نه ردیف مشتق", seen[0]?.derived === false && seen[0]?.blockId === "tb1");
+check("ردیف مشتق برای اعتبارسنجی به بلوک معتبر تبدیل می‌شود", (() => {
+  const b = activityAsBlock(m1!);
+  return /^\d{2}:\d{2}$/.test(b.startTime) && /^\d{2}:\d{2}$/.test(b.endTime) && b.endTime > b.startTime;
+})());
+const derivedMove = validateMove({
+  day: "2026-10-01",
+  prefs: DEFAULT_SCHEDULE_PREFS,
+  block: activityAsBlock(m1!),
+  activities: fromTasks,
+  commitments: [{ id: "e9", title: "جلسه", day: "2026-10-01", startTime: "11:00", endTime: "12:00", origin: "event", type: "meeting" }] as FixedCommitment[],
+  tasksById: new Map(myTasks.map((t) => [t._id, { title: t.title, estimateMinutes: t.estimateMinutes, dueDate: t.dueDate, status: t.status }])),
+  proposal: { day: "2026-10-01", start: 11 * 60, end: 12 * 60 },
+});
+check("جابه‌جایی کار مشتق روی تعهد ثابت گرفته می‌شود", derivedMove.blocking.some((c) => c.kind === "double_booking"));
+
+console.log("\n── calendar recurrence (§14, §32) ──");
+// Recurrence expansion is the SchedulingEngine's own job — test THAT, not a
+// hand-rolled copy of it.
+const DAYS = ["2026-10-01", "2026-10-03", "2026-10-05"]; // Thu(4), Sat(6), Mon(1)
+const expanded = expandCommitments(
+  [{ _id: "ev1", title: "کلاس", type: "class", weekdays: [1], startTime: "10:00", endTime: "11:00" }],
+  [],
+  DAYS,
+);
+check("رویداد هفتگی فقط در روز مناسب باز می‌شود", (expanded.get("2026-10-05") ?? []).length === 1);
+check("رویداد هفتگی در روز نامناسب نمی‌آید (شنبه)", (expanded.get("2026-10-03") ?? []).length === 0);
+check("رویداد هفتگی در روز نامناسب نمی‌آید (چهارشنبه)", (expanded.get("2026-10-01") ?? []).length === 0);
+const recDay = buildDayActivities({
+  day: "2026-10-05",
+  tasks: [], projects: [], goals: [], routineItems: [], habits: [],
+  blocks: [],
+  commitments: expanded.get("2026-10-05") ?? [],
+});
+check("رویداد تقویم در خط زمانی ثابت و غیرقابل کشیدن است", recDay[0]?.fixed === true && recDay[0]?.origin === "event");
+check("رویداد تقویم ساعت واقعی خود را دارد", recDay[0]?.start === 10 * 60 && recDay[0]?.end === 11 * 60);
 
 console.log("\n── conflict gate (§18, §19) ──");
 const row = block({ _id: "b1", taskId: "t1" });

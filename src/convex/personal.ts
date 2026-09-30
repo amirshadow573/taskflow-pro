@@ -387,6 +387,16 @@ export const updateTimeBlock = mutation({
     color: v.optional(v.union(v.string(), v.null())),
     routineId: v.optional(v.union(v.id("routineItems"), v.null())),
     habitId: v.optional(v.union(v.id("habits"), v.null())),
+    /*
+     * ROOT-CAUSE FIX (manual save error): the timeline detail sheet lets the
+     * user re-link a block to a project or a goal. Those fields existed on
+     * `createTimeBlock` but were missing from THIS validator, so every edit
+     * failed with `ArgumentValidationError: Object contains extra field
+     * 'projectId'`. They are optional and unioned with null so unlinking
+     * works the same way `taskId` already did.
+     */
+    projectId: v.optional(v.union(v.id("projects"), v.null())),
+    goalId: v.optional(v.union(v.id("personalGoals"), v.null())),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);

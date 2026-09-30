@@ -1,14 +1,21 @@
 /**
  * Visual Timeline (Phase 17) — one scheduled activity on the grid.
  *
- * The block is a real button: keyboard focusable, activatable, and labelled
- * with everything a screen reader needs (title, range, project, and whether
- * it is in progress). Drag & resize is a POINTER enhancement layered on top —
- * every action is also reachable from the keyboard and from the detail sheet
- * (§51), so colour and dragging are never the only way to do anything.
+ * Visual direction (§3, §4): a compact scheduling card whose HEIGHT is its
+ * duration, with a solid colour bar on the reading-start edge, a dot +
+ * title, an optional secondary line (project / goal / routine / habit) and
+ * the time range last. Content is revealed by height (§11), so a 30-minute
+ * block stays a single clean line instead of being squeezed.
+ *
+ * Colour is cosmetic and every state also has a TEXT cue, so colour is never
+ * the only signal (§51).
+ *
+ * The block is a real button — keyboard focusable and activatable. Drag and
+ * resize are pointer enhancements layered on top; every action is also
+ * reachable from the detail sheet, so the grid is never the only path.
  */
 import { forwardRef } from "react";
-import { Check, Lock } from "lucide-react";
+import { CalendarClock, Check, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toFa } from "@/lib/persian";
 import { blockLabel } from "@/lib/scheduling";
@@ -61,7 +68,7 @@ export const TimelineActivityCard = forwardRef<
   const statusLabel = blockLabel(activity.kind, persona);
   const range = rangeFa(start, end);
 
-  // A non-colour cue for state, so colour is never the only signal (§51).
+  /* State cue — TEXT, never colour alone (§51). */
   const stateCue = activity.taskDone
     ? "انجام‌شده"
     : isNow
@@ -76,12 +83,18 @@ export const TimelineActivityCard = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-lg border text-start transition-shadow",
+        "group relative flex flex-col overflow-hidden rounded-[10px] border transition-shadow",
         color.surface,
         color.surfaceDark,
         isDragging
-          ? cn("z-30 shadow-[0_18px_40px_-16px_rgba(15,23,42,0.55)]", color.borderStrong)
-          : cn("shadow-[0_1px_2px_rgba(15,23,42,0.06)]", isNow && cn("ring-2", color.borderStrong)),
+          ? cn(
+              "z-30 shadow-[0_18px_40px_-16px_rgba(15,23,42,0.6)]",
+              color.borderStrong,
+            )
+          : cn(
+              "shadow-[0_1px_2px_rgba(15,23,42,0.05)] hover:shadow-[0_4px_14px_-6px_rgba(15,23,42,0.18)]",
+              isNow && cn("ring-1 ring-inset", color.borderStrong),
+            ),
         activity.taskDone && "opacity-70",
         activity.fixed && "border-dashed",
       )}
@@ -92,6 +105,15 @@ export const TimelineActivityCard = forwardRef<
         width: `${activity.widthPct}%`,
       }}
     >
+      {/* Duration colour bar on the reading-start edge (§3) */}
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute inset-y-0 start-0 w-[3px]",
+          color.swatch,
+        )}
+      />
+
       {/* Resize handles — desktop pointer devices only. Touch users get the
           equivalent time fields in the detail sheet (§42). */}
       {!activity.fixed && onPointerDownResize && (
@@ -117,59 +139,77 @@ export const TimelineActivityCard = forwardRef<
         type="button"
         onClick={() => onOpen(activity)}
         onPointerDown={onPointerDownBody}
-        className="flex min-h-0 flex-1 cursor-grab flex-col gap-0.5 px-2 py-1.5 text-start active:cursor-grabbing"
+        className={cn(
+          "flex min-h-0 flex-1 cursor-grab flex-col gap-0.5 px-2.5 py-1.5 ps-3 text-start active:cursor-grabbing",
+          density.compact && "py-1",
+        )}
         title={`${activity.title} — ${range} · ${statusLabel}`}
         aria-label={`${activity.title}، ${range}، ${statusLabel}${subtitle ? `، ${subtitle}` : ""}${stateCue ? `، ${stateCue}` : ""}`}
       >
+        {/* Title */}
         <span
           className={cn(
-            "flex items-center gap-1 text-[12px] font-bold leading-4",
+            "flex items-center gap-1.5 text-[12px] font-bold leading-4",
             activity.taskDone && "line-through",
           )}
         >
-          {activity.fixed && <Lock className="size-3 shrink-0 opacity-70" aria-hidden="true" />}
+          <span
+            aria-hidden="true"
+            className={cn("size-1.5 shrink-0 rounded-full", color.swatch)}
+          />
+          {activity.fixed && (
+            <Lock className="size-3 shrink-0 opacity-70" aria-hidden="true" />
+          )}
           <span className="min-w-0 flex-1 truncate">{activity.title}</span>
         </span>
 
+        {/* Secondary context — project / goal / routine / habit / task */}
         {density.showSubtitle && subtitle && (
-          <span className="truncate text-[11px] leading-4 opacity-80">{subtitle}</span>
+          <span className="truncate ps-3.5 text-[11px] leading-4 opacity-75">
+            {subtitle}
+          </span>
         )}
 
+        {/* Time range (§9) */}
         {density.showTime && (
-          <span className="mt-auto flex items-center gap-1.5 text-[10px] font-semibold leading-4 opacity-75">
+          <span className="mt-auto flex items-center gap-1.5 ps-3.5 text-[10px] font-semibold leading-4 opacity-70">
+            <CalendarClock className="size-3 shrink-0" aria-hidden="true" />
             {toFa(range)}
           </span>
         )}
       </button>
 
-      {/* Completion control — writes to the real task, never a visual-only
-          state. The ExecutionEngine + progression run through the same
-          mutation every other task surface uses (§34, §45). */}
-      {activity.taskId && !activity.taskDone && density.showTime && onToggleTask && (
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleTask(activity);
-          }}
-          aria-label={`علامت‌گذاری «${activity.title}» به عنوان انجام‌شده`}
-          className="absolute bottom-1 end-1 grid size-5 place-items-center rounded-md border border-current/25 bg-white/70 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 dark:bg-black/30"
-        >
-          <Check className="size-3" aria-hidden="true" />
-        </button>
-      )}
+      {/* Completion control — writes to the real task through the shared
+          workspace path (ExecutionEngine + progression included). The tick
+          reveals on hover/focus so dense weeks stay calm (§34, §45). */}
+      {activity.taskId &&
+        !activity.taskDone &&
+        density.showTime &&
+        onToggleTask && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleTask(activity);
+            }}
+            aria-label={`علامت‌گذاری «${activity.title}» به عنوان انجام‌شده`}
+            className="absolute bottom-1.5 end-1.5 grid size-5 place-items-center rounded-md border border-current/25 bg-white/70 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 dark:bg-black/30"
+          >
+            <Check className="size-3" aria-hidden="true" />
+          </button>
+        )}
       {activity.taskId && activity.taskDone && density.showTime && (
         <span
-          className="pointer-events-none absolute bottom-1 end-1 grid size-5 place-items-center rounded-md border border-current/25 bg-white/70 dark:bg-black/30"
+          className="pointer-events-none absolute bottom-1.5 end-1.5 grid size-5 place-items-center rounded-md border border-current/25 bg-white/70 dark:bg-black/30"
           aria-hidden="true"
         >
           <Check className="size-3" />
         </span>
       )}
 
-      {/* Small state chip for "in progress" / "missed" — text, not colour. */}
-      {stateCue && !activity.taskDone && density.showTime && (
-        <span className="pointer-events-none absolute start-1.5 top-1.5 rounded bg-white/70 px-1 text-[9px] font-bold leading-4 dark:bg-black/35">
+      {/* In-progress / missed — text chip, so state is never colour-only */}
+      {stateCue && !activity.taskDone && density.showSubtitle && (
+        <span className="pointer-events-none absolute top-1 end-1 rounded-md bg-white/75 px-1 text-[9px] font-bold leading-4 ring-1 ring-black/5 dark:bg-black/40">
           {stateCue}
         </span>
       )}

@@ -98,6 +98,17 @@ export interface TimelineActivitySheetProps {
   }) => Promise<void>;
   onUpdate: (id: Id<"timeBlocks">, patch: Record<string, unknown>) => Promise<void>;
   onDelete: (id: Id<"timeBlocks">) => Promise<void>;
+  /** Persist edits of a derived row back onto the TASK it came from. */
+  onUpdateDerived: (
+    taskId: string,
+    next: {
+      day: string;
+      start: number;
+      end: number;
+      title: string;
+      description?: string;
+    },
+  ) => Promise<void>;
   onToggleTask: (activity: TimelineActivity) => void;
   onOpenTask: (taskId: string) => void;
   onOpenProject: (projectId: string) => void;
@@ -127,6 +138,7 @@ export function TimelineActivitySheet({
   onCreate,
   onUpdate,
   onDelete,
+  onUpdateDerived,
   onToggleTask,
   onOpenTask,
   onOpenProject,
@@ -157,6 +169,12 @@ export function TimelineActivitySheet({
   const openTasks = context.tasks.filter((t) => t.status !== "done");
   const duration = Math.max(0, end - start);
   const rangeValid = end > start;
+  /**
+   * A derived row has no `timeBlocks` record: its real home is My Tasks.
+   * Only fields that genuinely exist on a task are offered, so the form can
+   * never promise a colour/goal/status it could not persist.
+   */
+  const derivedRow = Boolean(seed?.derived && seed?.taskId);
 
   const applyDuration = (minutes: number) => {
     setEnd(Math.min(24 * 60 - 1, start + minutes));
@@ -192,19 +210,18 @@ export function TimelineActivitySheet({
     }
     setSaving(true);
     try {
-      const common = {
-        title: title.trim(),
-        day,
-        startTime: hhmm(start),
-        endTime: hhmm(end),
-        kind,
-        notes: description.trim() || undefined,
-        color: effectiveColor ?? undefined,
-        fixed,
-      };
+      const desc = description.trim() || undefined;
+
       if (mode === "create") {
         await onCreate({
-          ...common,
+          title: title.trim(),
+          day,
+          startTime: hhmm(start),
+          endTime: hhmm(end),
+          kind,
+          description: desc,
+          color: effectiveColor ?? undefined,
+          fixed,
           taskId: (taskId || undefined) as Id<"tasks"> | undefined,
           projectId: (projectId || undefined) as Id<"projects"> | undefined,
           goalId: (goalId || undefined) as Id<"personalGoals"> | undefined,
@@ -213,8 +230,17 @@ export function TimelineActivitySheet({
         });
         toast.success("برنامه به خط زمانی اضافه شد.");
       } else if (seed?.blockId) {
+        // Block-backed row: every field, including project + goal, is a real
+        // column on timeBlocks — so a full edit is safe here.
         await onUpdate(seed.blockId as Id<"timeBlocks">, {
-          ...common,
+          title: title.trim(),
+          day,
+          startTime: hhmm(start),
+          endTime: hhmm(end),
+          kind,
+          notes: desc ?? null,
+          color: effectiveColor ?? null,
+          fixed,
           status,
           taskId: (taskId || null) as Id<"tasks"> | null,
           projectId: (projectId || null) as Id<"projects"> | null,
@@ -225,12 +251,29 @@ export function TimelineActivitySheet({
           source: "reschedule",
         });
         toast.success("تغییرات ذخیره شد.");
+      } else if (derivedRow && seed?.taskId) {
+        // Derived row: the task itself IS the schedule. Writing back to it
+        // keeps My Tasks and the timeline in agreement — no duplicate block.
+        await onUpdateDerived(seed.taskId, { day, start, end, title: title.trim(), description: desc });
+        toast.success("تغییرات در «کارهای من» ذخیره شد.");
+      } else {
+        // Fixed commitment (class / meeting / calendar event): it is a fact
+        // owned by the Calendar, so this sheet must never claim a save.
+        toast.error("این مورد رویداد ثابت است و از تقویم ویرایش می‌شود.");
+        return;
       }
       onOpenChange(false);
     } catch (err) {
-      toast.error(
-        `ذخیره نشد: ${err instanceof Error ? err.message : "خطای نامشخص"}`,
-      );
+      // Technical detail stays in the console; the user gets clean Persian
+      // and never sees a raw database error (§25).
+      console.error("[timeline] save failed", {
+        mode,
+        day,
+        startTime: hhmm(start),
+        endTime: hhmm(end),
+        err,
+      });
+      toast.error("ذخیره برنامه انجام نشد. لطفاً دوباره تلاش کنید.");
     } finally {
       setSaving(false);
     }
@@ -244,7 +287,8 @@ export function TimelineActivitySheet({
       toast.success("برنامه حذف شد.");
       onOpenChange(false);
     } catch (err) {
-      toast.error(`حذف نشد: ${err instanceof Error ? err.message : "خطای نامشخص"}`);
+      console.error("[timeline] delete failed", { blockId: seed?.blockId, err });
+      toast.error("حذف برنامه انجام نشد. لطفاً دوباره تلاش کنید.");
     } finally {
       setSaving(false);
     }
@@ -304,7 +348,7 @@ export function TimelineActivitySheet({
 
           {/* When / how long (§33) — also the touch-friendly resize path */}
           <div className="grid grid-cols-2 gap-3">
-            <div>
+            <div className={derivedRow ? "col-span-2" : undefined}>
               <Label htmlFor="tl-day">تاریخ</Label>
               <Input
                 id="tl-day"
@@ -314,21 +358,23 @@ export function TimelineActivitySheet({
                 className="ui-field h-10 rounded-xl"
               />
             </div>
-            <div>
-              <Label htmlFor="tl-kind">نوع</Label>
-              <select
-                id="tl-kind"
-                value={kind}
-                onChange={(e) => setKind(e.target.value)}
-                className={selectClass}
-              >
-                {KIND_CHOICES.map((k) => (
-                  <option key={k} value={k}>
-                    {blockLabel(k, context.persona)}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {!derivedRow && (
+              <div>
+                <Label htmlFor="tl-kind">نوع</Label>
+                <select
+                  id="tl-kind"
+                  value={kind}
+                  onChange={(e) => setKind(e.target.value)}
+                  className={selectClass}
+                >
+                  {KIND_CHOICES.map((k) => (
+                    <option key={k} value={k}>
+                      {blockLabel(k, context.persona)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -385,34 +431,44 @@ export function TimelineActivitySheet({
             )}
           </div>
 
-          {/* Colour (§12, §36) */}
-          <div>
-            <Label>رنگ</Label>
-            <TimelineColorPicker
-              value={effectiveColor}
-              onChange={setColor}
-              idPrefix={mode === "create" ? "tl-new" : "tl-edit"}
-            />
-          </div>
+          {/* Colour (§12, §36) — only for rows backed by a time block; a
+              derived task has no colour column to write to. */}
+          {!derivedRow && (
+            <div>
+              <Label>رنگ</Label>
+              <TimelineColorPicker
+                value={effectiveColor}
+                onChange={setColor}
+                idPrefix={mode === "create" ? "tl-new" : "tl-edit"}
+              />
+            </div>
+          )}
+          {derivedRow && (
+            <p className="rounded-xl border border-border/60 bg-muted/40 px-3 py-2 text-[11px] leading-5 text-muted-foreground">
+              این مورد از «کارهای من» خوانده می‌شود. رنگ و وضعیت پس از زمان‌بندیِ آن در قالب بلوک زمانی ذخیره می‌شود.
+            </p>
+          )}
 
           {/* Traceable sources (§24, §25, §43) */}
           <div className="grid gap-3 sm:grid-cols-2">
-            <div>
-              <Label htmlFor="tl-task">کار مرتبط</Label>
-              <select
-                id="tl-task"
-                value={taskId}
-                onChange={(e) => setTaskId(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">بدون کار</option>
-                {openTasks.map((t) => (
-                  <option key={t._id} value={t._id}>
-                    {t.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {!derivedRow && (
+              <div>
+                <Label htmlFor="tl-task">کار مرتبط</Label>
+                <select
+                  id="tl-task"
+                  value={taskId}
+                  onChange={(e) => setTaskId(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">بدون کار</option>
+                  {openTasks.map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
             <div>
               <Label htmlFor="tl-project">پروژه</Label>
               <select
@@ -429,55 +485,61 @@ export function TimelineActivitySheet({
                 ))}
               </select>
             </div>
-            <div>
-              <Label htmlFor="tl-goal">هدف</Label>
-              <select
-                id="tl-goal"
-                value={goalId}
-                onChange={(e) => setGoalId(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">بدون هدف</option>
-                {context.goals.map((g) => (
-                  <option key={g._id} value={g._id}>
-                    {g.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="tl-routine">روتین</Label>
-              <select
-                id="tl-routine"
-                value={routineId}
-                onChange={(e) => setRoutineId(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">بدون روتین</option>
-                {context.routineItems.map((r) => (
-                  <option key={r._id} value={r._id}>
-                    {r.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <Label htmlFor="tl-habit">عادت</Label>
-              <select
-                id="tl-habit"
-                value={habitId}
-                onChange={(e) => setHabitId(e.target.value)}
-                className={selectClass}
-              >
-                <option value="">بدون عادت</option>
-                {context.habits.map((h) => (
-                  <option key={h._id} value={h._id}>
-                    {h.title}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {mode === "edit" && (
+            {!derivedRow && (
+              <div>
+                <Label htmlFor="tl-goal">هدف</Label>
+                <select
+                  id="tl-goal"
+                  value={goalId}
+                  onChange={(e) => setGoalId(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">بدون هدف</option>
+                  {context.goals.map((g) => (
+                    <option key={g._id} value={g._id}>
+                      {g.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {!derivedRow && (
+              <div>
+                <Label htmlFor="tl-routine">روتین</Label>
+                <select
+                  id="tl-routine"
+                  value={routineId}
+                  onChange={(e) => setRoutineId(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">بدون روتین</option>
+                  {context.routineItems.map((r) => (
+                    <option key={r._id} value={r._id}>
+                      {r.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {!derivedRow && (
+              <div>
+                <Label htmlFor="tl-habit">عادت</Label>
+                <select
+                  id="tl-habit"
+                  value={habitId}
+                  onChange={(e) => setHabitId(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="">بدون عادت</option>
+                  {context.habits.map((h) => (
+                    <option key={h._id} value={h._id}>
+                      {h.title}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {mode === "edit" && !derivedRow && (
               <div>
                 <Label htmlFor="tl-status">وضعیت</Label>
                 <select
@@ -496,15 +558,17 @@ export function TimelineActivitySheet({
             )}
           </div>
 
-          <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-border/60 px-3 py-2 text-sm font-semibold">
-            <input
-              type="checkbox"
-              checked={fixed}
-              onChange={(e) => setFixed(e.target.checked)}
-              className="size-4 accent-[var(--primary)]"
-            />
-            تعهد ثابت (جلسه، کلاس، قرار ملاقات) — با کشیدن جابه‌جا نمی‌شود
-          </label>
+          {!derivedRow && (
+            <label className="flex min-h-11 cursor-pointer items-center gap-2 rounded-xl border border-border/60 px-3 py-2 text-sm font-semibold">
+              <input
+                type="checkbox"
+                checked={fixed}
+                onChange={(e) => setFixed(e.target.checked)}
+                className="size-4 accent-[var(--primary)]"
+              />
+              تعهد ثابت (جلسه، کلاس، قرار ملاقات) — با کشیدن جابه‌جا نمی‌شود
+            </label>
+          )}
 
           {/* Quick actions (§33) */}
           {mode === "edit" && seed && (
@@ -552,8 +616,10 @@ export function TimelineActivitySheet({
               <div className="flex items-center gap-1.5 font-bold text-foreground">
                 ردیابی
               </div>
-              <div>منبع: {seed?.source === "ai_import" ? "ورودی AI" : seed?.source === "planning" ? "برنامه‌ریز" : seed?.source === "reschedule" ? "جابه‌جایی" : "دستی"}</div>
-              <div>نوع: {BLOCK_KIND_LABELS_FA[kind] ?? kind}</div>
+              <div>
+                منبع: {seed?.derived ? "کارهای من" : seed?.source === "ai_import" ? "ورودی AI" : seed?.source === "planning" ? "برنامه‌ریز" : seed?.source === "reschedule" ? "جابه‌جایی" : seed?.source === "event" || seed?.source === "meeting" ? "تقویم" : "دستی"}
+              </div>
+              {!derivedRow && <div>نوع: {BLOCK_KIND_LABELS_FA[kind] ?? kind}</div>}
               {seed?.taskPriority && <div>اولویت کار: {seed.taskPriority}</div>}
               <div>
                 بازه: {toFa(`${timeFa(start)} تا ${timeFa(end)}`)} ({toFa(durationFa(duration))})
@@ -562,25 +628,37 @@ export function TimelineActivitySheet({
           )}
         </div>
 
-        <SheetFooter className="flex-row items-center gap-2 border-t border-border/60 p-3">
           {mode === "edit" && (
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={remove}
-              disabled={saving}
-              aria-label="حذف برنامه"
-            >
-              <Trash2 className="size-3.5" />
-            </Button>
+            <SheetFooter className="flex-row items-center gap-2 border-t border-border/60 p-3">
+              {!derivedRow && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={remove}
+                  disabled={saving}
+                  aria-label="حذف برنامه"
+                >
+                  <Trash2 className="size-3.5" />
+                </Button>
+              )}
+              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
+                انصراف
+              </Button>
+              <Button size="sm" onClick={save} disabled={saving} className="flex-1">
+                {saving ? "در حال ذخیره…" : "ذخیره"}
+              </Button>
+            </SheetFooter>
           )}
-          <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
-            انصراف
-          </Button>
-          <Button size="sm" onClick={save} disabled={saving} className="flex-1">
-            {saving ? "در حال ذخیره…" : "ذخیره"}
-          </Button>
-        </SheetFooter>
+          {mode === "create" && (
+            <SheetFooter className="flex-row items-center gap-2 border-t border-border/60 p-3">
+              <Button variant="ghost" size="sm" onClick={() => onOpenChange(false)}>
+                انصراف
+              </Button>
+              <Button size="sm" onClick={save} disabled={saving} className="flex-1">
+                {saving ? "در حال ذخیره…" : "ذخیره"}
+              </Button>
+            </SheetFooter>
+          )}
       </SheetContent>
     </Sheet>
   );

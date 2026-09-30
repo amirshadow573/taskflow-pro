@@ -28,11 +28,10 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import type { Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { toFa, WEEKDAYS_SHORT, formatJalaliShort } from "@/lib/persian";
 import { todayKey } from "@/lib/task-utils";
-import type { FixedCommitment } from "@/lib/scheduling";
+import type { FixedCommitment, ScheduleBlock } from "@/lib/scheduling";
 import type { SchedulePrefs } from "@/lib/preferences";
 import { TimelineActivityCard } from "@/components/timeline/TimelineActivityCard";
 import {
@@ -48,7 +47,7 @@ import {
   windowHeight,
 } from "@/lib/timeline/timeline-grid";
 import {
-  hhmm,
+  activityAsBlock,
   layoutDay,
   snapMove,
   snapResize,
@@ -63,7 +62,7 @@ const TOUCH_HOLD_MS = 240;
 /** A drag is "real" past this many pixels; below it the tap opens the sheet. */
 const DRAG_THRESHOLD_PX = 5;
 /** Minimum day-column width — below this a week column is unreadable (§30). */
-const MIN_COL_PX = 150;
+const MIN_COL_PX = 136;
 /** Width of the time axis column. */
 const AXIS_PX = 56;
 
@@ -72,6 +71,8 @@ type DragMode = "move" | "resize-start" | "resize-end";
 interface DragState {
   key: string;
   blockId: string;
+  /** The row being moved — derived task rows have no block, so carry it. */
+  activity: TimelineActivity;
   mode: DragMode;
   originDay: string;
   startY: number;
@@ -94,9 +95,14 @@ export interface TimelineGridProps {
   columns: number;
   onOpenActivity: (activity: TimelineActivity) => void;
   onCreateAt: (day: string, start: number, end: number) => void;
-  onMoveBlock: (
-    blockId: Id<"timeBlocks">,
-    patch: { day: string; startTime: string; endTime: string },
+  /**
+   * Persist a completed move/resize. The board routes it: a time-block row
+   * goes through the SchedulingEngine mutation, a derived task row goes back
+   * onto the task itself.
+   */
+  onMove: (
+    activity: TimelineActivity,
+    next: { day: string; start: number; end: number },
   ) => Promise<void>;
   onToggleTask: (activity: TimelineActivity) => void;
 }
@@ -111,7 +117,7 @@ export function TimelineGrid({
   columns,
   onOpenActivity,
   onCreateAt,
-  onMoveBlock,
+  onMove,
   onToggleTask,
 }: TimelineGridProps) {
   const today = todayKey();
@@ -120,6 +126,15 @@ export function TimelineGrid({
   const movedRef = useRef(false);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [now, setNow] = useState(() => nowMinutes());
+
+  /* ---- drag-to-create on empty space (§28): mouse only, touch keeps tap ---
+   * The live range lives in a ref for the pointer handlers and mirrors into
+   * state purely for the preview highlight. */
+  const creatingRef = useRef<{ day: string; start: number; end: number } | null>(null);
+  const createMovedRef = useRef(false);
+  const [creating, setCreating] = useState<{ day: string; start: number; end: number } | null>(
+    null,
+  );
 
   /* Re-render periodically so the "now" line advances on its own (§27). */
   useEffect(() => {
@@ -169,10 +184,13 @@ export function TimelineGrid({
 
   /* ---- conflict validation via the existing ConflictService ----------- */
   const validate = useCallback(
-    (blockId: string, day: string, start: number, end: number): string[] => {
-      const row =
-        (blocksByDay.get(day) ?? []).find((b) => b._id === blockId) ??
-        [...blocksByDay.values()].flat().find((b) => b._id === blockId);
+    (activity: TimelineActivity, day: string, start: number, end: number): string[] => {
+      // A block-backed row is checked from its stored document; a derived
+      // task row is projected into the same shape purely for validation.
+      const row: ScheduleBlock | undefined = activity.blockId
+        ? (blocksByDay.get(day) ?? []).find((b) => b._id === activity.blockId) ??
+          [...blocksByDay.values()].flat().find((b) => b._id === activity.blockId)
+        : activityAsBlock(activity);
       if (!row) return [];
       const tasksById = new Map(
         context.tasks.map((t) => [
@@ -202,14 +220,17 @@ export function TimelineGrid({
   /* ---- pointer interaction ------------------------------------------- */
   const beginDrag = useCallback(
     (activity: TimelineActivity, mode: DragMode, e: React.PointerEvent) => {
-      if (activity.fixed || !activity.blockId) return;
+      // Fixed commitments are facts (never move). Block rows and DERIVED task
+      // rows are both movable — the board decides where each write lands.
+      if (activity.fixed || (!activity.blockId && !activity.taskId)) return;
       if (e.pointerType === "mouse" && e.button !== 0) return;
 
       const start = () => {
         movedRef.current = false;
         setDrag({
           key: activity.key,
-          blockId: activity.blockId!,
+          blockId: activity.blockId ?? activity.key,
+          activity,
           mode,
           originDay: activity.day,
           startY: e.clientY,
@@ -250,7 +271,7 @@ export function TimelineGrid({
   useEffect(() => {
     if (!drag) return;
 
-    const onMove = (e: PointerEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       if (e.pointerId !== drag.pointerId) return;
       const dy = e.clientY - drag.startY;
       const dx = e.clientX - drag.startX;
@@ -301,33 +322,30 @@ export function TimelineGrid({
 
       if (unchanged || !movedRef.current) return;
 
-      const problems = validate(d.blockId, next.day, next.start, next.end);
+      const problems = validate(d.activity, next.day, next.start, next.end);
       if (problems.length > 0) {
         // The draft is simply discarded, so the block visually snaps back and
         // the reason is shown — nothing is silently overwritten (§18, §49).
         toast.error(problems[0], { duration: 6000 });
         return;
       }
-      void onMoveBlock(d.blockId as Id<"timeBlocks">, {
-        day: next.day,
-        startTime: hhmm(next.start),
-        endTime: hhmm(next.end),
-      }).catch((err) => {
-        toast.error(
-          `تغییر ذخیره نشد: ${err instanceof Error ? err.message : "خطای نامشخص"}`,
-        );
-      });
+      void onMove(d.activity, { day: next.day, start: next.start, end: next.end }).catch(
+        (err) => {
+          console.error("[timeline] move failed", { key: d.activity.key, next, err });
+          toast.error("تغییر ذخیره نشد. لطفاً دوباره تلاش کنید.");
+        },
+      );
     };
 
-    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", onUp);
     window.addEventListener("pointercancel", onUp);
     return () => {
-      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointermove", handlePointerMove);
       window.removeEventListener("pointerup", onUp);
       window.removeEventListener("pointercancel", onUp);
     };
-  }, [drag, columns, dayKeys, win, validate, onMoveBlock]);
+  }, [drag, columns, dayKeys, win, validate, onMove]);
 
   /** Open the editor — ignored when the pointer just finished a drag. */
   const openActivity = useCallback(
@@ -341,9 +359,62 @@ export function TimelineGrid({
   /** Click on empty grid space → create at that exact time (§14 method 1). */
   const onGridClick = (day: string, e: React.MouseEvent<HTMLDivElement>) => {
     if (drag) return;
+    // The pointerup of a drag-to-create also produces a click; skip it so the
+    // sheet opens exactly once, with the dragged range already prefilled.
+    if (createMovedRef.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
     const start = snapMinutes(win.start + (e.clientY - rect.top) / PX_PER_MINUTE);
     onCreateAt(day, start, start + 60);
+  };
+
+  /**
+   * Drag across empty space → prefill Date + Start + End (§28 method 2).
+   * Touch is deliberately excluded: there the surface stays a tap target so
+   * vertical scrolling of the grid keeps working with a finger.
+   */
+  const beginCreate = (day: string, e: React.PointerEvent<HTMLDivElement>) => {
+    if (drag || creatingRef.current) return;
+    if (e.pointerType !== "mouse" || e.button !== 0) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const startY = e.clientY;
+    const toMinutes = (clientY: number) =>
+      Math.max(
+        win.start,
+        Math.min(win.end, snapMinutes(win.start + (clientY - rect.top) / PX_PER_MINUTE)),
+      );
+    const anchor = toMinutes(e.clientY);
+    createMovedRef.current = false;
+
+    const handleCreateMove = (ev: PointerEvent) => {
+      if (!createMovedRef.current) {
+        if (Math.abs(ev.clientY - startY) <= DRAG_THRESHOLD_PX) return;
+        createMovedRef.current = true;
+      }
+      const cur = toMinutes(ev.clientY);
+      const start = Math.min(anchor, cur);
+      const end = Math.max(Math.max(anchor, cur), start + TIMELINE_SNAP_MINUTES);
+      const next = { day, start, end };
+      creatingRef.current = next;
+      setCreating(next);
+    };
+
+    const handleCreateUp = () => {
+      window.removeEventListener("pointermove", handleCreateMove);
+      window.removeEventListener("pointerup", handleCreateUp);
+      const range = creatingRef.current;
+      creatingRef.current = null;
+      setCreating(null);
+      // `click` fires right after `pointerup`; keep the flag until the next
+      // tick so it can swallow that click.
+      setTimeout(() => {
+        createMovedRef.current = false;
+      }, 0);
+      if (range && createMovedRef.current) onCreateAt(range.day, range.start, range.end);
+    };
+
+    window.addEventListener("pointermove", handleCreateMove);
+    window.addEventListener("pointerup", handleCreateUp);
   };
 
   const isWeek = columns > 1;
@@ -372,7 +443,7 @@ export function TimelineGrid({
             ساعت
           </div>
 
-          {/* day headers */}
+          {/* day headers (Layer 2 — §2) */}
           {dayKeys.map((day, i) => {
             const d = new Date(`${day}T00:00:00`);
             const isToday = day === today;
@@ -381,38 +452,53 @@ export function TimelineGrid({
                 key={day}
                 style={{ gridColumn: i + 2, gridRow: 1 }}
                 className={cn(
-                  "sticky top-0 z-20 border-e border-b border-border/60 bg-app-bg px-1 py-2 text-center last:border-e-0",
-                  isToday && "bg-primary/5",
+                  "relative sticky top-0 z-20 border-e border-b border-border/60 bg-app-bg px-1 py-2 text-center last:border-e-0",
+                  isToday && "bg-primary/[0.07]",
                 )}
               >
                 <div
                   className={cn(
-                    "truncate text-[12px] font-extrabold",
-                    isToday ? "text-primary" : "text-foreground",
+                    "truncate text-[11px] font-semibold leading-4",
+                    isToday ? "text-primary" : "text-muted-foreground",
                   )}
                 >
                   {WEEKDAYS_SHORT[d.getDay()]}
-                  {isToday && <span className="ms-1 text-[10px]">امروز</span>}
                 </div>
-                <div className="truncate text-[10px] text-muted-foreground">
+                <div
+                  className={cn(
+                    "truncate text-[13px] font-extrabold leading-5",
+                    isToday ? "text-primary" : "text-foreground",
+                  )}
+                >
                   {formatJalaliShort(d)}
                 </div>
+                {isToday && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-x-0 bottom-0 h-[3px] bg-primary"
+                  />
+                )}
               </div>
             );
           })}
 
-          {/* time axis */}
+          {/* time axis (Layer 3 — §2) */}
           <div
             style={{ gridColumn: 1, gridRow: 2 }}
-            className="sticky start-0 z-10 border-e border-border/60 bg-app-bg"
+            className="sticky start-0 z-10 border-e border-border/70 bg-app-bg"
           >
             {lines.map((l) => (
               <div
                 key={l.minutes}
-                className="absolute end-1 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground"
+                className={cn(
+                  "absolute end-1 -translate-y-1/2 text-[10px] leading-none",
+                  l.labelled
+                    ? "font-bold text-foreground/75"
+                    : "font-medium text-muted-foreground/55",
+                )}
                 style={{ top: `${l.y}px` }}
               >
-                {l.labelled ? toFa(timeFa(l.minutes)) : ""}
+                {l.labelled ? toFa(timeFa(l.minutes)) : toFa(timeFa(l.minutes)).slice(3)}
               </div>
             ))}
           </div>
@@ -429,34 +515,49 @@ export function TimelineGrid({
                   isToday && "bg-primary/[0.03]",
                 )}
               >
-                {/* grid lines + click-to-create surface */}
+                {/* grid lines + click/drag-to-create surface (§7, §10, §28) */}
                 <div
                   role="presentation"
                   onClick={(e) => onGridClick(day, e)}
+                  onPointerDown={(e) => beginCreate(day, e)}
                   className="absolute inset-0"
                 >
+                  {creating && creating.day === day && (
+                    <div
+                      className="pointer-events-none absolute inset-x-1 z-10 rounded-lg border border-primary/45 bg-primary/10"
+                      style={{
+                        top: `${minutesToY(creating.start - win.start)}px`,
+                        height: `${(creating.end - creating.start) * PX_PER_MINUTE}px`,
+                      }}
+                    />
+                  )}
                   {lines.map((l) => (
                     <div
                       key={l.minutes}
                       className={cn(
-                        "absolute inset-x-0 border-t",
-                        l.labelled ? "border-border/70" : "border-dashed border-border/35",
+                        "absolute inset-x-0",
+                        // Hour boundaries read as structure; the 30-minute
+                        // lines stay a whisper so the grid never looks like
+                        // a spreadsheet.
+                        l.labelled
+                          ? "border-t border-border/60"
+                          : "border-t border-dashed border-border/25",
                       )}
                       style={{ top: `${l.y}px` }}
                     />
                   ))}
                 </div>
 
-                {/* "now" line (§27) — only on today's column */}
+                {/* "now" line (§6) — subtle, labelled, only on today's column */}
                 {isToday && now >= win.start && now <= win.end && (
                   <div
                     className="pointer-events-none absolute inset-x-0 z-20 flex items-center"
                     style={{ top: `${minutesToY(now - win.start)}px` }}
                     aria-hidden="true"
                   >
-                    <span className="size-2 shrink-0 rounded-full bg-destructive" />
-                    <span className="h-px flex-1 bg-destructive/70" />
-                    <span className="shrink-0 bg-destructive px-1 text-[9px] font-bold text-white">
+                    <span className="size-1.5 shrink-0 rounded-full bg-destructive/80" />
+                    <span className="h-px flex-1 bg-destructive/45" />
+                    <span className="shrink-0 rounded-md bg-destructive/90 px-1 text-[9px] font-bold leading-4 text-white">
                       {toFa(timeFa(now))}
                     </span>
                   </div>

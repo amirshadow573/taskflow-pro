@@ -24,6 +24,7 @@ import { expandCommitments, normalizeBlock, type FixedCommitment } from "@/lib/s
 import { addDays } from "@/lib/timeline/timeline-grid";
 import {
   buildDayActivities,
+  hhmm,
   type TimelineBlockRow,
   type TimelineContext,
   type TimelineGoalRow,
@@ -48,6 +49,33 @@ export interface UseTimelineArgs {
   /** Any day inside the visible range. */
   dayKey: string;
   view: TimelineView;
+}
+
+/**
+ * The EXACT patch shape accepted by `personal.updateTimeBlock`.
+ *
+ * Typed explicitly (and fed to the mutation WITHOUT a cast) so that any field
+ * the validator does not accept fails at compile time instead of at runtime
+ * with an opaque `ArgumentValidationError` — which is what broke every manual
+ * save before this fix.
+ */
+export interface TimeBlockPatch {
+  title?: string;
+  day?: string;
+  startTime?: string;
+  endTime?: string;
+  kind?: string;
+  status?: string;
+  fixed?: boolean;
+  source?: string;
+  priority?: string;
+  notes?: string | null;
+  taskId?: Id<"tasks"> | null;
+  color?: string | null;
+  routineId?: Id<"routineItems"> | null;
+  habitId?: Id<"habits"> | null;
+  projectId?: Id<"projects"> | null;
+  goalId?: Id<"personalGoals"> | null;
 }
 
 export interface UseTimelineResult {
@@ -78,8 +106,17 @@ export interface UseTimelineResult {
     habitId?: Id<"habits">;
     fixed?: boolean;
   }) => Promise<void>;
-  updateBlock: (id: Id<"timeBlocks">, patch: Record<string, unknown>) => Promise<void>;
+  updateBlock: (id: Id<"timeBlocks">, patch: TimeBlockPatch) => Promise<void>;
   deleteBlock: (id: Id<"timeBlocks">) => Promise<void>;
+  /**
+   * Persist a change to a DERIVED task activity by writing back to the TASK
+   * itself (its own `dueDate` / `dueTime` / `estimateMinutes`). No time block
+   * is created, so My Tasks and the timeline always agree (§18, §31).
+   */
+  moveDerivedTask: (
+    taskId: string,
+    next: { day: string; start: number; end: number },
+  ) => Promise<void>;
 }
 
 /** Saturday-first week, matching the Persian calendar used across the app. */
@@ -134,8 +171,11 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
             status: t.status,
             priority: t.priority,
             dueDate: t.dueDate,
+            dueTime: t.dueTime,
             estimateMinutes: t.estimateMinutes,
             description: t.description,
+            parentId: t.parentId,
+            projectId: t.projectId,
           }))
         : EMPTY_TASKS,
     [tasks],
@@ -217,9 +257,13 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
     [createMut],
   );
 
+  /*
+   * Deliberately NOT cast (`as never` used to hide a real ArgumentValidationError):
+   * the patch must typecheck against the mutation's own argument validator.
+   */
   const updateBlock = useCallback<UseTimelineResult["updateBlock"]>(
     async (id, patch) => {
-      await updateMut({ id, ...patch } as never);
+      await updateMut({ id, ...patch });
     },
     [updateMut],
   );
@@ -229,6 +273,21 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
       await deleteMut({ id });
     },
     [deleteMut],
+  );
+
+  /* ---- derived task rows: persist back onto the task (§18, §31) ---- */
+  const updateTaskMut = useMutation(api.tasks.update);
+  const moveDerivedTask = useCallback<UseTimelineResult["moveDerivedTask"]>(
+    async (taskId, next) => {
+      const minutes = Math.max(15, next.end - next.start);
+      await updateTaskMut({
+        id: taskId as Id<"tasks">,
+        dueDate: next.day,
+        dueTime: hhmm(next.start),
+        estimateMinutes: minutes,
+      });
+    },
+    [updateTaskMut],
   );
 
   return {
@@ -243,5 +302,6 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
     createBlock,
     updateBlock,
     deleteBlock,
+    moveDerivedTask,
   };
 }

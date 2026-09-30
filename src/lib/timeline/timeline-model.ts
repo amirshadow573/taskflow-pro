@@ -43,8 +43,12 @@ export interface TimelineTaskRow {
   status: string;
   priority: string;
   dueDate?: string;
+  /** Scheduled start time on the task itself (HH:mm) — the My Tasks view. */
+  dueTime?: string;
   estimateMinutes?: number;
   description?: string;
+  parentId?: string;
+  projectId?: string;
 }
 
 export interface TimelineProjectRow {
@@ -99,8 +103,15 @@ export interface TimelineActivity {
   /** Stable key for React + drag tracking. */
   key: string;
   origin: TimelineOrigin;
-  /** Present for `origin === "block"`; the only draggable/editable rows. */
+  /** Present for `origin === "block"`; the only rows backed by a time block. */
   blockId?: string;
+  /**
+   * True when the row was DERIVED from a task that carries its own
+   * `dueDate` + `dueTime` and has no time block yet. Derived rows are still
+   * real data — the task IS scheduled — but they are persisted by writing
+   * back to the task, never by inserting a duplicate time block (§31).
+   */
+  derived: boolean;
   /** YYYY-MM-DD — the column this activity belongs to. */
   day: string;
   title: string;
@@ -145,6 +156,14 @@ export interface BuildTimelineInput extends TimelineContext {
   commitments: FixedCommitment[];
 }
 
+/**
+ * Display duration for a scheduled task that has a start time but no
+ * explicit estimate. The grid needs *some* height to honour §4, so this is a
+ * UI default only — it becomes the task's real `estimateMinutes` the moment
+ * the user resizes the block, and it is never written unless they do.
+ */
+export const DEFAULT_TASK_DURATION_MINUTES = 30;
+
 const minutesOfSafe = (value: string | undefined | null, fallback: number): number => {
   const m = /^(\d{1,2}):(\d{2})$/.exec((value ?? "").trim());
   if (!m) return fallback;
@@ -185,6 +204,7 @@ export function buildDayActivities(input: BuildTimelineInput): TimelineActivity[
       key: `block:${b._id}`,
       origin: task ? "task" : project ? "project" : goal ? "goal" : routineItem ? "routine" : habit ? "habit" : "block",
       blockId: b._id,
+      derived: false,
       day: b.day,
       title,
       start,
@@ -210,6 +230,58 @@ export function buildDayActivities(input: BuildTimelineInput): TimelineActivity[
     });
   }
 
+  /*
+   * CRITICAL FIX #1 — scheduled tasks from «کارهای من».
+   *
+   * `tasks.create` / `tasks.update` store `dueDate` + `dueTime` on the task
+   * itself; nothing ever writes a `timeBlocks` row for them. Reading only
+   * time blocks therefore made the timeline blind to every task the user had
+   * already scheduled — the page looked empty and people recreated their own
+   * work. These rows are DERIVED (view-only): no table is written, and a task
+   * that already has a time block is skipped so it is never shown twice (§31).
+   */
+  const scheduledTaskIds = new Set(
+    input.blocks.filter((b) => b.taskId).map((b) => b.taskId as string),
+  );
+  for (const t of input.tasks) {
+    if (t.dueDate !== input.day) continue;
+    if (!t.dueTime) continue; // a date without a time has no place on a time grid
+    if (scheduledTaskIds.has(t._id)) continue; // the block is the source of truth
+
+    const start = minutesOfSafe(t.dueTime, NaN);
+    if (!Number.isFinite(start)) continue;
+    const duration =
+      typeof t.estimateMinutes === "number" && t.estimateMinutes > 0
+        ? t.estimateMinutes
+        : DEFAULT_TASK_DURATION_MINUTES;
+
+    const project = t.projectId ? projects.get(t.projectId) : undefined;
+    out.push({
+      key: `task:${t._id}`,
+      origin: "task",
+      blockId: undefined,
+      derived: true,
+      day: input.day,
+      title: t.title?.trim() || "بدون عنوان",
+      start,
+      end: Math.max(start + MIN_BLOCK_MINUTES, start + duration),
+      kind: "task",
+      status: t.status === "done" ? "completed" : "planned",
+      fixed: false,
+      colorKey: resolveActivityColor(undefined, "task"),
+      storedColor: null,
+      description: t.description?.trim() || undefined,
+      projectName: project?.name,
+      goalTitle: undefined,
+      taskId: t._id,
+      taskTitle: t.title,
+      taskStatus: t.status,
+      taskPriority: t.priority,
+      taskDone: t.status === "done",
+      source: "task",
+    });
+  }
+
   // Fixed commitments are facts: classes, exams, meetings, appointments.
   // They render on the grid but are never draggable (§18).
   for (const c of input.commitments) {
@@ -219,6 +291,8 @@ export function buildDayActivities(input: BuildTimelineInput): TimelineActivity[
     out.push({
       key: `commit:${c.id}`,
       origin: c.origin === "meeting" ? "meeting" : "event",
+      blockId: undefined,
+      derived: false,
       day: input.day,
       title: c.title,
       start,
@@ -361,6 +435,28 @@ export interface MoveProposal {
 }
 
 /**
+ * Project any activity into the `ScheduleBlock` shape the ConflictService
+ * already understands — including DERIVED task rows that have no block yet.
+ * This is validation input only: nothing is ever persisted from it.
+ */
+export function activityAsBlock(activity: TimelineActivity): ScheduleBlock {
+  return {
+    _id: activity.blockId ?? activity.key,
+    title: activity.title,
+    day: activity.day,
+    startTime: hhmm(activity.start),
+    endTime: hhmm(activity.end),
+    kind: activity.kind,
+    status: activity.status,
+    fixed: activity.fixed,
+    source: activity.derived ? "task" : (activity.source ?? "manual"),
+    taskId: activity.taskId,
+    projectId: undefined,
+    priority: activity.taskPriority,
+  };
+}
+
+/**
  * Validate a drag / resize through the EXISTING ConflictService. Returns the
  * proposed placement plus every conflict it would create — the caller decides
  * what to do, and the block is never silently overwritten.
@@ -368,7 +464,7 @@ export interface MoveProposal {
 export function validateMove(input: {
   day: string;
   prefs: SchedulePrefs;
-  block: TimelineBlockRow;
+  block: ScheduleBlock;
   activities: TimelineActivity[];
   commitments: FixedCommitment[];
   tasksById: Map<string, { title: string; estimateMinutes?: number; dueDate?: string; status: string }>;
@@ -377,33 +473,20 @@ export function validateMove(input: {
   const { day, prefs, block, proposal } = input;
 
   const blocksForDay: ScheduleBlock[] = input.activities
-    .filter((a) => a.blockId && a.blockId !== block._id)
-    .map((a) => ({
-      _id: a.blockId!,
-      title: a.title,
-      day,
-      startTime: `${String(Math.floor(a.start / 60)).padStart(2, "0")}:${String(a.start % 60).padStart(2, "0")}`,
-      endTime: `${String(Math.floor(a.end / 60)).padStart(2, "0")}:${String(a.end % 60).padStart(2, "0")}`,
-      kind: a.kind,
-      status: a.status,
-      fixed: a.fixed,
-      source: a.source ?? "manual",
-      taskId: a.taskId,
-    }));
+    // Skip only the row being moved — every other activity, derived or not,
+    // is an obstacle.
+    .filter((a) => a.blockId !== block._id && a.key !== block._id)
+    .map((a) => activityAsBlock(a));
 
   // The proposed version of the dragged block participates in the check too,
   // so `outside_window` / `insufficient_duration` are caught for it.
   blocksForDay.push({
+    ...block,
     _id: block._id,
-    title: block.title,
     day,
     startTime: hhmm(proposal.start),
     endTime: hhmm(proposal.end),
-    kind: block.kind,
-    status: block.status,
-    fixed: block.fixed,
     source: "reschedule",
-    taskId: block.taskId,
   });
 
   const conflicts = detectConflicts({
