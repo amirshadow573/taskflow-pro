@@ -10,6 +10,8 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
+  /* Mobile application surface (flat #F5F6F7) — see MOBILE APP SURFACE. */
+  --color-app-bg: var(--app-bg);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
@@ -82,6 +84,8 @@
   --sidebar-accent-foreground: #1e40af;
   --sidebar-border: rgba(186, 218, 255, 0.4);
   --sidebar-ring: #60a5fa;
+  /* Mobile app background — see the MOBILE APP SURFACE block below. */
+  --app-bg: #F5F6F7;
 }
 
 .dark {
@@ -129,13 +133,9 @@
     @apply text-foreground;
     font-family: var(--font-sans);
     font-feature-settings: "ss01";
-    background-color: var(--background);
-    background-image:
-      radial-gradient(ellipse 80% 50% at 15% 5%, rgba(186, 218, 255, 0.45) 0%, transparent 55%),
-      radial-gradient(ellipse 60% 45% at 90% 12%, rgba(165, 210, 255, 0.35) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(191, 219, 254, 0.18) 0%, transparent 55%),
-      radial-gradient(ellipse 45% 35% at 20% 85%, rgba(186, 218, 255, 0.25) 0%, transparent 45%),
-      radial-gradient(ellipse 35% 30% at 80% 90%, rgba(165, 210, 255, 0.18) 0%, transparent 50%);
+    /* Mobile: flat, plain neutral — no gradient, no glow, no blob layer. */
+    background-color: var(--app-bg);
+    background-image: none;
     background-attachment: fixed;
   }
 
@@ -241,12 +241,44 @@
   animation: shimmer 1.4s infinite;
 }
 
-/* Dark-mode mesh gradient */
-.dark body {
-  background-image:
-    radial-gradient(ellipse 80% 50% at 15% 5%, rgba(30, 58, 138, 0.25) 0%, transparent 55%),
-    radial-gradient(ellipse 60% 45% at 90% 12%, rgba(30, 64, 175, 0.18) 0%, transparent 50%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(29, 78, 216, 0.08) 0%, transparent 55%);
+/* ────────────────────────────────────────────────────────────────
+   AMBIENT BACKDROP — DESKTOP ONLY (md and up)
+
+   The decorative radial "mesh" wash used to live on <body> for every
+   viewport, which is what produced the large coloured mobile
+   background. It is now scoped to desktop, and on mobile the
+   document, the root container and the app surface are one flat
+   colour (--app-bg = #F5F6F7) with no image layer at all.
+   ──────────────────────────────────────────────────────────────── */
+@media (min-width: 768px) {
+  body {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 15% 5%, rgba(186, 218, 255, 0.45) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 45% at 90% 12%, rgba(165, 210, 255, 0.35) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(191, 219, 254, 0.18) 0%, transparent 55%),
+      radial-gradient(ellipse 45% 35% at 20% 85%, rgba(186, 218, 255, 0.25) 0%, transparent 45%),
+      radial-gradient(ellipse 35% 30% at 80% 90%, rgba(165, 210, 255, 0.18) 0%, transparent 50%);
+    background-attachment: fixed;
+  }
+  .dark body {
+    background-color: var(--background);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 15% 5%, rgba(30, 58, 138, 0.25) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 45% at 90% 12%, rgba(30, 64, 175, 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 50% 50%, rgba(29, 78, 216, 0.08) 0%, transparent 55%);
+  }
+}
+/* The React root must never let the <canvas> colour bleed through on
+   mobile — it is part of the same flat surface. */
+#root {
+  min-height: 100%;
+  background-color: var(--app-bg);
+}
+@media (min-width: 768px) {
+  #root {
+    background-color: var(--background);
+  }
 }
 .dark .bg-white\/40,
 .dark .bg-white\/50,
@@ -334,9 +366,9 @@
    end up stacked above UI content.
    ──────────────────────────────────────────────────────────────── */
 .app-canvas {
-  /* Mobile (<768px): clean, flat surface — no decorative gradients — so the
-     app reads like a native workspace instead of a desktop page. */
-  background-color: #f6f7f9;
+  /* Mobile (<768px): one flat neutral surface, exactly --app-bg (#F5F6F7).
+     No gradient, no glow, no pseudo-element layer of any kind. */
+  background-color: var(--app-bg);
   background-image: none;
   background-repeat: no-repeat;
 }
@@ -368,14 +400,53 @@
    the frame reads as a single, crisp layer above the canvas.
    ──────────────────────────────────────────────────────────────── */
 .app-chrome {
-  background-color: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  /* Mobile: solid, flat, no glass and no blur — the mobile header and the
+     mobile nav bar sit ON the same #F5F6F7 surface as the page, so nothing
+     translucent can reveal a coloured backdrop behind them. */
+  background-color: var(--app-bg);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .dark .app-chrome {
-  background-color: rgba(10, 17, 32, 0.88);
-  backdrop-filter: blur(18px) saturate(140%);
-  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  background-color: #0a1120;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+@media (min-width: 768px) {
+  .app-chrome {
+    background-color: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(18px) saturate(160%);
+    -webkit-backdrop-filter: blur(18px) saturate(160%);
+  }
+  .dark .app-chrome {
+    background-color: rgba(10, 17, 32, 0.88);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   MOBILE APP SURFACE
+   The single source of truth for the mobile application background,
+   exposed to Tailwind as the `bg-app-bg` utility.
+
+   Light mode is exactly #F5F6F7 — no gradient, no image, no blob.
+   Dark mode keeps the product's deep navy theme (a deliberate theme,
+   not decoration). Desktop uses the flat off-white canvas.
+   ──────────────────────────────────────────────────────────────── */
+:root {
+  --app-bg: #F5F6F7;
+}
+.dark {
+  --app-bg: #0a1120;
+}
+@media (min-width: 768px) {
+  :root {
+    --app-bg: #fbfcff;
+  }
+  .dark {
+    --app-bg: #0a1120;
+  }
 }
 
 /* ── Interactive infinite-grid layer (used by InteractiveGrid) ──

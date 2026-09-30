@@ -734,7 +734,7 @@ export const PERSONA_GREETINGS: Record<PersonaKey, { greeting: string; sub: stri
 export type FeatureKey =
   // shared core
   | "tasks" | "projects" | "calendar" | "goals" | "progress" | "routines"
-  | "inbox" | "archive" | "analytics" | "planning" | "focus"
+  | "inbox" | "analytics" | "planning" | "focus"
   // student
   | "subjects" | "exams" | "gradeCalc" | "studyPlanner" | "studyNotes"
   // manager / team

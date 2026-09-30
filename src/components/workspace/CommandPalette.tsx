@@ -2,7 +2,6 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { toFa } from "@/lib/persian";
 import {
-  Archive,
   Calendar,
   Check,
   ChevronLeft,
@@ -86,7 +85,6 @@ export function CommandPalette({
       { id: "act-tasks", label: "برو به کارهای من", icon: ListTree, run: () => navigate("/tasks") },
       { id: "act-calendar", label: "برو به تقویم", icon: Calendar, run: () => navigate("/calendar") },
       { id: "act-planning", label: "برو به برنامه‌ریزی", icon: Clock, run: () => navigate("/planning") },
-      { id: "act-archive", label: "برو به بایگانی", icon: Archive, run: () => navigate("/archive") },
       { id: "act-settings", label: "برو به تنظیمات", icon: SettingsIcon, run: () => navigate("/settings") },
       { id: "act-help", label: "برو به راهنما", icon: HelpCircle, run: () => navigate("/help") },
     ],

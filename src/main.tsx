@@ -41,7 +41,6 @@ function GatedAnalytics() {
 }
 const MyProgress = lazy(() => import("./pages/MyProgress.tsx"));
 const GrowthPathDetail = lazy(() => import("./pages/GrowthPathDetail.tsx"));
-const ArchivePage = lazy(() => import("./pages/Archive.tsx"));
 const FuturePage = lazy(() => import("./pages/Future.tsx"));
 const AIPlanningPage = lazy(() => import("./pages/AIPlanning.tsx"));
 // Phase 15 — full-screen AI assistant workspace (contextual, NOT in primary nav)
@@ -303,7 +302,6 @@ const WORKSPACE_PAGES = [
   { path: "/assistant", Page: AIWorkspace },
   // Phase 16 — AI Insights Center
   { path: "/ai-insights", Page: AIInsights },
-  { path: "/archive", Page: ArchivePage },
   { path: "/settings", Page: SettingsPage },
   { path: "/help", Page: Help },
 ] as const;
