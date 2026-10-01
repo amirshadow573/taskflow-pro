@@ -495,7 +495,6 @@ export default function Landing() {
           "کارهای زمان‌بندی‌شده مستقیم وارد برنامه روز می‌شوند",
           "قدم بعدی همیشه مشخص است، نه فقط فهرست کارها",
         ]}
-        mediaFirst
         media={<GoalsChainPreview />}
       />
 
