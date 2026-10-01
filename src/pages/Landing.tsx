@@ -520,7 +520,6 @@ export default function Landing() {
           "استمرار و تکمیل روزانه قابل پیگیری است",
         ]}
         cta={{ label: "شروع رایگان", onClick: startCta }}
-        mediaFirst
         media={<RoutinesPreview />}
       />
 
