@@ -27,20 +27,20 @@ export function WorkspaceLayout({
   const name = user?.name ?? "";
 
   return (
-    <div className="mx-auto max-w-6xl space-y-6 p-4 md:p-8">
+    <div className="mx-auto w-full max-w-[1180px] space-y-5 px-4 py-5 md:px-7 md:py-7">
       {/* Greeting header with persona badge */}
-      <header className="flex flex-wrap items-end justify-between gap-4">
+      <header className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight">
+          <h1 className="text-[22px] font-bold tracking-tight md:text-2xl">
             {pg.greeting}{name ? `، ${name}` : ""}
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1.5 text-[13px] text-muted-foreground">
             {pg.sub} — {formatJalaliFull(new Date())}
           </p>
         </div>
         <div className="flex items-center gap-3">
           {headerExtra}
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border/60 bg-white/60 px-3 py-1.5 text-xs font-bold text-foreground dark:bg-white/5">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground">
             <span>{pm.emoji}</span>
             <span>{pm.label}</span>
           </span>
