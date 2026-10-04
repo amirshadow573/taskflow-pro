@@ -284,14 +284,14 @@ export function AppShell({
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "app-chrome hidden shrink-0 flex-col border-e border-border/60 transition-[width] duration-200 md:flex",
-          collapsed ? "w-16" : "w-60",
+          "app-chrome hidden shrink-0 flex-col border-e border-border transition-[width] duration-200 md:flex",
+          collapsed ? "w-[60px]" : "w-[248px]",
         )}
-      >          <div className={cn("flex h-14 items-center gap-2 border-b border-border/60 px-4", collapsed && "justify-center px-0")}>
-          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-md shadow-primary/20">
+      >          <div className={cn("flex h-14 items-center gap-2 border-b border-border px-4", collapsed && "justify-center px-0")}>
+          <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground">
             <ListChecks className="size-4" />
           </div>
-          {!collapsed && <span className="text-base font-extrabold bg-gradient-to-l from-primary to-[#5B5FE6] bg-clip-text text-transparent">تسک‌لی</span>}
+          {!collapsed && <span className="text-[15px] font-bold text-foreground">تسک‌لی</span>}
         </div>
 
         <div className="flex-1 overflow-y-auto py-3">
@@ -302,10 +302,10 @@ export function AppShell({
               ))}
             </nav>
           ) : (
-            <nav aria-label="ناوبری اصلی" className="flex flex-col gap-4 px-2">
+            <nav aria-label="ناوبری اصلی" className="flex flex-col gap-6 px-2.5">
               {orderedGroups.map((group) => (
                 <div key={group.label} className="space-y-0.5">
-                  <p className="px-3 pb-1 text-[10px] font-bold tracking-wide text-muted-foreground">
+                  <p className="px-3 pb-1 text-[10px] font-semibold text-muted-foreground/80">
                     {group.label}
                   </p>
                   {group.items.map((item) => (
@@ -368,7 +368,7 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar — mobile: hamburger + brand + page title + search + bell.
             Desktop: search + bell only (the sidebar already carries the nav). */}
-        <header className="app-chrome flex h-14 shrink-0 items-center gap-1.5 border-b border-border/60 px-2 md:gap-2 md:px-4">
+        <header className="app-chrome flex h-14 shrink-0 items-center gap-1.5 border-b border-border px-2 md:gap-2 md:px-5">
           <Sheet open={navOpen} onOpenChange={setNavOpen}>
             <SheetTrigger asChild>
               <Button
