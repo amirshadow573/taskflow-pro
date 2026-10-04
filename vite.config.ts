@@ -6,6 +6,8 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
+  // GitHub Pages deployment for the UI overhaul preview.
+  base: "/taskflow-pro/",
   plugins: [react(), vlyPlugin(), tailwindcss()],
   resolve: {
     alias: {
