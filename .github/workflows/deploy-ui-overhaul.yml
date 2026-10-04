@@ -3,7 +3,7 @@ name: Deploy UI Overhaul Preview
 on:
   push:
     branches:
-      - ui-overhaul-v2
+      - main
   workflow_dispatch:
 
 permissions:
@@ -40,7 +40,7 @@ jobs:
           VITE_STATIC_PREVIEW: "true"
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: ./dist
 
