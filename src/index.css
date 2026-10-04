@@ -755,3 +755,249 @@ summary::marker {
 .ui-num {
   font-variant-numeric: tabular-nums;
 }
+
+
+/* =====================================================================
+   TASKLY UI KIT v2 — CALM PREMIUM PRODUCT SYSTEM
+   Direction: Linear/Notion/Todoist-inspired restraint, RTL-native.
+   The product should feel quiet, precise and fast—not glossy or decorative.
+   ===================================================================== */
+
+:root {
+  --radius: 0.75rem;
+  --background: #f7f7f5;
+  --foreground: #17191c;
+  --card: #ffffff;
+  --card-foreground: #17191c;
+  --popover: #ffffff;
+  --popover-foreground: #17191c;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f2f4;
+  --secondary-foreground: #2f3338;
+  --muted: #f3f4f6;
+  --muted-foreground: #68707a;
+  --accent: #eef0ff;
+  --accent-foreground: #3730a3;
+  --destructive: #dc3f45;
+  --border: #e4e6e8;
+  --input: #dfe2e5;
+  --ring: #818cf8;
+  --sidebar: #fbfbfa;
+  --sidebar-foreground: #34373b;
+  --sidebar-primary: #4f46e5;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #f0f1f3;
+  --sidebar-accent-foreground: #17191c;
+  --sidebar-border: #e6e7e9;
+  --sidebar-ring: #818cf8;
+  --app-bg: #f7f7f5;
+}
+
+.dark {
+  --background: #111315;
+  --foreground: #f1f2f3;
+  --card: #181a1d;
+  --card-foreground: #f1f2f3;
+  --popover: #1b1d20;
+  --popover-foreground: #f1f2f3;
+  --primary: #818cf8;
+  --primary-foreground: #17191c;
+  --secondary: #202328;
+  --secondary-foreground: #e5e7eb;
+  --muted: #1d2024;
+  --muted-foreground: #969da6;
+  --accent: #23264a;
+  --accent-foreground: #c7d2fe;
+  --destructive: #ef6268;
+  --border: #2b2f34;
+  --input: #34383e;
+  --ring: #818cf8;
+  --sidebar: #151719;
+  --sidebar-foreground: #e7e9eb;
+  --sidebar-primary: #818cf8;
+  --sidebar-primary-foreground: #17191c;
+  --sidebar-accent: #202328;
+  --sidebar-accent-foreground: #f1f2f3;
+  --sidebar-border: #292d32;
+  --sidebar-ring: #818cf8;
+  --app-bg: #111315;
+}
+
+body,
+#root {
+  background: var(--app-bg);
+  color: var(--foreground);
+}
+
+body {
+  letter-spacing: -0.01em;
+}
+
+/* Product surfaces: one material, one border language. */
+.ui-surface,
+.ui-surface-hover,
+.ui-popover,
+.glass,
+.glass-strong {
+  background: var(--card);
+  border-color: var(--border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03), 0 8px 24px rgba(16, 24, 40, 0.035);
+}
+
+.ui-surface-hover:hover {
+  transform: translateY(-1px);
+  border-color: #d3d6da;
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.07);
+}
+
+.dark .ui-surface,
+.dark .ui-surface-hover,
+.dark .ui-popover,
+.dark .glass,
+.dark .glass-strong {
+  background: var(--card);
+  border-color: var(--border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.22), 0 10px 24px rgba(0, 0, 0, 0.16);
+}
+
+.ui-field {
+  background: #fff;
+  border-color: var(--input);
+  box-shadow: none;
+  border-radius: 0.625rem;
+}
+
+.ui-field:hover {
+  background: #fff;
+  border-color: #c7cbd0;
+}
+
+.ui-field:focus,
+.ui-field:focus-within,
+.ui-field[data-state="open"] {
+  background: #fff;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.10);
+}
+
+.dark .ui-field,
+.dark .ui-field:hover {
+  background: #191c20;
+  border-color: var(--input);
+}
+
+.dark .ui-field:focus,
+.dark .ui-field:focus-within,
+.dark .ui-field[data-state="open"] {
+  background: #191c20;
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.14);
+}
+
+.ui-nav-active {
+  background: #eef0ff;
+  border-color: transparent;
+  color: #3730a3;
+  box-shadow: none;
+}
+
+.dark .ui-nav-active {
+  background: #25284b;
+  border-color: transparent;
+  color: #c7d2fe;
+}
+
+.app-canvas {
+  background: var(--app-bg);
+  background-image: none;
+}
+
+.app-chrome {
+  background: var(--sidebar);
+  border-color: var(--sidebar-border);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.dark .app-chrome {
+  background: var(--sidebar);
+}
+
+.ui-chip {
+  border-color: var(--border);
+  background: var(--muted);
+  color: var(--muted-foreground);
+}
+
+.ui-icon-tile {
+  border-color: var(--border);
+  background: var(--accent);
+  box-shadow: none;
+}
+
+.ui-accent-top::before {
+  height: 2px;
+  background: var(--primary);
+}
+
+.ui-frame-gradient {
+  background: var(--border);
+  padding: 1px;
+}
+
+.ui-text-gradient {
+  background: none;
+  color: var(--primary);
+}
+
+.elev-1,
+.elev-2,
+.elev-3 {
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px rgba(16, 24, 40, 0.04);
+}
+
+.dark .elev-1,
+.dark .elev-2,
+.dark .elev-3 {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.btn-glow {
+  box-shadow: none;
+}
+
+.btn-glow:hover {
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.18);
+  transform: translateY(-1px);
+}
+
+/* Semantic color: reserved for state, never decoration. */
+.text-emerald-600 { color: #16845a !important; }
+.text-red-600 { color: #c43840 !important; }
+.text-amber-600 { color: #a96b08 !important; }
+
+/* Consistent focus and selection. */
+::selection {
+  background: rgba(79, 70, 229, 0.16);
+}
+
+/* Dashboard/page rhythm. */
+main.app-canvas > div > * {
+  --page-max: 1180px;
+}
+
+/* Mobile remains intentionally flat and low-chrome. */
+@media (max-width: 767.98px) {
+  .app-canvas,
+  .app-chrome,
+  #root {
+    background: #f7f7f5;
+  }
+  .dark .app-canvas,
+  .dark .app-chrome,
+  .dark #root {
+    background: #111315;
+  }
+}
