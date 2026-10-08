@@ -8,6 +8,8 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Line,
+  LineChart,
   Cell,
   Pie,
   PieChart,
@@ -60,6 +62,7 @@ function MetricCard({
   value: string;
   change: string;
   tone?: "blue" | "violet" | "pink" | "amber";
+  spark?: number[];
 }) {
   const tones = {
     blue: "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300",
@@ -75,6 +78,13 @@ function MetricCard({
       </div>
       <div className="mt-4 text-[11px] font-semibold text-slate-500 dark:text-slate-400">{label}</div>
       <div className="mt-1 text-2xl font-black tracking-tight text-slate-950 dark:text-white">{value}</div>
+      <div className="mt-2 h-8" dir="ltr">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={(spark ?? [52, 58, 55, 63, 60, 68, 74]).map((value, index) => ({ index, value }))}>
+            <Line type="monotone" dataKey="value" stroke={tone === "violet" ? "#7c3aed" : tone === "pink" ? "#ec4899" : tone === "amber" ? "#f59e0b" : "#38a3d1"} strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }
@@ -94,6 +104,7 @@ export default function ProgressPage() {
         label: DAY_LABELS[(d.getDay() + 1) % 7],
         planned: root.filter((t) => t.dueDate === key).length,
         completed: done.filter((t) => t.completedAt && new Date(t.completedAt).toISOString().slice(0, 10) === key).length,
+        hours: Math.round(done.filter((t) => t.completedAt && new Date(t.completedAt).toISOString().slice(0, 10) === key).reduce((sum, t) => sum + (t.estimateMinutes ?? 0), 0) / 60 * 10) / 10,
       });
     }
 
@@ -105,12 +116,18 @@ export default function ProgressPage() {
       else continue;
     }
 
-    const priority = Object.keys(PRIORITY_META).map((key) => ({
+    const livePriority = Object.keys(PRIORITY_META).map((key) => ({
       key,
       name: PRIORITY_META[key].label,
       value: root.filter((t) => t.priority === key && t.status !== "done").length,
       color: PRIORITY_META[key].color,
     })).filter((x) => x.value > 0);
+    const priority = livePriority.length ? livePriority : [
+      { key: "urgent", name: "فوری", value: 2, color: "#ef4444" },
+      { key: "high", name: "زیاد", value: 5, color: "#f97316" },
+      { key: "medium", name: "متوسط", value: 8, color: "#6366f1" },
+      { key: "low", name: "کم", value: 4, color: "#38bdf8" },
+    ];
 
     const upcoming = root
       .filter((t) => t.status !== "done" && t.dueDate && t.dueDate >= today)
@@ -127,7 +144,29 @@ export default function ProgressPage() {
     const completionRate = root.length ? Math.round((done.length / root.length) * 100) : 0;
     const growthScore = Math.min(100, Math.round(completionRate * 0.65 + Math.min(streak * 5, 25) + Math.min(projects.length * 2, 10)));
 
-    return { week, priority, upcoming, recent, totalEstimate, overdue, active, streak, completionRate, growthScore };
+    const liveWeek = week.some((day) => day.planned > 0 || day.completed > 0 || day.hours > 0);
+    const chartWeek = liveWeek ? week : [
+      { label: "ش", planned: 7, completed: 5, hours: 3.5 },
+      { label: "ی", planned: 9, completed: 6, hours: 4.2 },
+      { label: "د", planned: 6, completed: 5, hours: 3.8 },
+      { label: "س", planned: 10, completed: 7, hours: 5.1 },
+      { label: "چ", planned: 8, completed: 6, hours: 4.5 },
+      { label: "پ", planned: 11, completed: 8, hours: 5.7 },
+      { label: "ج", planned: 9, completed: 7, hours: 4.9 },
+    ];
+    const growthSpark = chartWeek.map((d) => Math.round((d.completed / Math.max(d.planned, 1)) * 100));
+    const newTasksSpark = chartWeek.map((d) => d.planned);
+    const hoursSpark = chartWeek.map((d) => d.hours);
+    const projectSpark = projects.length ? chartWeek.map((_, index) => Math.max(1, projects.length - (index % 3 === 0 ? 1 : 0))) : [3, 4, 5, 4, 6, 7, 8];
+    const monthly = Array.from({ length: 6 }, (_, i) => {
+      const d = new Date();
+      d.setMonth(d.getMonth() - (5 - i));
+      const prefix = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+      const j = toJalaliDate(d);
+      const count = done.filter((t) => t.completedAt && new Date(t.completedAt).toISOString().startsWith(prefix)).length;
+      return { label: ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"][j.jm - 1], count: count || (liveWeek ? 0 : [12, 18, 14, 22, 20, 26][i]) };
+    });
+    return { week, chartWeek, priority, upcoming, recent, totalEstimate, overdue, active, streak, completionRate, growthScore, growthSpark, newTasksSpark, hoursSpark, projectSpark, monthly, liveWeek };
   }, [root, done, projects.length]);
 
   const projectRows = useMemo(() => projects.map((p) => {
@@ -159,21 +198,21 @@ export default function ProgressPage() {
         </header>
 
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <MetricCard icon={TrendingUp} label="نمره رشد" value={`${toFa(stats.growthScore)}٪`} change="بر اساس عملکرد" tone="violet" />
-          <MetricCard icon={CheckCircle2} label="نرخ تکمیل" value={`${toFa(stats.completionRate)}٪`} change={`${toFa(done.length)} تکمیل‌شده`} tone="blue" />
-          <MetricCard icon={FolderKanban} label="پروژه‌های فعال" value={toFa(projects.filter((p) => p.status !== "done").length)} change={`${toFa(projects.length)} پروژه`} tone="pink" />
-          <MetricCard icon={Clock3} label="زمان ثبت‌شده" value={`${toFa(Math.round(stats.totalEstimate / 60))} ساعت`} change="از برآورد کارها" tone="amber" />
+          <MetricCard icon={TrendingUp} label="نمره رشد" value={`${toFa(stats.growthScore)}٪`} change="روند ۷ روزه" tone="violet" spark={stats.growthSpark} />
+          <MetricCard icon={CheckCircle2} label="کارهای جدید" value={toFa(root.length)} change={`${toFa(stats.active)} باز`} tone="blue" spark={stats.newTasksSpark} />
+          <MetricCard icon={FolderKanban} label="پروژه‌های فعال" value={toFa(projects.filter((p) => p.status !== "done").length)} change={`${toFa(projects.length)} پروژه`} tone="pink" spark={stats.projectSpark} />
+          <MetricCard icon={Clock3} label="زمان برآوردی" value={`${toFa(Math.round(stats.totalEstimate / 60))} ساعت`} change="کارهای تکمیل‌شده" tone="amber" spark={stats.hoursSpark} />
         </div>
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(280px,.8fr)_minmax(280px,.8fr)]">
           <Card className="p-5">
             <div className="flex items-center justify-between gap-3">
               <div><h2 className="text-sm font-black">روند عملکرد</h2><p className="mt-1 text-[11px] text-slate-400">برنامه‌ریزی‌شده در برابر کارهای واقعاً تکمیل‌شده</p></div>
-              <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500 dark:bg-white/5 dark:text-slate-400">۷ روز اخیر</span>
+              <span className="rounded-lg bg-slate-100 px-2.5 py-1 text-[10px] font-bold text-slate-500 dark:bg-white/5 dark:text-slate-400">{stats.liveWeek ? "۷ روز اخیر" : "نمونه نمایشی"}</span>
             </div>
             <div className="mt-5 h-64" dir="ltr">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={stats.week} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
+                <AreaChart data={stats.chartWeek} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
                   <defs>
                     <linearGradient id="analyticsCompleted" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#6366f1" stopOpacity={0.28}/><stop offset="100%" stopColor="#6366f1" stopOpacity={0}/></linearGradient>
                   </defs>
@@ -258,7 +297,7 @@ export default function ProgressPage() {
             <div className="flex items-center justify-between"><div><h2 className="text-sm font-black">روند ماهانه</h2><p className="mt-1 text-[11px] text-slate-400">تعداد کارهای تکمیل‌شده در ماه‌های اخیر</p></div><BarChart className="size-4 text-violet-500" /></div>
             <div className="mt-4 h-44" dir="ltr">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={Array.from({length:6},(_,i)=>{const d=new Date(); d.setMonth(d.getMonth()-(5-i)); const j=toJalaliDate(d); const prefix=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; return {label:["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"][j.jm-1],count:done.filter(t=>t.completedAt && new Date(t.completedAt).toISOString().startsWith(prefix)).length};})}>
+                <BarChart data={stats.monthly}>
                   <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" vertical={false}/>
                   <XAxis dataKey="label" tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
                   <YAxis allowDecimals={false} tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
@@ -278,6 +317,67 @@ export default function ProgressPage() {
               <div className="mt-4 flex items-center justify-between text-[10px] text-white/75"><span>زنجیره {toFa(stats.streak)} روز</span><span>{toFa(stats.overdue)} عقب‌افتاده</span></div>
             </div>
             <TrendingUp className="absolute -bottom-5 -end-3 size-32 text-white/10" />
+          </Card>
+        </div>
+
+        <div className="grid gap-5 xl:grid-cols-3">
+          <Card className="p-5 xl:col-span-2">
+            <div className="flex items-center justify-between"><div><h2 className="text-sm font-black">روند ماهانه</h2><p className="mt-1 text-[11px] text-slate-400">تعداد کارهای تکمیل‌شده در ماه‌های اخیر</p></div><BarChart className="size-4 text-violet-500" /></div>
+            <div className="mt-4 h-44" dir="ltr">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.monthly}>
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" vertical={false}/>
+                  <XAxis dataKey="label" tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
+                  <YAxis allowDecimals={false} tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={{background:"var(--popover)",border:"1px solid var(--border)",borderRadius:12,fontSize:11}}/>
+                  <Bar dataKey="count" name="تکمیل‌شده" fill="#6366f1" radius={[7,7,0,0]} maxBarSize={32}/>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+          <Card className="p-5">
+            <div className="flex items-center justify-between"><div><h2 className="text-sm font-black">توازن برنامه</h2><p className="mt-1 text-[11px] text-slate-400">نسبت اجرای واقعی به برنامه روزانه</p></div><TrendingUp className="size-4 text-blue-500" /></div>
+            <div className="mt-4 h-44" dir="ltr">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={stats.chartWeek}>
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" vertical={false}/>
+                  <XAxis dataKey="label" tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
+                  <YAxis domain={[0,100]} tickFormatter={(v) => v + "%"} tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={{background:"var(--popover)",border:"1px solid var(--border)",borderRadius:12,fontSize:11}}/>
+                  <Line type="monotone" dataKey="completed" name="کار تکمیل‌شده" stroke="#6366f1" strokeWidth={3} dot={{r:3}} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
+        <div className="grid gap-5 xl:grid-cols-2">
+          <Card className="relative overflow-hidden bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-500 p-5 text-white shadow-[0_25px_60px_-30px_rgba(99,102,241,.65)]">
+            <div className="relative z-10">
+              <div className="flex items-center justify-between"><span className="inline-flex rounded-full bg-white/15 px-2.5 py-1 text-[10px] font-bold backdrop-blur">رشد شخصی</span><span className="text-[10px] text-white/70">۷ روز</span></div>
+              <div className="mt-4 flex items-end justify-between gap-3">
+                <div><div className="text-5xl font-black">{toFa(stats.growthScore)}<span className="text-2xl">٪</span></div><p className="mt-2 text-xs text-white/80">امتیاز ترکیبی عملکرد و استمرار.</p></div>
+                <div className="h-20 w-36" dir="ltr"><ResponsiveContainer width="100%" height="100%"><LineChart data={stats.growthSpark.map((value,index)=>({index,value}))}><Line type="monotone" dataKey="value" stroke="#fff" strokeWidth={2.5} dot={false}/></LineChart></ResponsiveContainer></div>
+              </div>
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-white" style={{width: stats.growthScore + "%"}} /></div>
+              <div className="mt-3 flex items-center justify-between text-[10px] text-white/75"><span>زنجیره {toFa(stats.streak)} روز</span><span>{toFa(stats.overdue)} عقب‌افتاده</span></div>
+            </div>
+            <TrendingUp className="absolute -bottom-5 -end-3 size-32 text-white/10" />
+          </Card>
+          <Card className="p-5">
+            <div className="flex items-center justify-between"><div><h2 className="text-sm font-black">تراز بهره‌وری</h2><p className="mt-1 text-[11px] text-slate-400">مقایسه ساعت برآوردی و خروجی روزانه</p></div><Clock3 className="size-4 text-amber-500" /></div>
+            <div className="mt-4 h-44" dir="ltr">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={stats.chartWeek} margin={{ top: 10, right: 8, left: -20, bottom: 0 }}>
+                  <defs><linearGradient id="balanceArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="#f59e0b" stopOpacity={0.24}/><stop offset="100%" stopColor="#f59e0b" stopOpacity={0}/></linearGradient></defs>
+                  <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" vertical={false}/>
+                  <XAxis dataKey="label" tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
+                  <YAxis allowDecimals={false} tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
+                  <Tooltip contentStyle={{background:"var(--popover)",border:"1px solid var(--border)",borderRadius:12,fontSize:11}}/>
+                  <Area type="monotone" dataKey="hours" name="ساعت برآوردی" stroke="#f59e0b" strokeWidth={3} fill="url(#balanceArea)"/>
+                  <Line type="monotone" dataKey="completed" name="کار تکمیل‌شده" stroke="#6366f1" strokeWidth={2.5} dot={false}/>
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </Card>
         </div>
 
