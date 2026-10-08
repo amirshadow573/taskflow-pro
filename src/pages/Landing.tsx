@@ -313,7 +313,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="landing-page min-h-svh overflow-x-hidden bg-[#f7f8fc] text-slate-950 dark:bg-[#080d18] dark:text-white" dir="rtl">
+    <div className="landing-page landing-blue min-h-svh overflow-x-hidden bg-[#f4f8ff] text-slate-950 dark:bg-[#071326] dark:text-white" dir="rtl">
       {/* Ambient background: intentionally subtle, never competing with product UI. */}
       <div className="pointer-events-none fixed inset-0 -z-0 overflow-hidden" aria-hidden="true">
         <div className="absolute -right-40 top-24 h-[32rem] w-[32rem] rounded-full bg-blue-500/[0.06] blur-3xl" />
@@ -329,8 +329,8 @@ export default function Landing() {
         <div
           className={`mx-auto flex h-14 max-w-7xl items-center justify-between rounded-2xl border px-2.5 shadow-[0_16px_45px_-30px_rgba(15,23,42,.45)] backdrop-blur-xl transition-all sm:h-16 sm:px-3 ${
             scrolled
-              ? "border-slate-200/80 bg-white/92 dark:border-white/10 dark:bg-slate-950/88"
-              : "border-white/80 bg-white/78 dark:border-white/10 dark:bg-slate-950/72"
+              ? "border-slate-200/80 bg-white/92 dark:border-white/10 dark:bg-blue-950/88"
+              : "border-white/80 bg-white/78 dark:border-white/10 dark:bg-blue-950/72"
           }`}
         >
           <Link to="/" className="flex items-center gap-2.5 rounded-xl px-2 py-1.5">
@@ -386,7 +386,7 @@ export default function Landing() {
         </div>
 
         {mobileOpen && (
-          <div id="mobile-nav" className="mx-auto mt-2 max-w-7xl rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/10 lg:hidden dark:border-white/10 dark:bg-slate-950">
+          <div id="mobile-nav" className="mx-auto mt-2 max-w-7xl rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/10 lg:hidden dark:border-white/10 dark:bg-blue-950">
             <nav aria-label="ناوبری موبایل" className="grid gap-1">
               {NAV_ITEMS.map((n) => (
                 <a
@@ -411,8 +411,8 @@ export default function Landing() {
 
       {/* ───────── Hero ───────── */}
       <main className="relative z-10">
-        <section className="mx-auto max-w-7xl px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-36 lg:px-8 lg:pt-40">
-          <div className="grid items-center gap-10 lg:grid-cols-[.86fr_1.14fr] lg:gap-14">
+        <section className="landing-hero mx-auto max-w-7xl px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-36 lg:px-8 lg:pt-40">
+          <div className="landing-hero-grid grid items-center gap-10 lg:grid-cols-[.86fr_1.14fr] lg:gap-14">
             <Anim className="max-w-2xl">
               <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-white/80 px-3.5 py-2 text-[11px] font-extrabold text-blue-700 shadow-sm dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-300">
                 <span className="grid size-5 place-items-center rounded-full bg-blue-600 text-white">
@@ -423,7 +423,7 @@ export default function Landing() {
 
               <h1 className="max-w-2xl text-4xl font-black leading-[1.18] tracking-[-0.04em] sm:text-5xl lg:text-[4.15rem]">
                 کارها را فقط مدیریت نکن؛
-                <span className="block bg-gradient-to-l from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                <span className="block bg-gradient-to-l from-blue-700 via-blue-600 to-blue-500 bg-clip-text text-transparent">
                   روزت را طراحی کن.
                 </span>
               </h1>
@@ -442,15 +442,15 @@ export default function Landing() {
                   <a href="#features">مشاهده محصول</a>
                 </Button>
                 <Link to="/test-mode" className="basis-full text-xs font-semibold text-slate-500 hover:text-blue-600 sm:basis-auto dark:text-slate-400">
-                  <span className="ms-1 inline-block size-1.5 animate-pulse rounded-full bg-amber-500" />
+                  <span className="ms-1 inline-block size-1.5 animate-pulse rounded-full bg-blue-500" />
                   ورود مستقیم به نسخه آزمایشی
                 </Link>
               </div>
 
               <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 border-t border-slate-200/80 pt-5 text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-slate-400">
-                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-500" /> بدون پیچیدگی اضافه</span>
-                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-500" /> دسکتاپ و موبایل</span>
-                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-500" /> فضای کاری شخصی</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-blue-500" /> بدون پیچیدگی اضافه</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-blue-500" /> دسکتاپ و موبایل</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-blue-500" /> فضای کاری شخصی</span>
               </div>
             </Anim>
 
@@ -461,19 +461,19 @@ export default function Landing() {
               </div>
               <div className="absolute -bottom-5 -start-3 hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-xl shadow-slate-900/10 sm:block dark:border-white/10 dark:bg-slate-900">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
+                  <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10">
                     <TrendingUp className="size-4" />
                   </span>
                   <span>
                     <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">پیشرفت این هفته</span>
-                    <span className="block text-sm font-black">۵۸٪ <span className="text-emerald-500">+۱۲٪</span></span>
+                    <span className="block text-sm font-black">۵۸٪ <span className="text-blue-500">+۱۲٪</span></span>
                   </span>
                 </div>
               </div>
             </Anim>
           </div>
 
-          <div className="mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="landing-hero-cards mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {HERO_CARDS.map((c, i) => (
               <Anim key={c.title} delay={i * 0.05} className="h-full">
                 <div className="group h-full rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-[0_12px_35px_-28px_rgba(15,23,42,.5)] transition hover:-translate-y-1 hover:border-blue-200 hover:bg-white hover:shadow-[0_20px_45px_-30px_rgba(37,99,235,.38)] dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-blue-400/20">
@@ -490,6 +490,12 @@ export default function Landing() {
               </Anim>
             ))}
           </div>
+          <div className="landing-trust mt-10 border-y border-blue-100/80 py-5 text-center">
+            <p className="text-[10px] font-black tracking-[0.16em] text-blue-500">ساخته‌شده برای یک جریان کاری یکپارچه</p>
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-[11px] font-black text-blue-900/45">
+              <span>PROJECTS</span><span>TASKS</span><span>CALENDAR</span><span>PLANNING</span><span>FOCUS</span><span>PROGRESS</span>
+            </div>
+          </div>
         </section>
 
         {/* ───────── Product-first feature showcase ───────── */}
@@ -504,7 +510,26 @@ export default function Landing() {
             </p>
           </Anim>
 
-          <div className="mt-12 grid gap-5 lg:grid-cols-12">
+          <div className="landing-feature-grid mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              ["مدیریت کارها", "اولویت، وضعیت و موعد را در یک نمای روشن دنبال کن.", ListChecks],
+              ["همکاری تیمی", "کارها و مسئولیت‌ها را بدون پراکندگی هماهنگ کن.", Users],
+              ["ردگیری زمان", "زمان واقعی را کنار برنامه و برآوردها ببین.", Clock],
+              ["پروژه‌ها", "هر کار را به پروژه و نتیجه بزرگ‌تر متصل کن.", FolderKanban],
+              ["اهداف", "از هدف‌های بلندمدت تا اقدام امروز مسیر مشخص بساز.", Target],
+              ["گزارش و تحلیل", "روند اجرا، استمرار و پیشرفت را با داده ببین.", TrendingUp],
+            ].map(([title, desc, Icon], index) => (
+              <Anim key={title as string} delay={index * 0.03}>
+                <div className="landing-feature-card h-full rounded-[1.35rem] border border-blue-100 bg-white p-5 shadow-[0_18px_50px_-35px_rgba(37,99,235,.28)] transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_55px_-32px_rgba(37,99,235,.4)]">
+                  <span className="grid size-9 place-items-center rounded-xl bg-blue-50 text-blue-600"><Icon className="size-4.5" /></span>
+                  <h3 className="mt-4 text-sm font-black">{title as string}</h3>
+                  <p className="mt-2 text-[11px] leading-6 text-slate-500">{desc as string}</p>
+                </div>
+              </Anim>
+            ))}
+          </div>
+
+          <div className="mt-8 grid gap-5 lg:grid-cols-12">
             <Anim className="lg:col-span-7">
               <div className="h-full overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_28px_70px_-45px_rgba(15,23,42,.45)] dark:border-white/10 dark:bg-slate-900">
                 <TodayPreview />
@@ -523,7 +548,7 @@ export default function Landing() {
                   <ul className="mt-6 space-y-3">
                     {["کارهای مهم و اولویت‌ها", "پروژه‌های فعال", "اهداف در مسیر", "نرخ تکمیل و استمرار"].map((x) => (
                       <li key={x} className="flex items-center gap-2.5 text-sm font-semibold">
-                        <span className="grid size-5 place-items-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
+                        <span className="grid size-5 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10">
                           <CheckCircle2 className="size-3.5" />
                         </span>
                         {x}
@@ -587,15 +612,15 @@ export default function Landing() {
               <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-bold text-slate-500">{["جلسه","تمرکز","کار عمیق","زمان آزاد"].map(x=><span key={x} className="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-white/5">{x}</span>)}</div>
             </div></Anim>
             <Anim delay={0.08}><div id="routines" className="h-full scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
-              <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"><Flame className="size-5" /></span><div><p className="text-[10px] font-black text-emerald-600">ROUTINES</p><h3 className="mt-1 text-lg font-black">چیزهای تکراری را از ذهنت خارج کن.</h3></div></div>
+              <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"><Flame className="size-5" /></span><div><p className="text-[10px] font-black text-blue-600">ROUTINES</p><h3 className="mt-1 text-lg font-black">چیزهای تکراری را از ذهنت خارج کن.</h3></div></div>
               <p className="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400">روتین‌ها یک‌بار تعریف می‌شوند و در برنامه روزانه و گزارش استمرار قابل پیگیری می‌مانند.</p>
-              <div className="mt-5 flex items-center gap-3 text-xs font-bold"><span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><span className="block h-full w-[78%] rounded-full bg-emerald-500" /></span><span>۷ روز استمرار</span></div>
+              <div className="mt-5 flex items-center gap-3 text-xs font-bold"><span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><span className="block h-full w-[78%] rounded-full bg-blue-500" /></span><span>۷ روز استمرار</span></div>
             </div></Anim>
           </div>
         </section>
 
         {/* ───────── System modules ───────── */}
-        <section id="system" className="scroll-mt-24 bg-slate-950 text-white">
+        <section id="system" className="scroll-mt-24 bg-blue-950 text-white">
           <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
             <Anim className="mx-auto max-w-3xl text-center">
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black tracking-wide text-blue-200">THE SYSTEM</span>
@@ -641,7 +666,7 @@ export default function Landing() {
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div className="mx-auto max-w-5xl">
               <Anim className="text-center">
-                <span className="text-[11px] font-black tracking-[0.16em] text-emerald-600">PROGRESS</span>
+                <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">PROGRESS</span>
                 <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">پیشرفت را با شواهد ببین.</h2>
                 <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">روند تمرکز، اجرای برنامه، اهداف و استمرار را در یک تصویر قابل فهم دنبال کن.</p>
               </Anim>
@@ -791,7 +816,7 @@ export default function Landing() {
         {/* ───────── Final CTA ───────── */}
         <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
           <Anim>
-            <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-14 text-center text-white shadow-[0_35px_90px_-45px_rgba(15,23,42,.75)] sm:px-10 sm:py-20">
+            <div className="relative overflow-hidden rounded-[2rem] bg-blue-950 px-6 py-14 text-center text-white shadow-[0_35px_90px_-45px_rgba(15,23,42,.75)] sm:px-10 sm:py-20">
               <div className="pointer-events-none absolute -right-20 -top-28 size-72 rounded-full bg-blue-600/20 blur-3xl" />
               <div className="pointer-events-none absolute -left-24 -bottom-32 size-80 rounded-full bg-indigo-600/15 blur-3xl" />
               <div className="relative">
@@ -816,7 +841,7 @@ export default function Landing() {
       </main>
 
       {/* ───────── Premium Footer ───────── */}
-      <footer className="relative overflow-hidden border-t border-slate-200/80 bg-slate-950 text-white dark:border-white/10">
+      <footer className="relative overflow-hidden border-t border-slate-200/80 bg-blue-950 text-white dark:border-white/10">
         <div className="pointer-events-none absolute -end-32 -top-32 size-80 rounded-full bg-blue-600/15 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute -start-40 bottom-0 size-96 rounded-full bg-indigo-600/10 blur-3xl" aria-hidden="true" />
 
