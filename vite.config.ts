@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 
 // https://vite.dev/config/
 export default defineConfig({
-  // GitHub Pages serves this repository under /taskflow-pro/; local/Vly previews remain at /.\n  base: process.env.GITHUB_ACTIONS ? "/taskflow-pro/" : "/",
+  // GitHub Pages serves this repository under /taskflow-pro/; local/Vly previews remain at /.\n  base: process.env.VITE_BASE_PATH || (process.env.GITHUB_ACTIONS === "true" ? "/taskflow-pro/" : "/"),
   plugins: [react(), ...(process.env.GITHUB_ACTIONS ? [] : [vlyPlugin()]), tailwindcss()],
   resolve: {
     alias: {
