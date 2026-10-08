@@ -574,62 +574,42 @@ export default function Landing() {
         </section>
 
         {/* ───────── Timeline + routines ───────── */}
-        <section id="timeline" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <div className="grid gap-5 lg:grid-cols-2">
-            <Anim>
-              <div className="h-full rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_25px_70px_-48px_rgba(15,23,42,.4)] dark:border-white/10 dark:bg-slate-900">
-                <TimelinePreview />
-              </div>
-            </Anim>
-            <Anim delay={0.08}>
-              <div id="routines" className="h-full scroll-mt-24 rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_25px_70px_-48px_rgba(15,23,42,.4)] dark:border-white/10 dark:bg-slate-900">
-                <RoutinesPreview />
-              </div>
-            </Anim>
-          </div>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
-              <p className="text-xs font-black text-blue-600">TIMELINE</p>
-              <h3 className="mt-2 text-lg font-black">زمان را هم‌سطح کارها ببین.</h3>
-              <p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">کارهای زمان‌بندی‌شده روی روز واقعی می‌نشینند؛ نه در یک لیست بی‌زمان.</p>
-            </div>
-            <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
-              <p className="text-xs font-black text-emerald-600">ROUTINES</p>
-              <h3 className="mt-2 text-lg font-black">چیزهای تکراری را از ذهنت خارج کن.</h3>
-              <p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">روتین‌ها یک‌بار تعریف می‌شوند و به برنامه و استمرار روزانه وصل می‌مانند.</p>
-            </div>
+        <section id="timeline" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+          <Anim className="mx-auto max-w-3xl text-center">
+            <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">TIME & ROUTINES</span>
+            <h2 className="mt-4 text-3xl font-black sm:text-4xl">زمان و روتین، بدون شلوغ کردن صفحه.</h2>
+            <p className="mt-4 text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">زمان‌بندی و عادت‌های تکراری بخشی از همان سیستم روزانه‌اند؛ لازم نیست برای هرکدام یک ابزار جدا داشته باشی.</p>
+          </Anim>
+          <div className="mt-9 grid gap-4 md:grid-cols-2">
+            <Anim><div className="h-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+              <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"><Clock className="size-5" /></span><div><p className="text-[10px] font-black text-blue-600">TIMELINE</p><h3 className="mt-1 text-lg font-black">زمان را هم‌سطح کارها ببین.</h3></div></div>
+              <p className="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400">کارهای زمان‌بندی‌شده روی روز واقعی می‌نشینند تا ظرفیت روز را قبل از تعهدهای جدید ببینی.</p>
+              <div className="mt-5 flex flex-wrap gap-2 text-[11px] font-bold text-slate-500">{["جلسه","تمرکز","کار عمیق","زمان آزاد"].map(x=><span key={x} className="rounded-lg bg-slate-100 px-2.5 py-1.5 dark:bg-white/5">{x}</span>)}</div>
+            </div></Anim>
+            <Anim delay={0.08}><div id="routines" className="h-full scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900">
+              <div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300"><Flame className="size-5" /></span><div><p className="text-[10px] font-black text-emerald-600">ROUTINES</p><h3 className="mt-1 text-lg font-black">چیزهای تکراری را از ذهنت خارج کن.</h3></div></div>
+              <p className="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400">روتین‌ها یک‌بار تعریف می‌شوند و در برنامه روزانه و گزارش استمرار قابل پیگیری می‌مانند.</p>
+              <div className="mt-5 flex items-center gap-3 text-xs font-bold"><span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><span className="block h-full w-[78%] rounded-full bg-emerald-500" /></span><span>۷ روز استمرار</span></div>
+            </div></Anim>
           </div>
         </section>
 
         {/* ───────── System modules ───────── */}
         <section id="system" className="scroll-mt-24 bg-slate-950 text-white">
-          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-            <Anim className="max-w-2xl">
+          <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+            <Anim className="mx-auto max-w-3xl text-center">
               <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black tracking-wide text-blue-200">THE SYSTEM</span>
               <h2 className="mt-5 text-3xl font-black sm:text-5xl">یک سیستم واحد، نه هفت ابزار جدا.</h2>
               <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base">هر بخش نقش مشخصی دارد، اما اطلاعات بین آن‌ها جریان پیدا می‌کند.</p>
             </Anim>
-
-            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                { title: "کارها", desc: "اولویت، وضعیت، موعد و اجرا", Preview: TasksPreview, icon: ListChecks },
-                { title: "پروژه‌ها", desc: "پیشرفت و سلامت پروژه", Preview: ProjectsPreview, icon: FolderKanban },
-                { title: "تقویم", desc: "روز، هفته و زمان‌بندی", Preview: CalendarPreview, icon: CalendarDays },
-                { title: "پیشرفت", desc: "XP، استمرار و روند بهره‌وری", Preview: ProgressPreview, icon: TrendingUp },
-              ].map((b, i) => (
-                <Anim key={b.title} delay={i * 0.05} className="h-full">
-                  <div className="h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] p-2 transition hover:-translate-y-1 hover:border-blue-300/25 hover:bg-white/[0.075]">
-                    <b.Preview />
-                    <div className="p-3">
-                      <div className="flex items-center gap-2">
-                        <b.icon className="size-4 text-blue-300" />
-                        <h3 className="text-sm font-extrabold">{b.title}</h3>
-                      </div>
-                      <p className="mt-1 text-[11px] leading-5 text-slate-400">{b.desc}</p>
-                    </div>
-                  </div>
-                </Anim>
-              ))}
+            <div className="mt-10 grid gap-4 lg:grid-cols-12">
+              <Anim className="lg:col-span-7"><div className="overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/[0.055] p-2 shadow-2xl shadow-black/20">
+                <div className="px-4 pb-4 pt-3"><p className="text-[10px] font-black text-blue-300">TASKS</p><h3 className="mt-1 text-xl font-black">کارها، نقطه شروع اجرا.</h3><p className="mt-2 max-w-xl text-xs leading-6 text-slate-400">اولویت، وضعیت، موعد و پروژه را یکجا ببین و از همان‌جا وارد اجرا شو.</p></div>
+                <TasksPreview />
+              </div></Anim>
+              <Anim delay={0.08} className="lg:col-span-5"><div className="grid gap-3">
+                {[{title:"پروژه‌ها",desc:"کارهای مرتبط را کنار هم نگه دار.",icon:FolderKanban},{title:"تقویم",desc:"زمان و تعهدها را با کارها هماهنگ کن.",icon:CalendarDays},{title:"پیشرفت",desc:"نتیجه را با روند واقعی اجرا بسنج.",icon:TrendingUp}].map(b=><div key={b.title} className="rounded-2xl border border-white/10 bg-white/[0.045] p-5"><div className="flex items-center gap-3"><span className="grid size-9 place-items-center rounded-xl bg-blue-400/10 text-blue-300"><b.icon className="size-4" /></span><div><h3 className="text-sm font-extrabold">{b.title}</h3><p className="mt-1 text-[11px] leading-5 text-slate-400">{b.desc}</p></div></div></div>)}
+              </div></Anim>
             </div>
           </div>
         </section>
@@ -659,11 +639,11 @@ export default function Landing() {
         {/* ───────── Progress ───────── */}
         <section id="progress" className="scroll-mt-24 border-y border-slate-200/70 bg-white/55 dark:border-white/10 dark:bg-white/[0.02]">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-            <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
-              <Anim className="lg:col-span-7">
-                <div className="rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_30px_80px_-50px_rgba(37,99,235,.45)] dark:border-white/10 dark:bg-slate-900">
-                  <AnalyticsPreview />
-                </div>
+            <div className="mx-auto max-w-5xl">
+              <Anim className="text-center"><span className="text-[11px] font-black tracking-[0.16em] text-emerald-600">PROGRESS</span><h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">پیشرفت را با شواهد ببین.</h2><p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">روند تمرکز، اجرای برنامه، اهداف و استمرار را در یک تصویر قابل فهم دنبال کن.</p></Anim>
+              <Anim delay={0.08} className="mt-9"><div className="rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_30px_80px_-50px_rgba(37,99,235,.45)] dark:border-white/10 dark:bg-slate-900"><AnalyticsPreview /></div></Anim>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">{[["اجرای برنامه","۷۶٪"],["استمرار","۱۲ روز"],["تمرکز","۴.۸ ساعت"],["اهداف","۷۰٪"]].map(([l,v])=><div key={l} className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]"><span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">{l}</span><span className="mt-1 block text-xl font-black">{v}</span></div>)}</div>
+            </div>
               </Anim>
               <Anim delay={0.1} className="lg:col-span-5">
                 <span className="text-[11px] font-black tracking-[0.16em] text-emerald-600">PROGRESS</span>
@@ -690,33 +670,18 @@ export default function Landing() {
         </section>
 
         {/* ───────── Personas ───────── */}
-        <section id="personas" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <Anim className="max-w-3xl">
+        <section id="personas" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-14 sm:px-6 sm:py-20 lg:px-8">
+          <Anim className="mx-auto max-w-3xl text-center">
             <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">PERSONALIZED WORKSPACE</span>
-            <h2 className="mt-4 text-3xl font-black sm:text-5xl">یک محصول؛ برای هر نفر، یک فضای کاری متفاوت.</h2>
-            <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">
-              دانشجو، کارمند، فریلنسر، مدیر یا کاربر شخصی نباید داشبورد یکسانی ببینند. ساختار فضای کاری بر اساس نیاز تغییر می‌کند.
-            </p>
+            <h2 className="mt-4 text-3xl font-black sm:text-4xl">یک محصول؛ برای هر نفر، یک فضای کاری متفاوت.</h2>
+            <p className="mt-4 text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">تفاوت فقط در ظاهر نیست؛ اولویت‌ها، اطلاعات و جریان کاری بر اساس نقش کاربر تغییر می‌کند.</p>
           </Anim>
-          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {PERSONAS.map((p, i) => (
-              <Anim key={p.name} delay={i * 0.04} className="h-full">
-                <div className="group h-full overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white p-2 shadow-[0_20px_50px_-40px_rgba(15,23,42,.4)] transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_28px_60px_-40px_rgba(37,99,235,.35)] dark:border-white/10 dark:bg-slate-900">
-                  <div className="flex items-center gap-3 px-4 pt-3">
-                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
-                      <p.icon className="size-5" />
-                    </span>
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-black">{p.name}</h3>
-                      <p className="mt-0.5 truncate text-[10px] text-slate-500 dark:text-slate-400">{p.desc}</p>
-                    </div>
-                  </div>
-                  <div className="mt-3 overflow-hidden rounded-xl border border-slate-100 dark:border-white/10">
-                    <p.Preview />
-                  </div>
-                </div>
-              </Anim>
-            ))}
+          <div className="mt-9 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {PERSONAS.map((p,i)=><Anim key={p.name} delay={i*0.03} className="h-full"><div className="h-full rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 dark:border-white/10 dark:bg-slate-900">
+              <div className="flex items-center gap-3"><span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"><p.icon className="size-5" /></span><h3 className="text-sm font-black">{p.name}</h3></div>
+              <p className="mt-4 text-xs leading-6 text-slate-500 dark:text-slate-400">{p.desc}</p>
+              <div className="mt-4 flex flex-wrap gap-1.5">{(p.name==="دانشجو"?["دروس","امتحان","مطالعه"]:p.name==="کارمند"?["جلسات","وظایف","تمرکز"]:p.name==="فریلنسر"?["مشتری","تحویل","زمان"]:p.name==="مدیر"?["تیم","تفویض","ظرفیت"]:p.name==="صاحب کسب‌وکار"?["عملیات","فروش","رشد"]:["اهداف","روتین","عادت"]).map(x=><span key={x} className="rounded-md bg-slate-100 px-2 py-1 text-[10px] font-bold text-slate-500 dark:bg-white/5 dark:text-slate-400">{x}</span>)}</div>
+            </div></Anim>)}
           </div>
         </section>
 
