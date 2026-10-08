@@ -34,7 +34,7 @@ jobs:
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
         run: |
-          npx convex deploy --cmd "npx convex codegen && VITE_BASE_PATH=/taskflow-pro/ npm run build" --cmd-url-env-var-name VITE_CONVEX_URL
+          npx convex deploy --cmd "npx convex codegen && npm run build -- --base=/taskflow-pro/" --cmd-url-env-var-name VITE_CONVEX_URL
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
