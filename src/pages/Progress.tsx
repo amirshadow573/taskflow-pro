@@ -56,6 +56,7 @@ function MetricCard({
   value,
   change,
   tone = "blue",
+  spark,
 }: {
   icon: typeof CheckCircle2;
   label: string;
@@ -96,7 +97,7 @@ export default function ProgressPage() {
 
   const stats = useMemo(() => {
     const today = todayKey();
-    const week: Array<{ label: string; planned: number; completed: number }> = [];
+    const week: Array<{ label: string; planned: number; completed: number; hours: number }> = [];
     for (let i = 6; i >= 0; i--) {
       const key = addDaysKey(-i);
       const d = new Date(key + "T00:00:00");
