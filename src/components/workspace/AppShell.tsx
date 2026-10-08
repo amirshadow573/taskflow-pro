@@ -284,10 +284,10 @@ export function AppShell({
       {/* Desktop sidebar */}
       <aside
         className={cn(
-          "app-chrome hidden shrink-0 flex-col border-e border-border/60 transition-[width] duration-200 md:flex",
-          collapsed ? "w-16" : "w-60",
+          "app-chrome hidden shrink-0 flex-col border-e border-border/60 shadow-[0_0_40px_-28px_rgba(37,99,235,0.35)] transition-[width,box-shadow] duration-200 md:flex",
+          collapsed ? "w-[72px]" : "w-[272px]",
         )}
-      >          <div className={cn("flex h-14 items-center gap-2 border-b border-border/60 px-4", collapsed && "justify-center px-0")}>
+      >          <div className={cn("flex h-16 items-center gap-2 border-b border-border/60 px-4", collapsed && "justify-center px-0")}>
           <div className="grid size-8 shrink-0 place-items-center rounded-lg bg-gradient-to-br from-primary to-[#5B5FE6] text-white shadow-md shadow-primary/20">
             <ListChecks className="size-4" />
           </div>
@@ -368,7 +368,7 @@ export function AppShell({
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Topbar — mobile: hamburger + brand + page title + search + bell.
             Desktop: search + bell only (the sidebar already carries the nav). */}
-        <header className="app-chrome flex h-14 shrink-0 items-center gap-1.5 border-b border-border/60 px-2 md:gap-2 md:px-4">
+        <header className="app-chrome sticky top-0 z-30 flex h-16 shrink-0 items-center gap-1.5 border-b border-border/60 px-2 shadow-[0_8px_30px_-24px_rgba(15,23,42,0.35)] md:gap-2 md:px-5">
           <Sheet open={navOpen} onOpenChange={setNavOpen}>
             <SheetTrigger asChild>
               <Button

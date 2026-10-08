@@ -20,7 +20,7 @@ import { AIInsightStrip } from "@/components/ai/AIInsightStrip";
  */
 export default function Dashboard() {
   return (
-    <div className="space-y-6">
+    <div className="dashboard-page space-y-6">
       <WorkspaceRouter />
       {/*
         Phase 10.5 — one compact entry point for the external-AI plan import.

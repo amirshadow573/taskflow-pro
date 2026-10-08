@@ -755,3 +755,112 @@ summary::marker {
 .ui-num {
   font-variant-numeric: tabular-nums;
 }
+
+
+/* ================================================================
+   PREMIUM UI PASS — presentation-only layer
+   Keeps the existing routes, data flow, actions and component
+   hierarchy intact. These rules only refine spacing, depth,
+   hierarchy and responsive surfaces.
+   ================================================================ */
+
+.dashboard-page {
+  position: relative;
+  isolation: isolate;
+}
+.dashboard-page::before {
+  content: "";
+  position: absolute;
+  inset-inline: 3%;
+  top: 0;
+  height: 220px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(ellipse at 50% 0%, rgba(59,130,246,.09), transparent 68%);
+}
+.dashboard-page .ui-surface {
+  border-color: color-mix(in oklab, var(--border) 78%, #ffffff 22%);
+  box-shadow:
+    0 1px 2px rgba(15,23,42,.03),
+    0 14px 36px -24px rgba(37,99,235,.28),
+    inset 0 1px 0 rgba(255,255,255,.8);
+}
+.dashboard-page .ui-surface:hover {
+  border-color: color-mix(in oklab, var(--primary) 24%, var(--border));
+}
+.dashboard-page .workspace-layout > header {
+  position: relative;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid color-mix(in oklab, var(--border) 65%, transparent);
+  border-radius: 1.25rem;
+  background: linear-gradient(135deg, rgba(255,255,255,.78), rgba(255,255,255,.42));
+  box-shadow: 0 14px 36px -28px rgba(37,99,235,.35);
+  backdrop-filter: blur(10px);
+}
+.dark .dashboard-page .workspace-layout > header {
+  background: linear-gradient(135deg, rgba(23,34,58,.72), rgba(15,23,42,.48));
+  border-color: rgba(71,105,158,.28);
+}
+.dashboard-page .workspace-layout > header::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 1.15rem;
+  bottom: -1px;
+  width: 72px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--primary), #6366f1);
+}
+.workspace-layout > header .rounded-full {
+  box-shadow: 0 6px 18px -12px rgba(37,99,235,.65);
+}
+
+.landing-page {
+  color-scheme: light;
+}
+.landing-page .ui-surface {
+  border-radius: 1.35rem;
+  border-color: rgba(148,163,184,.22);
+  box-shadow:
+    0 1px 2px rgba(15,23,42,.025),
+    0 18px 45px -34px rgba(37,99,235,.34),
+    inset 0 1px 0 rgba(255,255,255,.72);
+  transition: transform .28s cubic-bezier(.22,1,.36,1),
+              box-shadow .28s ease,
+              border-color .28s ease;
+}
+.landing-page .ui-surface:hover {
+  transform: translateY(-2px);
+  border-color: rgba(96,165,250,.45);
+  box-shadow:
+    0 2px 4px rgba(15,23,42,.035),
+    0 24px 52px -34px rgba(37,99,235,.42),
+    inset 0 1px 0 rgba(255,255,255,.9);
+}
+.landing-page section {
+  scroll-margin-top: 5rem;
+}
+.landing-page h1,
+.landing-page h2 {
+  text-wrap: balance;
+}
+.landing-page header {
+  transition: background-color .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.landing-page .btn-glow {
+  border-radius: .9rem;
+}
+.landing-page .ui-icon-tile {
+  border-radius: .9rem;
+}
+@media (max-width: 767.98px) {
+  .dashboard-page::before { display: none; }
+  .dashboard-page .workspace-layout > header {
+    padding: .9rem;
+    border-radius: 1rem;
+  }
+  .dashboard-page .workspace-layout > header::after { inset-inline-start: .9rem; }
+  .landing-page .ui-surface:hover {
+    transform: none;
+  }
+}
