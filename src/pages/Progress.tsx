@@ -260,8 +260,8 @@ export default function ProgressPage() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={Array.from({length:6},(_,i)=>{const d=new Date(); d.setMonth(d.getMonth()-(5-i)); const j=toJalaliDate(d); const prefix=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`; return {label:["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"][j.jm-1],count:done.filter(t=>t.completedAt && new Date(t.completedAt).toISOString().startsWith(prefix)).length};})}>
                   <CartesianGrid stroke="var(--border)" strokeDasharray="3 5" vertical={false}/>
-                  <XAxis dataKey="label" tick={{fontSize:10,fill:"var(--muted-foreground")}} axisLine={false} tickLine={false}/>
-                  <YAxis allowDecimals={false} tick={{fontSize:10,fill:"var(--muted-foreground")}} axisLine={false} tickLine={false}/>
+                  <XAxis dataKey="label" tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
+                  <YAxis allowDecimals={false} tick={{fontSize:10,fill:"var(--muted-foreground)"}} axisLine={false} tickLine={false}/>
                   <Tooltip contentStyle={{background:"var(--popover)",border:"1px solid var(--border)",borderRadius:12,fontSize:11}}/>
                   <Bar dataKey="count" name="تکمیل‌شده" fill="#6366f1" radius={[7,7,0,0]} maxBarSize={32}/>
                 </BarChart>

@@ -156,7 +156,7 @@ export function TimelineBoard() {
               </div>
             ))}
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-x-2 px-1 text-[11px] text-slate-500 dark:text-slate-400"><span className="font-bold text-slate-800 dark:text-slate-200">{periodLabel}</span><span aria-hidden="true">·</span><span>بازه کاری {toFa(tl.prefs.dayStart)} تا {toFa(tl.prefs.dayEnd)}</span></div>
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 px-1 text-[11px] text-slate-500 dark:text-slate-400"><span className="font-bold text-slate-800 dark:text-slate-200">{periodLabel}</span><span aria-hidden="true">·</span><span>چرخه روزانه از ۰۵:۰۰ تا ۰۵:۰۰ روز بعد</span></div>
         </div>
       </div>
 
