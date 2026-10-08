@@ -56,6 +56,12 @@ export const TimelineActivityCard = forwardRef<
   const start = preview?.start ?? activity.start;
   const end = preview?.end ?? activity.end;
   const color = TIMELINE_COLORS[activity.colorKey];
+  const gradientByColor: Record<string, string> = {
+    blue: "from-blue-500 to-blue-300", indigo: "from-indigo-500 to-indigo-300", violet: "from-violet-500 to-violet-300", purple: "from-purple-500 to-purple-300",
+    pink: "from-pink-500 to-pink-300", rose: "from-rose-500 to-rose-300", red: "from-red-500 to-red-300", orange: "from-orange-500 to-orange-300",
+    amber: "from-amber-500 to-amber-300", yellow: "from-yellow-500 to-yellow-300", green: "from-green-500 to-green-300", emerald: "from-emerald-500 to-emerald-300",
+    teal: "from-teal-500 to-teal-300", cyan: "from-cyan-500 to-cyan-300", sky: "from-sky-500 to-sky-300", slate: "from-slate-500 to-slate-300",
+  };
   const density = blockDensity(activity.height);
 
   const subtitle =
@@ -83,7 +89,7 @@ export const TimelineActivityCard = forwardRef<
     <div
       ref={ref}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-[10px] border transition-shadow",
+        "group relative flex flex-col overflow-hidden rounded-2xl border border-white/70 shadow-[0_8px_22px_-12px_rgba(15,23,42,.32)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_-14px_rgba(15,23,42,.38)] dark:border-white/10",
         color.surface,
         color.surfaceDark,
         isDragging
@@ -105,14 +111,8 @@ export const TimelineActivityCard = forwardRef<
         width: `${activity.widthPct}%`,
       }}
     >
-      {/* Duration colour bar on the reading-start edge (§3) */}
-      <span
-        aria-hidden="true"
-        className={cn(
-          "absolute inset-y-0 start-0 w-[3px]",
-          color.swatch,
-        )}
-      />
+      <span aria-hidden="true" className={cn("absolute inset-x-0 top-0 h-2 bg-gradient-to-r", gradientByColor[activity.colorKey] ?? "from-slate-500 to-slate-300")} />
+      <span aria-hidden="true" className={cn("absolute inset-y-2 start-0 w-1 rounded-e-full", color.swatch)} />
 
       {/* Resize handles — desktop pointer devices only. Touch users get the
           equivalent time fields in the detail sheet (§42). */}
@@ -140,7 +140,7 @@ export const TimelineActivityCard = forwardRef<
         onClick={() => onOpen(activity)}
         onPointerDown={onPointerDownBody}
         className={cn(
-          "flex min-h-0 flex-1 cursor-grab flex-col gap-0.5 px-2.5 py-1.5 ps-3 text-start active:cursor-grabbing",
+          "flex min-h-0 flex-1 cursor-grab flex-col gap-1 px-2.5 pb-2 pt-3.5 ps-3 text-start active:cursor-grabbing",
           density.compact && "py-1",
         )}
         title={`${activity.title} — ${range} · ${statusLabel}`}
@@ -209,7 +209,7 @@ export const TimelineActivityCard = forwardRef<
 
       {/* In-progress / missed — text chip, so state is never colour-only */}
       {stateCue && !activity.taskDone && density.showSubtitle && (
-        <span className="pointer-events-none absolute top-1 end-1 rounded-md bg-white/75 px-1 text-[9px] font-bold leading-4 ring-1 ring-black/5 dark:bg-black/40">
+        <span className="pointer-events-none absolute top-1 end-1 rounded-md bg-white/80 px-1.5 text-[9px] font-bold leading-4 ring-1 ring-black/5 dark:bg-black/40">
           {stateCue}
         </span>
       )}

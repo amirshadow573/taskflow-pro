@@ -12,7 +12,7 @@ import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Button } from "@/components/ui/button";
-import { CalendarPlus, ChevronLeft, ChevronRight } from "lucide-react";
+import { CalendarDays, CalendarPlus, CheckCircle2, ChevronLeft, ChevronRight, Clock3, ListChecks } from "lucide-react";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
 import { useTimeline, type TimelineView } from "@/hooks/use-timeline";
 import { toFa, formatJalaliFull } from "@/lib/persian";
@@ -103,6 +103,10 @@ export function TimelineBoard() {
     return total;
   }, [tl.byDay, tl.dayKeys]);
 
+  const visibleActivities = useMemo(() => tl.dayKeys.flatMap((day) => tl.byDay.get(day) ?? []), [tl.byDay, tl.dayKeys]);
+  const taskCount = visibleActivities.filter((a) => Boolean(a.taskId)).length;
+  const completedCount = visibleActivities.filter((a) => a.taskDone).length;
+
   /**
    * Completion writes to the REAL task through the shared workspace context,
    * which is the single path every other task surface uses. The Execution
@@ -121,83 +125,38 @@ export function TimelineBoard() {
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {/* ---- Controls (§5, §6, §31) ---- */}
-      <div className="app-chrome shrink-0 border-b border-border/60 px-3 py-2 md:px-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-sm font-extrabold">برنامه زمانی</h1>
-
-          <div className="ms-auto flex items-center gap-1">
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-9"
-              aria-label={view === "week" ? "هفته قبل" : "روز قبل"}
-              onClick={() => shift(-1)}
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-9 px-2.5 text-xs"
-              onClick={() => setAnchor(todayKey())}
-            >
-              امروز
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="size-9"
-              aria-label={view === "week" ? "هفته بعد" : "روز بعد"}
-              onClick={() => shift(1)}
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
+      <div className="shrink-0 border-b border-slate-200/80 bg-[#f7f8fc] px-3 pb-3 pt-3 dark:border-white/10 dark:bg-slate-950/70 md:px-5 md:pb-4">
+        <div className="mx-auto max-w-[1500px]">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="me-auto">
+              <p className="text-[10px] font-black tracking-[0.16em] text-blue-600">TIMELINE</p>
+              <h1 className="mt-1 text-xl font-black tracking-tight text-slate-950 dark:text-white">برنامه زمانی</h1>
+            </div>
+            <div className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-slate-900">
+              <Button variant="ghost" size="icon" className="size-8 rounded-lg" aria-label={view === "week" ? "هفته قبل" : "روز قبل"} onClick={() => shift(-1)}><ChevronRight className="size-4" /></Button>
+              <Button variant="ghost" size="sm" className="h-8 rounded-lg px-2.5 text-xs font-bold" onClick={() => setAnchor(todayKey())}>امروز</Button>
+              <Button variant="ghost" size="icon" className="size-8 rounded-lg" aria-label={view === "week" ? "هفته بعد" : "روز بعد"} onClick={() => shift(1)}><ChevronLeft className="size-4" /></Button>
+            </div>
+            <div role="tablist" aria-label="نمای خط زمانی" className="flex items-center gap-1 rounded-xl border border-slate-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-slate-900">
+              {(["day", "week"] as const).map((v) => (
+                <button key={v} type="button" role="tab" aria-selected={view === v} onClick={() => setView(v)} className={cn("min-h-8 rounded-lg px-3 text-xs font-bold transition", view === v ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5")}>{v === "day" ? "روز" : "هفته"}</button>
+              ))}
+            </div>
+            <Button size="sm" className="h-10 rounded-xl px-4 shadow-sm" onClick={() => setSheet({ mode: "create", draft: { day: anchor, start: 9 * 60, end: 10 * 60 } })}><CalendarPlus className="size-4" />افزودن برنامه</Button>
           </div>
-
-          {/* Day / Week switcher — the anchor date is preserved (§6) */}
-          <div
-            role="tablist"
-            aria-label="نمای خط زمانی"
-            className="flex items-center gap-0.5 rounded-xl border border-border/60 p-0.5"
-          >
-            {(["day", "week"] as const).map((v) => (
-              <button
-                key={v}
-                type="button"
-                role="tab"
-                aria-selected={view === v}
-                onClick={() => setView(v)}
-                className={cn(
-                  "min-h-9 rounded-lg px-3 text-xs font-bold transition-colors",
-                  view === v ? "ui-nav-active" : "text-muted-foreground hover:bg-accent/60",
-                )}
-              >
-                {v === "day" ? "روز" : "هفته"}
-              </button>
+          <div className="mt-3 grid grid-cols-2 gap-2 md:grid-cols-4">
+            {[
+              { label: "کل برنامه‌ها", value: visibleActivities.length, icon: CalendarDays },
+              { label: "کارهای زمان‌بندی‌شده", value: taskCount, icon: ListChecks },
+              { label: "انجام‌شده", value: completedCount, icon: CheckCircle2 },
+              { label: "زمان برنامه‌ریزی‌شده", value: toFa(durationFa(scheduledMinutes)), icon: Clock3 },
+            ].map((stat) => (
+              <div key={stat.label} className="rounded-2xl border border-slate-200/90 bg-white px-4 py-3 shadow-[0_8px_24px_-18px_rgba(15,23,42,.35)] dark:border-white/10 dark:bg-slate-900">
+                <div className="flex items-center gap-2.5"><span className="grid size-8 place-items-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"><stat.icon className="size-4" /></span><div className="min-w-0"><p className="truncate text-[10px] font-semibold text-slate-500 dark:text-slate-400">{stat.label}</p><p className="mt-0.5 truncate text-base font-black text-slate-900 dark:text-white">{toFa(String(stat.value))}</p></div></div>
+              </div>
             ))}
           </div>
-
-          <Button
-            size="sm"
-            className="h-9"
-            onClick={() =>
-              setSheet({ mode: "create", draft: { day: anchor, start: 9 * 60, end: 10 * 60 } })
-            }
-          >
-            <CalendarPlus className="size-4" />
-            افزودن برنامه
-          </Button>
-        </div>
-
-        <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-[11px] text-muted-foreground">
-          <span className="font-semibold text-foreground">{periodLabel}</span>
-          <span aria-hidden="true">·</span>
-          <span>زمان‌بندی‌شده: {toFa(durationFa(scheduledMinutes))}</span>
-          <span className="hidden md:inline" aria-hidden="true">·</span>
-          <span className="hidden md:inline">
-            بازه کاری: {toFa(`${tl.prefs.dayStart} تا ${tl.prefs.dayEnd}`)}
-          </span>
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 px-1 text-[11px] text-slate-500 dark:text-slate-400"><span className="font-bold text-slate-800 dark:text-slate-200">{periodLabel}</span><span aria-hidden="true">·</span><span>بازه کاری {toFa(tl.prefs.dayStart)} تا {toFa(tl.prefs.dayEnd)}</span></div>
         </div>
       </div>
 

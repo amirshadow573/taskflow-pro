@@ -425,10 +425,10 @@ export function TimelineGrid({
           the pinned day header stay put while the grid pans. */}
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-auto overscroll-contain bg-app-bg"
+        className="min-h-0 flex-1 overflow-auto overscroll-contain bg-[#f7f8fc] p-3 dark:bg-slate-950 md:p-4"
       >
         <div
-          className="grid"
+          className="grid overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_18px_50px_-35px_rgba(15,23,42,.35)] dark:border-white/10 dark:bg-slate-900"
           style={{
             gridTemplateColumns: `${AXIS_PX}px repeat(${columns}, minmax(0, 1fr))`,
             gridTemplateRows: `auto ${height}px`,
@@ -438,7 +438,7 @@ export function TimelineGrid({
           {/* corner */}
           <div
             style={{ gridColumn: 1, gridRow: 1 }}
-            className="sticky start-0 top-0 z-30 border-e border-b border-border/60 bg-app-bg py-2 text-center text-[10px] font-bold text-muted-foreground"
+            className="sticky start-0 top-0 z-30 border-e border-b border-slate-200 bg-white py-3 text-center text-[9px] font-black text-slate-400 dark:border-white/10 dark:bg-slate-900 dark:text-slate-500"
           >
             ساعت
           </div>
@@ -452,14 +452,14 @@ export function TimelineGrid({
                 key={day}
                 style={{ gridColumn: i + 2, gridRow: 1 }}
                 className={cn(
-                  "relative sticky top-0 z-20 border-e border-b border-border/60 bg-app-bg px-1 py-2 text-center last:border-e-0",
-                  isToday && "bg-primary/[0.07]",
+                  "relative sticky top-0 z-20 border-e border-b border-slate-200 bg-white px-1 py-3 text-center last:border-e-0 dark:border-white/10 dark:bg-slate-900",
+                  isToday && "bg-blue-50/80 dark:bg-blue-500/[0.08]",
                 )}
               >
                 <div
                   className={cn(
                     "truncate text-[11px] font-semibold leading-4",
-                    isToday ? "text-primary" : "text-muted-foreground",
+                    isToday ? "text-blue-600" : "text-slate-400 dark:text-slate-500",
                   )}
                 >
                   {WEEKDAYS_SHORT[d.getDay()]}
@@ -467,7 +467,7 @@ export function TimelineGrid({
                 <div
                   className={cn(
                     "truncate text-[13px] font-extrabold leading-5",
-                    isToday ? "text-primary" : "text-foreground",
+                    isToday ? "text-blue-700 dark:text-blue-300" : "text-slate-800 dark:text-slate-200",
                   )}
                 >
                   {formatJalaliShort(d)}
@@ -475,7 +475,7 @@ export function TimelineGrid({
                 {isToday && (
                   <span
                     aria-hidden="true"
-                    className="absolute inset-x-0 bottom-0 h-[3px] bg-primary"
+                    className="absolute inset-x-3 bottom-0 h-[3px] rounded-t-full bg-blue-600"
                   />
                 )}
               </div>
@@ -485,7 +485,7 @@ export function TimelineGrid({
           {/* time axis (Layer 3 — §2) */}
           <div
             style={{ gridColumn: 1, gridRow: 2 }}
-            className="sticky start-0 z-10 border-e border-border/70 bg-app-bg"
+            className="sticky start-0 z-10 border-e border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900"
           >
             {lines.map((l) => (
               <div
@@ -511,8 +511,8 @@ export function TimelineGrid({
                 key={day}
                 style={{ gridColumn: i + 2, gridRow: 2 }}
                 className={cn(
-                  "relative border-e border-border/60 last:border-e-0",
-                  isToday && "bg-primary/[0.03]",
+                  "relative border-e border-slate-200/80 last:border-e-0 dark:border-white/10",
+                  isToday && "bg-blue-50/[0.22] dark:bg-blue-500/[0.025]",
                 )}
               >
                 {/* grid lines + click/drag-to-create surface (§7, §10, §28) */}
@@ -555,9 +555,9 @@ export function TimelineGrid({
                     style={{ top: `${minutesToY(now - win.start)}px` }}
                     aria-hidden="true"
                   >
-                    <span className="size-1.5 shrink-0 rounded-full bg-destructive/80" />
-                    <span className="h-px flex-1 bg-destructive/45" />
-                    <span className="shrink-0 rounded-md bg-destructive/90 px-1 text-[9px] font-bold leading-4 text-white">
+                    <span className="size-1.5 shrink-0 rounded-full bg-rose-500 shadow-[0_0_0_3px_rgba(244,63,94,.12)]" />
+                    <span className="h-px flex-1 bg-rose-400/50" />
+                    <span className="shrink-0 rounded-md bg-rose-500 px-1 text-[9px] font-bold leading-4 text-white">
                       {toFa(timeFa(now))}
                     </span>
                   </div>
