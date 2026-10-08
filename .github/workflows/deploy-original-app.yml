@@ -30,7 +30,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Deploy Convex backend and build frontend
+      - name: Deploy Convex backend, generate types, and build frontend
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
         run: |
@@ -38,7 +38,7 @@ jobs:
             echo "::error::Missing GitHub Actions secret CONVEX_DEPLOY_KEY. Add a Convex production deploy key for the original app."
             exit 1
           fi
-          npx convex deploy --cmd "npm run build" --cmd-url-env-var-name VITE_CONVEX_URL
+          npx convex deploy --cmd "npx convex codegen && npm run build" --cmd-url-env-var-name VITE_CONVEX_URL
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
