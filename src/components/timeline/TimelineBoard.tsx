@@ -124,7 +124,7 @@ export function TimelineBoard() {
   );
 
   return (
-    <div className="flex h-full min-h-0 flex-col">
+    <div className="flex min-h-0 flex-col md:h-full">
       <div className="shrink-0 border-b border-slate-200/80 bg-[#f7f8fc] px-3 pb-3 pt-3 dark:border-white/10 dark:bg-slate-950/70 md:px-5 md:pb-4">
         <div className="mx-auto max-w-[1500px]">
           <div className="flex flex-wrap items-center gap-2">

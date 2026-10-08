@@ -425,7 +425,7 @@ export function TimelineGrid({
           the pinned day header stay put while the grid pans. */}
       <div
         ref={scrollRef}
-        className="min-h-0 flex-1 overflow-auto overscroll-contain bg-[#f7f8fc] p-3 dark:bg-slate-950 md:p-4"
+        className="min-h-0 flex-1 overflow-x-auto overflow-y-clip overscroll-x-contain bg-[#f7f8fc] p-3 dark:bg-slate-950 md:overflow-auto md:overscroll-contain md:p-4"
       >
         <div
           className="grid overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-[0_18px_50px_-35px_rgba(15,23,42,.35)] dark:border-white/10 dark:bg-slate-900"
