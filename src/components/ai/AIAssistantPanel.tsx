@@ -40,6 +40,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { toFa } from "@/lib/persian";
 import { cn } from "@/lib/utils";
 import type { ValidatedAction } from "@/lib/ai/types";
+import { isTestMode } from "@/lib/personas";
 
 /* ------------------------------------------------------------------ */
 /* Props                                                               */
@@ -56,8 +57,9 @@ export function AIAssistantBody({
   initialPrompt?: string;
   onClose?: () => void;
 }) {
-  const status = useQuery(api.ai.status);
-  const history = useQuery(api.ai.history, { limit: 30 });
+  const guestMode = isTestMode();
+  const status = useQuery(api.ai.status, guestMode ? "skip" : {});
+  const history = useQuery(api.ai.history, guestMode ? "skip" : { limit: 30 });
   const ask = useAction(api.ai.ask);
   const recordTurn = useMutation(api.ai.recordTurn);
   const applyProposal = useMutation(api.ai.applyProposal);
