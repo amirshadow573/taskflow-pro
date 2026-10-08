@@ -307,570 +307,583 @@ export default function Landing() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 24);
+    const h = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", h, { passive: true });
     return () => window.removeEventListener("scroll", h);
   }, []);
 
   return (
-    <div className="landing-page relative min-h-svh" dir="rtl">
-      {/* One continuous, flat #F3F4F6 canvas — painted by .landing-page in index.css.
-          No mesh gradients, no grid layer, no orbs, no fade band (§5, §32). */}
+    <div className="landing-page min-h-svh overflow-x-hidden bg-[#f7f8fc] text-slate-950 dark:bg-[#080d18] dark:text-white" dir="rtl">
+      {/* Ambient background: intentionally subtle, never competing with product UI. */}
+      <div className="pointer-events-none fixed inset-0 -z-0 overflow-hidden" aria-hidden="true">
+        <div className="absolute -right-40 top-24 h-[32rem] w-[32rem] rounded-full bg-blue-500/[0.06] blur-3xl" />
+        <div className="absolute -left-48 top-[42rem] h-[30rem] w-[30rem] rounded-full bg-indigo-500/[0.045] blur-3xl" />
+      </div>
 
-      {/* ═══════════ HEADER ═══════════ */}
+      {/* ───────── Floating SaaS header ───────── */}
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "border-b border-border/60 bg-background/85 shadow-sm backdrop-blur-xl"
-            : "bg-transparent"
+        className={`fixed inset-x-0 top-0 z-50 px-3 pt-3 transition-all duration-300 sm:px-5 ${
+          scrolled ? "pt-2" : "pt-3"
         }`}
       >
-        <div className="flex h-14 w-full items-center justify-between px-[4%] sm:h-16">
-          <Link to="/" className="flex items-center gap-2" aria-label="تسک‌لی — صفحه اصلی">
-            <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
+        <div
+          className={`mx-auto flex h-14 max-w-7xl items-center justify-between rounded-2xl border px-2.5 shadow-[0_16px_45px_-30px_rgba(15,23,42,.45)] backdrop-blur-xl transition-all sm:h-16 sm:px-3 ${
+            scrolled
+              ? "border-slate-200/80 bg-white/92 dark:border-white/10 dark:bg-slate-950/88"
+              : "border-white/80 bg-white/78 dark:border-white/10 dark:bg-slate-950/72"
+          }`}
+        >
+          <Link to="/" className="flex items-center gap-2.5 rounded-xl px-2 py-1.5">
+            <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-lg shadow-blue-600/20">
               <ListChecks className="size-4.5" aria-hidden="true" />
             </span>
-            <span className="text-base font-extrabold tracking-tight">تسک‌لی</span>
+            <span className="text-base font-black tracking-tight sm:text-lg">تسک‌لی</span>
           </Link>
 
-          <nav aria-label="ناوبری اصلی" className="hidden items-center gap-0.5 lg:flex">
+          <nav aria-label="ناوبری اصلی" className="hidden items-center gap-1 lg:flex">
             {NAV_ITEMS.map((n) => (
               <a
                 key={n.href}
                 href={n.href}
-                className="rounded-lg px-2.5 py-2 text-[13px] font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+                className="rounded-xl px-3 py-2 text-[12px] font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-950 dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white"
               >
                 {n.label}
               </a>
             ))}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {!isLoading && isAuthenticated ? (
-              <Button size="sm" onClick={startCta}>
+              <Button onClick={startCta} className="h-10 rounded-xl px-4 text-xs font-bold sm:px-5 sm:text-sm">
                 ورود به فضای کاری
+                <ArrowLeft className="me-1.5 size-4" aria-hidden="true" />
               </Button>
             ) : (
               <>
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm" className="hidden sm:inline-flex">
-                    ورود
-                  </Button>
+                <Link to="/auth" className="hidden sm:block">
+                  <Button variant="ghost" className="h-10 rounded-xl px-4 text-xs font-bold">ورود</Button>
                 </Link>
-                <Button size="sm" onClick={startCta}>
+                <Button onClick={startCta} className="h-10 rounded-xl px-4 text-xs font-bold sm:px-5 sm:text-sm">
                   شروع رایگان
+                  <ArrowLeft className="me-1.5 size-4" aria-hidden="true" />
                 </Button>
               </>
             )}
             <button
-              onClick={() => setMobileOpen(!mobileOpen)}
-              className="grid size-9 place-items-center rounded-lg hover:bg-muted lg:hidden"
+              onClick={() => setMobileOpen((v) => !v)}
+              className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white/70 lg:hidden dark:border-white/10 dark:bg-white/5"
               aria-label={mobileOpen ? "بستن منو" : "باز کردن منو"}
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav"
             >
               <div className="flex flex-col gap-1">
-                <span className={`h-0.5 w-4 rounded bg-foreground transition-transform ${mobileOpen ? "translate-y-1.5 rotate-45" : ""}`} />
-                <span className={`h-0.5 w-4 rounded bg-foreground transition-opacity ${mobileOpen ? "opacity-0" : ""}`} />
-                <span className={`h-0.5 w-4 rounded bg-foreground transition-transform ${mobileOpen ? "-translate-y-1.5 -rotate-45" : ""}`} />
+                <span className={`h-0.5 w-4 rounded bg-current transition-transform ${mobileOpen ? "translate-y-1.5 rotate-45" : ""}`} />
+                <span className={`h-0.5 w-4 rounded bg-current transition-opacity ${mobileOpen ? "opacity-0" : ""}`} />
+                <span className={`h-0.5 w-4 rounded bg-current transition-transform ${mobileOpen ? "-translate-y-1.5 -rotate-45" : ""}`} />
               </div>
             </button>
           </div>
         </div>
 
         {mobileOpen && (
-          <div id="mobile-nav" className="border-t border-border bg-card px-[4%] pb-4 pt-2 lg:hidden">
-            <nav aria-label="ناوبری موبایل">
+          <div id="mobile-nav" className="mx-auto mt-2 max-w-7xl rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl shadow-slate-900/10 lg:hidden dark:border-white/10 dark:bg-slate-950">
+            <nav aria-label="ناوبری موبایل" className="grid gap-1">
               {NAV_ITEMS.map((n) => (
                 <a
                   key={n.href}
                   href={n.href}
                   onClick={() => setMobileOpen(false)}
-                  className="block rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+                  className="rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/5"
                 >
                   {n.label}
                 </a>
               ))}
             </nav>
-            <div className="mt-2 flex items-center gap-2 border-t border-border/60 pt-3">
-              <Link to="/auth" onClick={() => setMobileOpen(false)} className="flex-1">
-                <Button variant="outline" className="w-full">
-                  ورود
-                </Button>
+            <div className="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-2 dark:border-white/10">
+              <Link to="/auth" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full rounded-xl">ورود</Button>
               </Link>
-              <Button
-                className="flex-1"
-                onClick={() => {
-                  setMobileOpen(false);
-                  startCta();
-                }}
-              >
-                شروع رایگان
-              </Button>
+              <Button onClick={() => { setMobileOpen(false); startCta(); }} className="rounded-xl">شروع رایگان</Button>
             </div>
           </div>
         )}
       </header>
 
-      {/* ═══════════ HERO ═══════════ */}
-      <section className="px-[4%] pt-24 pb-12 sm:pt-32 sm:pb-16">
-        <Anim className="mx-auto max-w-4xl text-center">
-          <span className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-1.5 text-xs font-bold text-primary">
-            <Zap className="size-3.5" aria-hidden="true" />
-            سیستم عامل بهره‌وری شخصی
-          </span>
-          <h1 className="text-3xl leading-[1.35] font-extrabold tracking-tight sm:text-5xl sm:leading-[1.3]">
-            یک سیستم بهره‌وری که خودش را با زندگی و کار تو هماهنگ می‌کند
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-muted-foreground sm:text-lg">
-            کارها، پروژه‌ها، اهداف، برنامه روزانه، تقویم و روتین‌ها را در یک فضای کاری شخصی و منظم مدیریت کن.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Button size="lg" onClick={startCta} className="px-8 text-base">
-              شروع رایگان
-              <ArrowLeft className="me-1 size-4" aria-hidden="true" />
-            </Button>
-            <Button asChild size="lg" variant="outline" className="px-8 text-base">
-              <a href="#features">مشاهده امکانات</a>
-            </Button>
-          </div>
-          <div className="mt-4">
-            <Link to="/test-mode">
-              <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground">
-                <span className="ms-1 inline-block size-1.5 animate-pulse rounded-full bg-amber-500" aria-hidden="true" />
-                ورود به نسخه آزمایشی
-              </Button>
-            </Link>
-          </div>
-        </Anim>
-
-        {/* Hero product preview — large, wide, the main product showcase (§10–§11) */}
-        <Anim delay={0.12} className="mt-10 sm:mt-12">
-          <div id="hero-product" className="scroll-mt-24">
-            <HeroDashboard />
-          </div>
-        </Anim>
-
-        {/* Four small highlight cards under the hero (wireframe) */}
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {HERO_CARDS.map((c, i) => (
-            <Anim key={c.title} delay={i * 0.06} className="h-full">
-              <div className="ui-surface ui-surface-hover h-full rounded-2xl p-5">
-                <span className="ui-icon-tile mb-3 size-9">
-                  <c.icon className="size-4.5 text-primary" aria-hidden="true" />
+      {/* ───────── Hero ───────── */}
+      <main className="relative z-10">
+        <section className="mx-auto max-w-7xl px-4 pb-12 pt-28 sm:px-6 sm:pb-16 sm:pt-36 lg:px-8 lg:pt-40">
+          <div className="grid items-center gap-10 lg:grid-cols-[.86fr_1.14fr] lg:gap-14">
+            <Anim className="max-w-2xl">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-white/80 px-3.5 py-2 text-[11px] font-extrabold text-blue-700 shadow-sm dark:border-blue-400/20 dark:bg-blue-400/10 dark:text-blue-300">
+                <span className="grid size-5 place-items-center rounded-full bg-blue-600 text-white">
+                  <Zap className="size-3" aria-hidden="true" />
                 </span>
-                <h2 className="text-sm font-extrabold">{c.title}</h2>
-                <p className="mt-1.5 text-xs leading-5 text-muted-foreground">{c.desc}</p>
+                سیستم عامل بهره‌وری شخصی
+              </div>
+
+              <h1 className="max-w-2xl text-4xl font-black leading-[1.18] tracking-[-0.04em] sm:text-5xl lg:text-[4.15rem]">
+                کارها را فقط مدیریت نکن؛
+                <span className="block bg-gradient-to-l from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">
+                  روزت را طراحی کن.
+                </span>
+              </h1>
+
+              <p className="mt-6 max-w-xl text-base leading-8 text-slate-600 sm:text-lg dark:text-slate-300">
+                تسک‌لی کارها، پروژه‌ها، اهداف، زمان، روتین‌ها و پیشرفت را به یک جریان واحد تبدیل می‌کند؛
+                تا بدانی امروز چه چیزی مهم است و قدم بعدی چیست.
+              </p>
+
+              <div className="mt-8 flex flex-wrap items-center gap-3">
+                <Button onClick={startCta} size="lg" className="h-12 rounded-xl px-7 text-sm font-extrabold shadow-xl shadow-blue-600/20">
+                  شروع رایگان
+                  <ArrowLeft className="me-1.5 size-4" aria-hidden="true" />
+                </Button>
+                <Button asChild size="lg" variant="outline" className="h-12 rounded-xl border-slate-200 bg-white/70 px-6 text-sm font-bold dark:border-white/10 dark:bg-white/5">
+                  <a href="#features">مشاهده محصول</a>
+                </Button>
+                <Link to="/test-mode" className="basis-full text-xs font-semibold text-slate-500 hover:text-blue-600 sm:basis-auto dark:text-slate-400">
+                  <span className="ms-1 inline-block size-1.5 animate-pulse rounded-full bg-amber-500" />
+                  ورود مستقیم به نسخه آزمایشی
+                </Link>
+              </div>
+
+              <div className="mt-9 flex flex-wrap gap-x-7 gap-y-3 border-t border-slate-200/80 pt-5 text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-slate-400">
+                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-500" /> بدون پیچیدگی اضافه</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-500" /> دسکتاپ و موبایل</span>
+                <span className="flex items-center gap-2"><CheckCircle2 className="size-4 text-emerald-500" /> فضای کاری شخصی</span>
               </div>
             </Anim>
-          ))}
-        </div>
-      </section>
 
-      {/* ═══════════ FEATURE 01 — text | image ═══════════ */}
-      <FeatureSection
-        id="features"
-        label="داشبورد"
-        title="همه‌چیز مهمت را در یک فضای کاری ببین"
-        lead="کارهای امروز، پروژه‌ها، اهداف، برنامه زمانی و پیشرفتت را در یک فضای واحد کنار هم داشته باش تا همیشه بدانی چه چیزی مهم است و قدم بعدی چیست."
-        bullets={[
-          "کارهای مهم امروز",
-          "پروژه‌های فعال",
-          "اهداف",
-          "پیشرفت",
-          "برنامه زمانی",
-        ]}
-        cta={{ label: "داشبورد را ببین", href: "#hero-product" }}
-        media={<TodayPreview />}
-      />
-
-      {/* ═══════════ FEATURE 02 — image | text ═══════════ */}
-      <FeatureSection
-        id="chain"
-        label="از هدف تا اجرا"
-        title="از هدف بزرگ تا کاری که همین حالا باید انجام دهی"
-        lead="اهداف را به پروژه و پروژه‌ها را به کارهای قابل اجرا تبدیل کن؛ بدون اینکه ارتباط بین مسیر کلی و کارهای روزانه از بین برود."
-        bullets={[
-          "هر هدف به پروژه‌ها و پروژه‌ها به کارهای روزانه وصل است",
-          "کارهای زمان‌بندی‌شده مستقیم وارد برنامه روز می‌شوند",
-          "قدم بعدی همیشه مشخص است، نه فقط فهرست کارها",
-        ]}
-        media={<GoalsChainPreview />}
-      />
-
-      {/* ═══════════ FEATURE 03 — text | image ═══════════ */}
-      <FeatureSection
-        id="timeline"
-        label="برنامه زمانی"
-        title="برنامه روزت را روی زمان واقعی بچین"
-        lead="کارها فقط در یک لیست باقی نمی‌مانند. می‌توانی آن‌ها را روی زمان واقعی روز قرار دهی و ببینی هر ساعت از روزت برای چه کاری اختصاص داده شده است."
-        cta={{ label: "در یک سیستم کامل ببین", href: "#system" }}
-        media={<TimelinePreview />}
-      />
-
-      {/* ═══════════ FEATURE 04 — image | text ═══════════ */}
-      <FeatureSection
-        id="routines"
-        label="روتین‌ها"
-        title="روتین‌هایت را یک‌بار تعریف کن"
-        lead="کارهای تکرارشونده را به روتین تبدیل کن تا ساختار روزانه‌ات به‌صورت منظم وارد برنامه‌ریزی و جدول زمانی شود."
-        bullets={[
-          "الگوی هفتگی هر روتین با یک نگاه مشخص است",
-          "روتین‌های فعال در Timeline روز ظاهر می‌شوند",
-          "استمرار و تکمیل روزانه قابل پیگیری است",
-        ]}
-        cta={{ label: "شروع رایگان", onClick: startCta }}
-        media={<RoutinesPreview />}
-      />
-
-      {/* ═══════════ CENTERED HEADING + CHIPS + PRODUCT GRID ═══════════ */}
-      <section id="system" className="scroll-mt-20 border-t border-border/50 px-[4%] py-16 sm:py-20">
-        <CenteredHeading
-          title="یک سیستم کامل برای مدیریت بهره‌وری"
-          lead="ابزارهای مختلف بهره‌وری را به جای استفاده جداگانه، در یک سیستم یکپارچه کنار هم داشته باش."
-        />
-        <Anim delay={0.08} className="mt-8">
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {SYSTEM_CHIPS.map((c) => (
-              <span
-                key={c}
-                className="rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-bold shadow-sm"
-              >
-                {c}
-              </span>
-            ))}
-          </div>
-        </Anim>
-
-        <div className="mt-10 grid gap-5 md:grid-cols-2">
-          {[
-            { title: "کارها", desc: "اولویت، موعد و وضعیت هر کار در یک فهرست منظم", Preview: TasksPreview },
-            { title: "پروژه‌ها", desc: "پیشرفت، موعد و سلامت هر پروژه در یک نگاه", Preview: ProjectsPreview },
-            { title: "تقویم و Timeline", desc: "روزها و ساعت‌ها، از نمای ماهانه تا جدول زمانی", Preview: CalendarPreview },
-            { title: "پیشرفت", desc: "سطح، XP، استمرار و دستاوردهای تو", Preview: ProgressPreview },
-          ].map((b, i) => (
-            <Anim key={b.title} delay={0.06 * i} className="h-full">
-              <div className="h-full">
-                <b.Preview />
-                <div className="mt-3 px-1">
-                  <h3 className="text-base font-extrabold">{b.title}</h3>
-                  <p className="mt-1 text-xs leading-5 text-muted-foreground">{b.desc}</p>
+            <Anim delay={0.1} className="relative">
+              <div className="absolute -inset-5 -z-10 rounded-[2.5rem] bg-gradient-to-br from-blue-500/[0.10] via-indigo-500/[0.07] to-transparent blur-2xl" />
+              <div id="hero-product" className="scroll-mt-24 rounded-[1.75rem] border border-slate-200/90 bg-white p-2 shadow-[0_35px_90px_-45px_rgba(37,99,235,.55)] dark:border-white/10 dark:bg-slate-900/90 sm:p-3">
+                <HeroDashboard />
+              </div>
+              <div className="absolute -bottom-5 -start-3 hidden rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-xl shadow-slate-900/10 sm:block dark:border-white/10 dark:bg-slate-900">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-9 place-items-center rounded-xl bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
+                    <TrendingUp className="size-4" />
+                  </span>
+                  <span>
+                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">پیشرفت این هفته</span>
+                    <span className="block text-sm font-black">۵۸٪ <span className="text-emerald-500">+۱۲٪</span></span>
+                  </span>
                 </div>
               </div>
             </Anim>
-          ))}
-        </div>
-      </section>
+          </div>
 
-      {/* ═══════════ FEATURE 05 — text | image (planning) ═══════════ */}
-      <FeatureSection
-        id="planning"
-        label="برنامه‌ریزی"
-        title="برنامه‌ریزی که با شرایط واقعی تو هماهنگ است"
-        lead="برنامه‌ریزی فقط قرار دادن چند کار در یک لیست نیست؛ سیستم باید زمان، اولویت، ظرفیت، مهلت‌ها و شرایط واقعی تو را در نظر بگیرد."
-        bullets={[
-          "سطل‌های «باید انجام شود»، «مهم»، «انعطاف‌پذیر» و «برای روزهای بعد»",
-          "مهلت‌ها، اولویت‌ها و بار کاری روز در کنار هم",
-          "کارهای مسدود با دلیل مشخص، نه فقط یک هشدار",
-        ]}
-        cta={{ label: "برنامه امروزت را ببین", href: "#hero-product" }}
-        media={<PlanningPreview />}
-      />
-
-      {/* ═══════════ FEATURE 06 — image | text (analytics) ═══════════ */}
-      <FeatureSection
-        id="progress"
-        label="پیشرفت"
-        title="پیشرفتت را اندازه بگیر، نه فقط تعداد کارها را"
-        lead="با مشاهده روند پیشرفت، تمرکز، اجرای برنامه و میزان سازگاری برنامه با واقعیت، بفهم چه چیزی واقعاً به بهره‌وری تو کمک می‌کند."
-        bullets={[
-          "کارهای انجام‌شده و زمان تمرکز",
-          "استمرار و دقت اجرای برنامه",
-          "پیشرفت اهداف و سلامت پروژه‌ها",
-          "روند بهره‌وری در طول هفته",
-        ]}
-        mediaFirst
-        media={<AnalyticsPreview />}
-      />
-
-      {/* ═══════════ PERSONAS ═══════════ */}
-      <section id="personas" className="scroll-mt-20 border-t border-border/50 px-[4%] py-16 sm:py-20">
-        <CenteredHeading
-          title="یک سیستم، شش فضای کاری متفاوت"
-          lead="همه افراد به یک نوع داشبورد و یک نوع برنامه‌ریزی نیاز ندارند. سیستم بر اساس نقش و نیاز شما، فضای کاری متفاوتی ایجاد می‌کند."
-        />
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {PERSONAS.map((p, i) => (
-            <Anim key={p.name} delay={i * 0.05} className="h-full">
-              <div className="ui-surface h-full rounded-2xl p-5">
-                <div className="flex items-center gap-3">
-                  <span className="ui-icon-tile size-10 shrink-0">
-                    <p.icon className="size-5 text-primary" aria-hidden="true" />
-                  </span>
-                  <div className="min-w-0">
-                    <h3 className="text-sm font-extrabold">{p.name}</h3>
-                    <p className="truncate text-[11px] text-muted-foreground">{p.desc}</p>
+          <div className="mt-16 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {HERO_CARDS.map((c, i) => (
+              <Anim key={c.title} delay={i * 0.05} className="h-full">
+                <div className="group h-full rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-[0_12px_35px_-28px_rgba(15,23,42,.5)] transition hover:-translate-y-1 hover:border-blue-200 hover:bg-white hover:shadow-[0_20px_45px_-30px_rgba(37,99,235,.38)] dark:border-white/10 dark:bg-white/[0.035] dark:hover:border-blue-400/20">
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+                      <c.icon className="size-4.5" aria-hidden="true" />
+                    </span>
+                    <div>
+                      <h2 className="text-sm font-extrabold">{c.title}</h2>
+                      <p className="mt-0.5 text-[11px] leading-5 text-slate-500 dark:text-slate-400">{c.desc}</p>
+                    </div>
                   </div>
                 </div>
-                <p.Preview />
-              </div>
-            </Anim>
-          ))}
-        </div>
-      </section>
+              </Anim>
+            ))}
+          </div>
+        </section>
 
-      {/* ═══════════ PRICING ═══════════ */}
-      <section id="pricing" className="scroll-mt-20 px-[4%] py-16 sm:py-20">
-        <CenteredHeading
-          title="قیمت‌گذاری"
-          lead="با شروع رایگان وارد شو؛ نسخه حرفه‌ای و قابلیت‌های آینده به‌زودی اعلام می‌شوند."
-        />
-        <div className="mx-auto mt-10 grid max-w-6xl items-start gap-5 md:grid-cols-3">
-          {/* Free */}
-          <Anim className="h-full">
-            <div className="ui-surface flex h-full flex-col rounded-2xl p-4">
-              <div className="rounded-xl bg-muted/70 p-5 text-center dark:bg-white/5">
-                <h3 className="text-base font-extrabold">رایگان</h3>
-                <p className="mt-1 text-xs text-muted-foreground">برای شروع</p>
-                <p className="mt-3 text-3xl font-extrabold">رایگان</p>
-              </div>
-              <ul className="mt-5 space-y-2.5 px-2 text-sm">
-                {["کارها", "پروژه‌ها", "اهداف", "تقویم", "برنامه‌ریزی پایه"].map((f) => (
-                  <li key={f} className="flex items-center gap-2.5">
-                    <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-auto pt-6">
-                <Button className="w-full" size="lg" onClick={startCta}>
-                  شروع رایگان
-                </Button>
-              </div>
-            </div>
-          </Anim>
-
-          {/* Pro — emphasized */}
-          <Anim delay={0.08} className="h-full">
-            <div className="ui-surface relative flex h-full flex-col rounded-2xl p-4 ring-2 ring-primary">
-              <span className="absolute -top-3 start-1/2 -translate-x-1/2 rounded-full bg-primary px-3 py-1 text-[10px] font-bold text-white">
-                انتخاب حرفه‌ای‌ها
-              </span>
-              <div className="rounded-xl bg-primary p-5 text-center text-white">
-                <h3 className="text-base font-extrabold">حرفه‌ای</h3>
-                <p className="mt-1 text-xs text-white/80">برای بهره‌وری حرفه‌ای</p>
-                <p className="mt-3 text-3xl font-extrabold">حرفه‌ای</p>
-                <p className="mt-1 text-[11px] text-white/80">قیمت نهایی به‌زودی اعلام می‌شود</p>
-              </div>
-              <ul className="mt-5 space-y-2.5 px-2 text-sm">
-                {[
-                  "برنامه‌ریزی پیشرفته",
-                  "Timeline (برنامه زمانی)",
-                  "روتین‌ها",
-                  "تحلیل پیشرفت",
-                  "امکانات پیشرفته",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2.5">
-                    <CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden="true" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-auto pt-6">
-                <Button className="w-full" size="lg" onClick={startCta}>
-                  شروع نسخه حرفه‌ای
-                </Button>
-              </div>
-            </div>
-          </Anim>
-
-          {/* Future / Premium — neutral placeholder, no invented features or prices */}
-          <Anim delay={0.16} className="h-full">
-            <div className="ui-surface flex h-full flex-col rounded-2xl p-4">
-              <div className="rounded-xl bg-muted/70 p-5 text-center dark:bg-white/5">
-                <h3 className="text-base font-extrabold">آیندهٔ محصول</h3>
-                <p className="mt-1 text-xs text-muted-foreground">قابلیت‌های در حال توسعه</p>
-                <p className="mt-3 text-3xl font-extrabold text-muted-foreground">به‌زودی</p>
-              </div>
-              <ul className="mt-5 space-y-2.5 px-2 text-sm">
-                {[
-                  "لایه‌های جدید بهره‌وری",
-                  "یکپارچه‌سازی‌های بیشتر",
-                  "امکانات تیمی و سازمانی",
-                  "دستیار برنامه‌ریزی هوشمند — به‌زودی",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2.5 text-muted-foreground">
-                    <Sparkles className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-auto pt-6">
-                <Button variant="outline" className="w-full" size="lg" onClick={startCta}>
-                  اطلاع از زمان عرضه
-                </Button>
-              </div>
-            </div>
-          </Anim>
-        </div>
-      </section>
-
-      {/* ═══════════ INTEGRATIONS / ECOSYSTEM ═══════════ */}
-      <section id="integrations" className="scroll-mt-20 border-t border-border/50 px-[4%] py-16 sm:py-20">
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          <Anim>
-            <div className="max-w-xl">
-              <SectionLabel>یکپارچگی</SectionLabel>
-              <h2 className="text-2xl font-extrabold leading-snug tracking-tight sm:text-3xl lg:text-4xl">
-                همه بخش‌های بهره‌وری تو به هم متصل‌اند
-              </h2>
-              <span className="mt-4 block h-1 w-16 rounded-full bg-foreground/70" aria-hidden="true" />
-              <p className="mt-5 text-sm leading-7 text-muted-foreground sm:text-base">
-                اطلاعات بین بخش‌های مختلف سیستم گم نمی‌شود. کاری که ایجاد می‌کنی می‌تواند وارد برنامه‌ریزی شود؛
-                روتین‌ها می‌توانند در Timeline ظاهر شوند و اجرای کارها روی گزارش پیشرفت اثر بگذارد.
-              </p>
-              <div className="mt-7">
-                <Button size="lg" onClick={startCta}>
-                  شروع رایگان
-                  <ArrowLeft className="me-1 size-4" aria-hidden="true" />
-                </Button>
-              </div>
-            </div>
-          </Anim>
-          <Anim delay={0.12}>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {INTEGRATIONS.map((it) => (
-                <div
-                  key={it.label}
-                  className="ui-surface ui-surface-hover flex flex-col items-center gap-2 rounded-2xl p-4 text-center"
-                >
-                  <span className="ui-icon-tile size-10">
-                    <it.icon className="size-5 text-primary" aria-hidden="true" />
-                  </span>
-                  <span className="text-xs font-bold">{it.label}</span>
-                </div>
-              ))}
-            </div>
-          </Anim>
-        </div>
-      </section>
-
-      {/* ═══════════ FAQ ═══════════ */}
-      <section id="faq" className="scroll-mt-20 px-[4%] py-16 sm:py-20">
-        <CenteredHeading title="سوالات متداول" />
-        <div className="mx-auto mt-8 max-w-4xl space-y-3">
-          {FAQ_ITEMS.map(([q, a]) => (
-            <details key={q} className="ui-surface group rounded-2xl px-5 py-4">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold">
-                <span>{q}</span>
-                <span
-                  aria-hidden="true"
-                  className="grid size-6 shrink-0 place-items-center rounded-md bg-muted/60 text-base leading-none text-muted-foreground transition-transform group-open:rotate-45"
-                >
-                  +
-                </span>
-              </summary>
-              <p className="mt-3 text-sm leading-7 text-muted-foreground">{a}</p>
-            </details>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══════════ TESTIMONIALS (clearly marked placeholders) ═══════════ */}
-      <section id="testimonials" className="scroll-mt-20 border-t border-border/50 px-[4%] py-16 sm:py-20">
-        <CenteredHeading
-          title="چه چیزی برای کاربران مهم است؟"
-          lead="این کارت‌ها نمونه‌پیش‌نویس‌اند و جای نظرات واقعی کاربران را خالی نگه می‌دارند؛ نظرات واقعی پس از جمع‌آوری همین‌جا منتشر می‌شود."
-        />
-        <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {TESTIMONIALS.map((t, i) => (
-            <Anim key={t.role} delay={i * 0.05} className="h-full">
-              <figure className="ui-surface relative flex h-full flex-col rounded-2xl p-6">
-                <span className="absolute end-4 top-4 rounded-md bg-muted px-2 py-0.5 text-[9px] font-bold text-muted-foreground">
-                  متن نمونه
-                </span>
-                <blockquote className="flex-1 pt-6 text-sm leading-7 text-foreground">«{t.quote}»</blockquote>
-                <figcaption className="mt-5 flex items-center gap-3 border-t border-border/60 pt-4">
-                  <span
-                    className="grid size-10 shrink-0 place-items-center rounded-full bg-accent text-accent-foreground"
-                    aria-hidden="true"
-                  >
-                    <Users className="size-4.5" />
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-bold">کاربر نمونه</span>
-                    <span className="block text-[11px] text-muted-foreground">{t.role}</span>
-                  </span>
-                </figcaption>
-              </figure>
-            </Anim>
-          ))}
-        </div>
-      </section>
-
-      {/* ═══════════ FINAL CTA ═══════════ */}
-      <section className="px-[4%] pb-16 pt-4 sm:pb-20">
-        <Anim>
-          <div className="rounded-3xl bg-[#111827] px-6 py-14 text-center sm:py-16 dark:bg-white/10">
-            <h2 className="text-2xl font-extrabold text-white sm:text-4xl">
-              فضای بهره‌وری شخصی خودت را بساز
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-white/70 sm:text-base">
-              کارها را مدیریت کن، زمانت را برنامه‌ریزی کن و پیشرفتت را در یک سیستم واحد ببین.
+        {/* ───────── Product-first feature showcase ───────── */}
+        <section id="features" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <Anim className="mx-auto max-w-3xl text-center">
+            <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[10px] font-extrabold text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300">
+              PRODUCT EXPERIENCE
+            </span>
+            <h2 className="mt-4 text-3xl font-black tracking-tight sm:text-5xl">یک داشبورد زیبا کافی نیست؛<br className="hidden sm:block" /> جریان کار باید واضح باشد.</h2>
+            <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">
+              طراحی را حول چیزی ساخته‌ایم که هر روز می‌بینی: اولویت‌ها، کارهای امروز، زمان و پیشرفت.
             </p>
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-              <Button size="lg" onClick={startCta} className="px-8 text-base">
-                شروع رایگان
-                <ArrowLeft className="me-1 size-4" aria-hidden="true" />
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="border-white/40 bg-transparent px-8 text-base text-white hover:bg-white/10 hover:text-white"
-              >
-                <a href="#features">مشاهده امکانات</a>
-              </Button>
+          </Anim>
+
+          <div className="mt-12 grid gap-5 lg:grid-cols-12">
+            <Anim className="lg:col-span-7">
+              <div className="h-full overflow-hidden rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_28px_70px_-45px_rgba(15,23,42,.45)] dark:border-white/10 dark:bg-slate-900">
+                <TodayPreview />
+              </div>
+            </Anim>
+            <Anim delay={0.08} className="lg:col-span-5">
+              <div className="flex h-full flex-col justify-between rounded-[1.75rem] border border-slate-200 bg-white p-7 shadow-[0_28px_70px_-45px_rgba(15,23,42,.35)] dark:border-white/10 dark:bg-slate-900">
+                <div>
+                  <span className="grid size-11 place-items-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+                    <ListChecks className="size-5" />
+                  </span>
+                  <h3 className="mt-6 text-2xl font-black">امروز، بدون شلوغی</h3>
+                  <p className="mt-3 text-sm leading-7 text-slate-500 dark:text-slate-400">
+                    مهم‌ترین کارهای امروز را از میان پروژه‌ها و اهداف بیرون بکش؛ سپس اجرا را با زمان واقعی روز هماهنگ کن.
+                  </p>
+                  <ul className="mt-6 space-y-3">
+                    {["کارهای مهم و اولویت‌ها", "پروژه‌های فعال", "اهداف در مسیر", "نرخ تکمیل و استمرار"].map((x) => (
+                      <li key={x} className="flex items-center gap-2.5 text-sm font-semibold">
+                        <span className="grid size-5 place-items-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10">
+                          <CheckCircle2 className="size-3.5" />
+                        </span>
+                        {x}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <a href="#chain" className="mt-8 inline-flex w-fit items-center gap-2 text-sm font-extrabold text-blue-600 hover:text-blue-700">
+                  ببین چطور به هدف وصل می‌شود
+                  <ArrowLeft className="size-4" />
+                </a>
+              </div>
+            </Anim>
+          </div>
+        </section>
+
+        {/* ───────── Goal → execution workflow ───────── */}
+        <section id="chain" className="scroll-mt-24 border-y border-slate-200/70 bg-white/55 dark:border-white/10 dark:bg-white/[0.02]">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+              <Anim className="lg:col-span-5">
+                <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">GOAL → EXECUTE</span>
+                <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">از هدف بزرگ تا کاری که همین الان باید انجام شود.</h2>
+                <p className="mt-5 text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">
+                  مسیر بهره‌وری را در چند ابزار جدا نکن. هدف، پروژه، کار، برنامه و اجرا یک زنجیره قابل مشاهده می‌سازند.
+                </p>
+                <div className="mt-7 grid grid-cols-2 gap-3">
+                  {[
+                    ["اهداف", Target],
+                    ["پروژه‌ها", FolderKanban],
+                    ["کارها", ListChecks],
+                    ["زمان", Clock],
+                  ].map(([label, Icon]) => (
+                    <div key={label as string} className="rounded-2xl border border-slate-200 bg-white p-3.5 dark:border-white/10 dark:bg-white/[0.035]">
+                      <Icon className="size-4 text-blue-600 dark:text-blue-300" />
+                      <p className="mt-2 text-xs font-extrabold">{label as string}</p>
+                    </div>
+                  ))}
+                </div>
+              </Anim>
+              <Anim delay={0.1} className="lg:col-span-7">
+                <div className="rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_30px_80px_-50px_rgba(37,99,235,.5)] dark:border-white/10 dark:bg-slate-900">
+                  <GoalsChainPreview />
+                </div>
+              </Anim>
             </div>
           </div>
-        </Anim>
-      </section>
+        </section>
 
-      {/* ═══════════ FOOTER ═══════════ */}
-      <footer className="border-t border-border/60">
-        <div className="w-full px-[4%] py-14">
-          <h2 className="sr-only">پیوندهای پاورقی</h2>
-          <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:gap-y-10 lg:grid-cols-6">
-            <div className="col-span-2">
-              <div className="flex items-center gap-2.5">
-                <span className="grid size-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-                  <ListChecks className="size-5" aria-hidden="true" />
-                </span>
-                <span className="text-lg font-extrabold">تسک‌لی</span>
+        {/* ───────── Timeline + routines ───────── */}
+        <section id="timeline" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div className="grid gap-5 lg:grid-cols-2">
+            <Anim>
+              <div className="h-full rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_25px_70px_-48px_rgba(15,23,42,.4)] dark:border-white/10 dark:bg-slate-900">
+                <TimelinePreview />
               </div>
-              <p className="mt-3 max-w-xs text-sm leading-7 text-muted-foreground">
-                سیستم عامل بهره‌وری شخصی: کارها، برنامه زمانی، روتین‌ها و پیشرفت — همه در یک فضای کاری منظم.
+            </Anim>
+            <Anim delay={0.08}>
+              <div id="routines" className="h-full scroll-mt-24 rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_25px_70px_-48px_rgba(15,23,42,.4)] dark:border-white/10 dark:bg-slate-900">
+                <RoutinesPreview />
+              </div>
+            </Anim>
+          </div>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
+              <p className="text-xs font-black text-blue-600">TIMELINE</p>
+              <h3 className="mt-2 text-lg font-black">زمان را هم‌سطح کارها ببین.</h3>
+              <p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">کارهای زمان‌بندی‌شده روی روز واقعی می‌نشینند؛ نه در یک لیست بی‌زمان.</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-white/[0.035]">
+              <p className="text-xs font-black text-emerald-600">ROUTINES</p>
+              <h3 className="mt-2 text-lg font-black">چیزهای تکراری را از ذهنت خارج کن.</h3>
+              <p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-400">روتین‌ها یک‌بار تعریف می‌شوند و به برنامه و استمرار روزانه وصل می‌مانند.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── System modules ───────── */}
+        <section id="system" className="scroll-mt-24 bg-slate-950 text-white">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <Anim className="max-w-2xl">
+              <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[10px] font-black tracking-wide text-blue-200">THE SYSTEM</span>
+              <h2 className="mt-5 text-3xl font-black sm:text-5xl">یک سیستم واحد، نه هفت ابزار جدا.</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-400 sm:text-base">هر بخش نقش مشخصی دارد، اما اطلاعات بین آن‌ها جریان پیدا می‌کند.</p>
+            </Anim>
+
+            <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { title: "کارها", desc: "اولویت، وضعیت، موعد و اجرا", Preview: TasksPreview, icon: ListChecks },
+                { title: "پروژه‌ها", desc: "پیشرفت و سلامت پروژه", Preview: ProjectsPreview, icon: FolderKanban },
+                { title: "تقویم", desc: "روز، هفته و زمان‌بندی", Preview: CalendarPreview, icon: CalendarDays },
+                { title: "پیشرفت", desc: "XP، استمرار و روند بهره‌وری", Preview: ProgressPreview, icon: TrendingUp },
+              ].map((b, i) => (
+                <Anim key={b.title} delay={i * 0.05} className="h-full">
+                  <div className="h-full overflow-hidden rounded-2xl border border-white/10 bg-white/[0.055] p-2 transition hover:-translate-y-1 hover:border-blue-300/25 hover:bg-white/[0.075]">
+                    <b.Preview />
+                    <div className="p-3">
+                      <div className="flex items-center gap-2">
+                        <b.icon className="size-4 text-blue-300" />
+                        <h3 className="text-sm font-extrabold">{b.title}</h3>
+                      </div>
+                      <p className="mt-1 text-[11px] leading-5 text-slate-400">{b.desc}</p>
+                    </div>
+                  </div>
+                </Anim>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Planning ───────── */}
+        <section id="planning" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+            <Anim className="lg:col-span-5">
+              <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">PLANNING</span>
+              <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">برنامه‌ریزی برای دنیای واقعی.</h2>
+              <p className="mt-5 text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">
+                ظرفیت روز، مهلت‌ها، اولویت‌ها و کارهای انعطاف‌پذیر را کنار هم ببین تا برنامه‌ای بسازی که قابل اجرا باشد.
+              </p>
+              <Button onClick={startCta} className="mt-7 rounded-xl px-5 font-extrabold">
+                برنامه‌ریزی را تجربه کن
+                <ArrowLeft className="me-1.5 size-4" />
+              </Button>
+            </Anim>
+            <Anim delay={0.1} className="lg:col-span-7">
+              <div className="rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_30px_80px_-50px_rgba(37,99,235,.45)] dark:border-white/10 dark:bg-slate-900">
+                <PlanningPreview />
+              </div>
+            </Anim>
+          </div>
+        </section>
+
+        {/* ───────── Progress ───────── */}
+        <section id="progress" className="scroll-mt-24 border-y border-slate-200/70 bg-white/55 dark:border-white/10 dark:bg-white/[0.02]">
+          <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
+              <Anim className="lg:col-span-7">
+                <div className="rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_30px_80px_-50px_rgba(37,99,235,.45)] dark:border-white/10 dark:bg-slate-900">
+                  <AnalyticsPreview />
+                </div>
+              </Anim>
+              <Anim delay={0.1} className="lg:col-span-5">
+                <span className="text-[11px] font-black tracking-[0.16em] text-emerald-600">PROGRESS</span>
+                <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">پیشرفت را با شواهد ببین.</h2>
+                <p className="mt-5 text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">
+                  تعداد کارهای انجام‌شده فقط یک عدد است. روند تمرکز، اجرای برنامه، اهداف و استمرار تصویر کامل‌تری از بهره‌وری می‌سازند.
+                </p>
+                <div className="mt-7 grid grid-cols-2 gap-3">
+                  {[
+                    ["اجرای برنامه", "۷۶٪"],
+                    ["استمرار", "۱۲ روز"],
+                    ["تمرکز", "۴.۸ ساعت"],
+                    ["اهداف", "۷۰٪"],
+                  ].map(([l, v]) => (
+                    <div key={l} className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]">
+                      <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">{l}</span>
+                      <span className="mt-1 block text-xl font-black">{v}</span>
+                    </div>
+                  ))}
+                </div>
+              </Anim>
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Personas ───────── */}
+        <section id="personas" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <Anim className="max-w-3xl">
+            <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">PERSONALIZED WORKSPACE</span>
+            <h2 className="mt-4 text-3xl font-black sm:text-5xl">یک محصول؛ برای هر نفر، یک فضای کاری متفاوت.</h2>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">
+              دانشجو، کارمند، فریلنسر، مدیر یا کاربر شخصی نباید داشبورد یکسانی ببینند. ساختار فضای کاری بر اساس نیاز تغییر می‌کند.
+            </p>
+          </Anim>
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {PERSONAS.map((p, i) => (
+              <Anim key={p.name} delay={i * 0.04} className="h-full">
+                <div className="group h-full overflow-hidden rounded-[1.35rem] border border-slate-200 bg-white p-2 shadow-[0_20px_50px_-40px_rgba(15,23,42,.4)] transition hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_28px_60px_-40px_rgba(37,99,235,.35)] dark:border-white/10 dark:bg-slate-900">
+                  <div className="flex items-center gap-3 px-4 pt-3">
+                    <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300">
+                      <p.icon className="size-5" />
+                    </span>
+                    <div className="min-w-0">
+                      <h3 className="text-sm font-black">{p.name}</h3>
+                      <p className="mt-0.5 truncate text-[10px] text-slate-500 dark:text-slate-400">{p.desc}</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 overflow-hidden rounded-xl border border-slate-100 dark:border-white/10">
+                    <p.Preview />
+                  </div>
+                </div>
+              </Anim>
+            ))}
+          </div>
+        </section>
+
+        {/* ───────── Pricing ───────── */}
+        <section id="pricing" className="scroll-mt-24 bg-slate-100/70 dark:bg-white/[0.025]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+            <Anim className="text-center">
+              <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">PRICING</span>
+              <h2 className="mt-4 text-3xl font-black sm:text-5xl">ساده شروع کن؛ حرفه‌ای ادامه بده.</h2>
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 dark:text-slate-400">نسخه رایگان برای شروع آماده است و جزئیات پلن‌های حرفه‌ای در ادامه مسیر اعلام می‌شوند.</p>
+            </Anim>
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              <div className="rounded-[1.5rem] border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
+                <p className="text-sm font-black">رایگان</p>
+                <p className="mt-1 text-xs text-slate-500">برای شروع</p>
+                <p className="mt-6 text-3xl font-black">رایگان</p>
+                <ul className="mt-6 space-y-3 text-sm">
+                  {["کارها", "پروژه‌ها", "اهداف", "تقویم", "برنامه‌ریزی پایه"].map((f) => <li key={f} className="flex gap-2"><CheckCircle2 className="mt-0.5 size-4 text-blue-600" />{f}</li>)}
+                </ul>
+                <Button onClick={startCta} className="mt-8 w-full rounded-xl">شروع رایگان</Button>
+              </div>
+              <div className="relative rounded-[1.5rem] border-2 border-blue-600 bg-white p-6 shadow-[0_25px_70px_-35px_rgba(37,99,235,.45)] dark:bg-slate-900">
+                <span className="absolute -top-3 end-5 rounded-full bg-blue-600 px-3 py-1 text-[10px] font-black text-white">پیشنهاد حرفه‌ای</span>
+                <p className="text-sm font-black">حرفه‌ای</p>
+                <p className="mt-1 text-xs text-slate-500">برای بهره‌وری عمیق‌تر</p>
+                <p className="mt-6 text-3xl font-black">به‌زودی</p>
+                <ul className="mt-6 space-y-3 text-sm">
+                  {["برنامه‌ریزی پیشرفته", "Timeline", "روتین‌ها", "تحلیل پیشرفت", "امکانات پیشرفته"].map((f) => <li key={f} className="flex gap-2"><CheckCircle2 className="mt-0.5 size-4 text-blue-600" />{f}</li>)}
+                </ul>
+                <Button onClick={startCta} className="mt-8 w-full rounded-xl">ورود به محصول</Button>
+              </div>
+              <div className="rounded-[1.5rem] border border-slate-200 bg-white p-6 dark:border-white/10 dark:bg-slate-900">
+                <p className="text-sm font-black">آینده محصول</p>
+                <p className="mt-1 text-xs text-slate-500">قابلیت‌های در حال توسعه</p>
+                <p className="mt-6 text-3xl font-black text-slate-400">به‌زودی</p>
+                <ul className="mt-6 space-y-3 text-sm text-slate-500 dark:text-slate-400">
+                  {["لایه‌های جدید بهره‌وری", "یکپارچه‌سازی‌های بیشتر", "امکانات تیمی و سازمانی", "دستیار برنامه‌ریزی هوشمند"].map((f) => <li key={f} className="flex gap-2"><Sparkles className="mt-0.5 size-4" />{f}</li>)}
+                </ul>
+                <Button variant="outline" onClick={startCta} className="mt-8 w-full rounded-xl">ورود به محصول</Button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Integrations ───────── */}
+        <section id="integrations" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <div className="grid items-center gap-10 lg:grid-cols-5">
+            <Anim className="lg:col-span-2">
+              <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">CONNECTED WORKFLOW</span>
+              <h2 className="mt-4 text-3xl font-black sm:text-4xl">هر بخش، بخشی از یک سیستم بزرگ‌تر است.</h2>
+              <p className="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400">
+                کاری که ایجاد می‌کنی می‌تواند به پروژه و هدف وصل شود، زمان بگیرد، وارد برنامه روز شود و روی گزارش پیشرفت اثر بگذارد.
+              </p>
+            </Anim>
+            <Anim delay={0.08} className="lg:col-span-3">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {INTEGRATIONS.map((it) => (
+                  <div key={it.label} className="rounded-2xl border border-slate-200 bg-white p-4 text-center shadow-sm transition hover:-translate-y-1 hover:border-blue-200 dark:border-white/10 dark:bg-white/[0.035]">
+                    <span className="mx-auto grid size-10 place-items-center rounded-xl bg-slate-100 text-blue-600 dark:bg-white/5 dark:text-blue-300">
+                      <it.icon className="size-4.5" />
+                    </span>
+                    <p className="mt-2 text-xs font-extrabold">{it.label}</p>
+                  </div>
+                ))}
+              </div>
+            </Anim>
+          </div>
+        </section>
+
+        {/* ───────── FAQ ───────── */}
+        <section id="faq" className="scroll-mt-24 border-t border-slate-200/70 bg-white/55 dark:border-white/10 dark:bg-white/[0.02]">
+          <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-24">
+            <Anim className="text-center">
+              <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">FAQ</span>
+              <h2 className="mt-4 text-3xl font-black sm:text-5xl">سوالات متداول</h2>
+            </Anim>
+            <div className="mt-9 space-y-3">
+              {FAQ_ITEMS.map(([q, a]) => (
+                <details key={q} className="group rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm dark:border-white/10 dark:bg-slate-900">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-extrabold">
+                    <span>{q}</span>
+                    <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-500 transition-transform group-open:rotate-45 dark:bg-white/5">+</span>
+                  </summary>
+                  <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-500 dark:text-slate-400">{a}</p>
+                </details>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ───────── Testimonials placeholder / trust ───────── */}
+        <section id="testimonials" className="scroll-mt-24 mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+          <Anim className="max-w-2xl">
+            <span className="text-[11px] font-black tracking-[0.16em] text-blue-600">TRUST & EXPERIENCE</span>
+            <h2 className="mt-4 text-3xl font-black sm:text-4xl">وقتی ساختار روشن باشد، اجرا هم روشن‌تر می‌شود.</h2>
+            <p className="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400">نمونه‌های زیر جایگاه محتوای واقعی کاربران را نشان می‌دهند و فعلاً به‌عنوان متن نمونه علامت‌گذاری شده‌اند.</p>
+          </Anim>
+          <div className="mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            {TESTIMONIALS.map((t, i) => (
+              <Anim key={t.role} delay={i * 0.04} className="h-full">
+                <figure className="relative flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-900">
+                  <span className="absolute end-4 top-4 rounded-md bg-slate-100 px-2 py-1 text-[9px] font-bold text-slate-500 dark:bg-white/5">متن نمونه</span>
+                  <blockquote className="pt-7 text-sm leading-7">«{t.quote}»</blockquote>
+                  <figcaption className="mt-5 flex items-center gap-3 border-t border-slate-100 pt-4 dark:border-white/10">
+                    <span className="grid size-9 place-items-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-300"><Users className="size-4" /></span>
+                    <span><span className="block text-xs font-black">کاربر نمونه</span><span className="text-[10px] text-slate-500">{t.role}</span></span>
+                  </figcaption>
+                </figure>
+              </Anim>
+            ))}
+          </div>
+        </section>
+
+        {/* ───────── Final CTA ───────── */}
+        <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 sm:pb-24 lg:px-8">
+          <Anim>
+            <div className="relative overflow-hidden rounded-[2rem] bg-slate-950 px-6 py-14 text-center text-white shadow-[0_35px_90px_-45px_rgba(15,23,42,.75)] sm:px-10 sm:py-20">
+              <div className="pointer-events-none absolute -right-20 -top-28 size-72 rounded-full bg-blue-600/20 blur-3xl" />
+              <div className="pointer-events-none absolute -left-24 -bottom-32 size-80 rounded-full bg-indigo-600/15 blur-3xl" />
+              <div className="relative">
+                <span className="text-[11px] font-black tracking-[0.18em] text-blue-300">READY TO PLAN?</span>
+                <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-black sm:text-5xl">فضای بهره‌وری خودت را بساز.</h2>
+                <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-slate-400 sm:text-base">
+                  از کارهای پراکنده به یک سیستم منظم برای برنامه‌ریزی، اجرا و پیشرفت برو.
+                </p>
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                  <Button onClick={startCta} size="lg" className="h-12 rounded-xl bg-white px-7 text-sm font-black text-slate-950 hover:bg-slate-100">
+                    شروع رایگان
+                    <ArrowLeft className="me-1.5 size-4" />
+                  </Button>
+                  <Button asChild size="lg" variant="outline" className="h-12 rounded-xl border-white/20 bg-white/5 px-7 text-sm font-bold text-white hover:bg-white/10 hover:text-white">
+                    <a href="#features">مشاهده محصول</a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </Anim>
+        </section>
+      </main>
+
+      {/* ───────── Footer ───────── */}
+      <footer className="border-t border-slate-200/80 bg-white/70 dark:border-white/10 dark:bg-slate-950/50">
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="sm:col-span-2">
+              <div className="flex items-center gap-2.5">
+                <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
+                  <ListChecks className="size-5" />
+                </span>
+                <span className="text-lg font-black">تسک‌لی</span>
+              </div>
+              <p className="mt-4 max-w-sm text-sm leading-7 text-slate-500 dark:text-slate-400">
+                سیستم عامل بهره‌وری شخصی برای وصل کردن کارها، اهداف، زمان، روتین‌ها و پیشرفت در یک فضای کاری منظم.
               </p>
             </div>
             {FOOTER_COLUMNS.map((col) => (
               <div key={col.title}>
-                <h3 className="mb-3 text-sm font-extrabold">{col.title}</h3>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                <h3 className="text-xs font-black">{col.title}</h3>
+                <ul className="mt-4 space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
                   {col.links.map((l) => (
                     <li key={l.label}>
                       {l.soon ? (
-                        <span className="inline-flex items-center gap-1.5 transition hover:text-foreground">
-                          {l.label}
-                          <span className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-bold">به‌زودی</span>
-                        </span>
+                        <span className="inline-flex items-center gap-1.5">{l.label}<span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] dark:bg-white/5">به‌زودی</span></span>
                       ) : l.to ? (
-                        <Link to={l.to} className="transition hover:text-foreground">
-                          {l.label}
-                        </Link>
+                        <Link to={l.to} className="transition hover:text-blue-600">{l.label}</Link>
                       ) : (
-                        <a href={l.href} className="transition hover:text-foreground">
-                          {l.label}
-                        </a>
+                        <a href={l.href} className="transition hover:text-blue-600">{l.label}</a>
                       )}
                     </li>
                   ))}
@@ -878,19 +891,12 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
-            <span>© {toFa(1404)} تسک‌لی — همه حقوق محفوظ است.</span>
-            <div className="flex items-center gap-4">
-              <span className="transition hover:text-foreground">حریم خصوصی</span>
-              <span className="transition hover:text-foreground">شرایط استفاده</span>
-              <button
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                className="inline-flex items-center gap-1 transition hover:text-foreground"
-              >
-                <ArrowUp className="size-3.5" aria-hidden="true" />
-                برگشت به بالا
-              </button>
-            </div>
+          <div className="mt-10 flex flex-col gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
+            <span>© {toFa(1405)} تسک‌لی — همه حقوق محفوظ است.</span>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="inline-flex items-center gap-1 hover:text-slate-700 dark:hover:text-white">
+              <ArrowUp className="size-3.5" />
+              برگشت به بالا
+            </button>
           </div>
         </div>
       </footer>
