@@ -640,31 +640,24 @@ export default function Landing() {
         <section id="progress" className="scroll-mt-24 border-y border-slate-200/70 bg-white/55 dark:border-white/10 dark:bg-white/[0.02]">
           <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
             <div className="mx-auto max-w-5xl">
-              <Anim className="text-center"><span className="text-[11px] font-black tracking-[0.16em] text-emerald-600">PROGRESS</span><h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">پیشرفت را با شواهد ببین.</h2><p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">روند تمرکز، اجرای برنامه، اهداف و استمرار را در یک تصویر قابل فهم دنبال کن.</p></Anim>
-              <Anim delay={0.08} className="mt-9"><div className="rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_30px_80px_-50px_rgba(37,99,235,.45)] dark:border-white/10 dark:bg-slate-900"><AnalyticsPreview /></div></Anim>
-              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">{[["اجرای برنامه","۷۶٪"],["استمرار","۱۲ روز"],["تمرکز","۴.۸ ساعت"],["اهداف","۷۰٪"]].map(([l,v])=><div key={l} className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]"><span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">{l}</span><span className="mt-1 block text-xl font-black">{v}</span></div>)}</div>
-            </div>
-              </Anim>
-              <Anim delay={0.1} className="lg:col-span-5">
+              <Anim className="text-center">
                 <span className="text-[11px] font-black tracking-[0.16em] text-emerald-600">PROGRESS</span>
                 <h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">پیشرفت را با شواهد ببین.</h2>
-                <p className="mt-5 text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">
-                  تعداد کارهای انجام‌شده فقط یک عدد است. روند تمرکز، اجرای برنامه، اهداف و استمرار تصویر کامل‌تری از بهره‌وری می‌سازند.
-                </p>
-                <div className="mt-7 grid grid-cols-2 gap-3">
-                  {[
-                    ["اجرای برنامه", "۷۶٪"],
-                    ["استمرار", "۱۲ روز"],
-                    ["تمرکز", "۴.۸ ساعت"],
-                    ["اهداف", "۷۰٪"],
-                  ].map(([l, v]) => (
-                    <div key={l} className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]">
-                      <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">{l}</span>
-                      <span className="mt-1 block text-xl font-black">{v}</span>
-                    </div>
-                  ))}
+                <p className="mx-auto mt-4 max-w-2xl text-sm leading-7 text-slate-500 sm:text-base dark:text-slate-400">روند تمرکز، اجرای برنامه، اهداف و استمرار را در یک تصویر قابل فهم دنبال کن.</p>
+              </Anim>
+              <Anim delay={0.08} className="mt-9">
+                <div className="rounded-[1.75rem] border border-slate-200 bg-white p-2 shadow-[0_30px_80px_-50px_rgba(37,99,235,.45)] dark:border-white/10 dark:bg-slate-900">
+                  <AnalyticsPreview />
                 </div>
               </Anim>
+              <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {[["اجرای برنامه","۷۶٪"],["استمرار","۱۲ روز"],["تمرکز","۴.۸ ساعت"],["اهداف","۷۰٪"]].map(([l,v]) => (
+                  <div key={l} className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-white/[0.035]">
+                    <span className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400">{l}</span>
+                    <span className="mt-1 block text-xl font-black">{v}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
