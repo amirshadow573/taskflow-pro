@@ -857,45 +857,100 @@ export default function Landing() {
         </section>
       </main>
 
-      {/* ───────── Footer ───────── */}
-      <footer className="border-t border-slate-200/80 bg-white/70 dark:border-white/10 dark:bg-slate-950/50">
-        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-6">
-            <div className="sm:col-span-2">
-              <div className="flex items-center gap-2.5">
-                <span className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white">
+      {/* ───────── Premium Footer ───────── */}
+      <footer className="relative overflow-hidden border-t border-slate-200/80 bg-slate-950 text-white dark:border-white/10">
+        <div className="pointer-events-none absolute -end-32 -top-32 size-80 rounded-full bg-blue-600/15 blur-3xl" aria-hidden="true" />
+        <div className="pointer-events-none absolute -start-40 bottom-0 size-96 rounded-full bg-indigo-600/10 blur-3xl" aria-hidden="true" />
+
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          {/* Footer CTA */}
+          <div className="border-b border-white/10 py-10 sm:py-12">
+            <div className="flex flex-col gap-6 rounded-[1.75rem] border border-white/10 bg-white/[0.045] p-5 shadow-2xl shadow-black/20 sm:flex-row sm:items-center sm:justify-between sm:p-7">
+              <div className="max-w-2xl">
+                <span className="inline-flex items-center gap-2 text-[10px] font-black tracking-[0.16em] text-blue-300">
+                  <span className="size-1.5 rounded-full bg-blue-400" />
+                  BUILD YOUR WORKSPACE
+                </span>
+                <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
+                  آماده‌ای روزت را منظم‌تر مدیریت کنی؟
+                </h2>
+                <p className="mt-2 text-xs leading-6 text-slate-400 sm:text-sm">
+                  فضای کاری خودت را بساز و کارها، پروژه‌ها، زمان و پیشرفت را در یک سیستم ببین.
+                </p>
+              </div>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <Button onClick={startCta} className="h-11 rounded-xl bg-white px-5 text-xs font-black text-slate-950 hover:bg-slate-100">
+                  شروع رایگان
+                  <ArrowLeft className="me-1.5 size-4" />
+                </Button>
+                <Button asChild variant="outline" className="h-11 rounded-xl border-white/15 bg-white/[0.04] px-5 text-xs font-bold text-white hover:bg-white/10 hover:text-white">
+                  <a href="#features">مشاهده محصول</a>
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Main footer */}
+          <div className="grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-12 lg:gap-8 lg:py-14">
+            <div className="lg:col-span-4">
+              <Link to="/" className="inline-flex items-center gap-2.5">
+                <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white shadow-lg shadow-blue-900/30">
                   <ListChecks className="size-5" />
                 </span>
-                <span className="text-lg font-black">تسک‌لی</span>
-              </div>
-              <p className="mt-4 max-w-sm text-sm leading-7 text-slate-500 dark:text-slate-400">
+                <span className="text-xl font-black tracking-tight">تسک‌لی</span>
+              </Link>
+              <p className="mt-5 max-w-sm text-sm leading-7 text-slate-400">
                 سیستم عامل بهره‌وری شخصی برای وصل کردن کارها، اهداف، زمان، روتین‌ها و پیشرفت در یک فضای کاری منظم.
               </p>
-            </div>
-            {FOOTER_COLUMNS.map((col) => (
-              <div key={col.title}>
-                <h3 className="text-xs font-black">{col.title}</h3>
-                <ul className="mt-4 space-y-2.5 text-xs text-slate-500 dark:text-slate-400">
-                  {col.links.map((l) => (
-                    <li key={l.label}>
-                      {l.soon ? (
-                        <span className="inline-flex items-center gap-1.5">{l.label}<span className="rounded bg-slate-100 px-1.5 py-0.5 text-[9px] dark:bg-white/5">به‌زودی</span></span>
-                      ) : l.to ? (
-                        <Link to={l.to} className="transition hover:text-blue-600">{l.label}</Link>
-                      ) : (
-                        <a href={l.href} className="transition hover:text-blue-600">{l.label}</a>
-                      )}
-                    </li>
-                  ))}
-                </ul>
+              <div className="mt-6 flex flex-wrap gap-2">
+                {["Tasks", "Projects", "Planning", "Progress"].map((label) => (
+                  <span key={label} className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1.5 text-[10px] font-bold text-slate-300">
+                    {label}
+                  </span>
+                ))}
               </div>
-            ))}
+            </div>
+
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">
+                {FOOTER_COLUMNS.map((col) => (
+                  <div key={col.title}>
+                    <h3 className="text-[11px] font-black text-white">{col.title}</h3>
+                    <ul className="mt-4 space-y-3 text-xs text-slate-400">
+                      {col.links.map((l) => (
+                        <li key={l.label}>
+                          {l.soon ? (
+                            <span className="inline-flex items-center gap-1.5">
+                              {l.label}
+                              <span className="rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] text-slate-500">به‌زودی</span>
+                            </span>
+                          ) : l.to ? (
+                            <Link to={l.to} className="inline-flex transition-colors hover:text-white">{l.label}</Link>
+                          ) : (
+                            <a href={l.href} className="inline-flex transition-colors hover:text-white">{l.label}</a>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="mt-10 flex flex-col gap-3 border-t border-slate-200 pt-6 text-xs text-slate-400 sm:flex-row sm:items-center sm:justify-between dark:border-white/10">
-            <span>© {toFa(1405)} تسک‌لی — همه حقوق محفوظ است.</span>
-            <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="inline-flex items-center gap-1 hover:text-slate-700 dark:hover:text-white">
-              <ArrowUp className="size-3.5" />
+
+          {/* Bottom bar */}
+          <div className="flex flex-col gap-4 border-t border-white/10 py-5 text-[11px] text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span>© {toFa(1405)} تسک‌لی</span>
+              <span className="hidden size-1 rounded-full bg-slate-700 sm:block" />
+              <span>همه حقوق محفوظ است.</span>
+            </div>
+            <button
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+              className="group inline-flex w-fit items-center gap-2 rounded-lg px-2 py-1.5 font-bold text-slate-400 transition hover:bg-white/5 hover:text-white"
+            >
               برگشت به بالا
+              <ArrowUp className="size-3.5 transition-transform group-hover:-translate-y-0.5" />
             </button>
           </div>
         </div>
