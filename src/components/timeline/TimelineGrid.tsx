@@ -560,22 +560,25 @@ export function TimelineGrid({
                   ))}
                 </div>
 
-                {/* "now" line (§6) — subtle, labelled, only on today's column */}
-                {isToday && now >= win.start && now <= win.end && (
-                  <div
-                    className="pointer-events-none absolute inset-x-0 z-20 flex items-center"
-                    style={{ top: `${minutesToY(now - win.start)}px` }}
-                    aria-hidden="true"
-                  >
-                    <span className="size-1.5 shrink-0 rounded-full bg-rose-500 shadow-[0_0_0_3px_rgba(244,63,94,.12)]" />
-                    <span className="h-px flex-1 bg-rose-400/50" />
-                    <span className="shrink-0 rounded-md bg-rose-500 px-1 text-[9px] font-bold leading-4 text-white">
-                      {toFa(timeFa(visualNow % (24 * 60)))}
-                    </span>
-                  </div>
+                {/* "now" line — follows the 05:00 → 05:00 visual cycle */}
+                {isToday &&
+                  (() => {
+                    const visualNow = now < TIMELINE_START ? now + 24 * 60 : now;
+                    if (visualNow < win.start || visualNow > win.end) return null;
+                    return (
+                      <div
+                        className="pointer-events-none absolute inset-x-0 z-20 flex items-center"
+                        style={{ top: `${minutesToY(visualNow - win.start)}px` }}
+                        aria-hidden="true"
+                      >
+                        <span className="size-1.5 shrink-0 rounded-full bg-rose-500 shadow-[0_0_0_3px_rgba(244,63,94,.12)]" />
+                        <span className="h-px flex-1 bg-rose-400/50" />
+                        <span className="shrink-0 rounded-md bg-rose-500 px-1 text-[9px] font-bold leading-4 text-white">
+                          {toFa(timeFa(now))}
+                        </span>
+                      </div>
                     );
-                  })()
-                )}
+                  })()}
 
                 {/* activities */}
                 {(placedByDay.get(day) ?? []).map((activity) => {
