@@ -46,6 +46,7 @@ import {
 } from "@/lib/ai/insight-types";
 import type { AIAction } from "@/lib/ai/types";
 import { AIInsightCard } from "./AIInsightCard";
+import { isTestMode } from "@/lib/personas";
 
 type Mode = "insight" | "daily_review" | "weekly_review";
 
@@ -60,9 +61,10 @@ export function AIInsightsCenter() {
   const applyProposal = useMutation(api.ai.applyProposal);
   const discardProposal = useMutation(api.ai.discardProposal);
 
-  const status = useQuery(api.aiInsights.status, {});
-  const evidence = useQuery(api.aiInsights.insightContext, { window: "7d" });
-  const history = useQuery(api.aiInsights.insightHistory, { limit: 8 });
+  const guestMode = isTestMode();
+  const status = useQuery(api.aiInsights.status, guestMode ? "skip" : {});
+  const evidence = useQuery(api.aiInsights.insightContext, guestMode ? "skip" : { window: "7d" });
+  const history = useQuery(api.aiInsights.insightHistory, guestMode ? "skip" : { limit: 8 });
 
   const [mode, setMode] = useState<Mode>("insight");
   const [window_, setWindow_] = useState<"7d" | "14d" | "30d">("7d");
