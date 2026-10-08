@@ -13,9 +13,10 @@ import { api } from "@/convex/_generated/api";
 import { Pill } from "@/components/progress/progress-ui";
 import { toFa } from "@/lib/persian";
 import { PATTERN_LABELS_FA } from "@/lib/ai/insight-types";
+import { isTestMode } from "@/lib/personas";
 
 export function AIInsightStrip() {
-  const evidence = useQuery(api.aiInsights.insightContext, { window: "7d" });
+  const evidence = useQuery(api.aiInsights.insightContext, isTestMode() ? "skip" : { window: "7d" });
 
   const top = (evidence?.patterns ?? []).slice(0, 3);
   if (!evidence || evidence.insufficient || top.length === 0) return null;
