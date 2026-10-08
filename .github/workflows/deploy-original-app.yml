@@ -30,14 +30,20 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Configure Convex auth environment
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }} 
+        run: |
+          if [ -z "$CONVEX_DEPLOY_KEY" ]; then
+            echo "::error::Missing GitHub Actions secret CONVEX_DEPLOY_KEY."
+            exit 1
+          fi
+          npx convex env set VLY_CONVEX_AUTH_ISSUER "https://freebuff.com"
+
       - name: Deploy Convex backend, generate types, and build frontend
         env:
           CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
         run: |
-          if [ -z "$CONVEX_DEPLOY_KEY" ]; then
-            echo "::error::Missing GitHub Actions secret CONVEX_DEPLOY_KEY. Add a Convex production deploy key for the original app."
-            exit 1
-          fi
           npx convex deploy --cmd "npx convex codegen && npm run build" --cmd-url-env-var-name VITE_CONVEX_URL
 
       - name: Upload Pages artifact
