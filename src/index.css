@@ -864,3 +864,146 @@ summary::marker {
     transform: none;
   }
 }
+
+
+/* ================================================================
+   LANDING REFERENCE UI — blue-only TaskFlow marketing system
+   Inspired by the supplied modern SaaS composition:
+   centered hero → product screenshot → feature grid → alternating
+   product stories → integrations → pricing → CTA → footer.
+   Presentation-only: no data, routing or behavior changes.
+   ================================================================ */
+.landing-blue {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(59,130,246,.12), transparent 30rem),
+    linear-gradient(180deg, #f7fbff 0%, #eef6ff 48%, #f8fbff 100%);
+}
+.landing-blue .landing-hero {
+  padding-top: 9.5rem;
+}
+.landing-blue .landing-hero-grid {
+  display:flex;
+  flex-direction:column;
+  gap:3rem;
+}
+.landing-blue .landing-hero-grid > :first-child {
+  order:1;
+  max-width:58rem;
+  margin-inline:auto;
+  text-align:center;
+}
+.landing-blue .landing-hero-grid > :first-child > div {
+  justify-content:center;
+}
+.landing-blue .landing-hero-grid > :first-child p {
+  margin-inline:auto;
+}
+.landing-blue .landing-hero-grid > :first-child .border-t {
+  justify-content:center;
+  border-top-color:rgba(147,197,253,.45);
+}
+.landing-blue .landing-hero-grid > :last-child {
+  order:2;
+  width:100%;
+  max-width:74rem;
+  margin-inline:auto;
+}
+.landing-blue #hero-product {
+  border-color:rgba(147,197,253,.65);
+  border-radius:2rem;
+  padding:.55rem;
+  background:rgba(255,255,255,.92);
+  box-shadow:0 42px 110px -50px rgba(37,99,235,.52);
+}
+.landing-blue .landing-hero-cards {
+  max-width:68rem;
+  margin-inline:auto;
+}
+.landing-blue .landing-hero-cards > div > div,
+.landing-blue .landing-feature-card,
+.landing-blue #timeline > div > div > div,
+.landing-blue #personas > div > div > div {
+  border-color:rgba(147,197,253,.42);
+  box-shadow:0 18px 45px -35px rgba(37,99,235,.28);
+}
+.landing-blue .landing-trust {
+  max-width:72rem;
+  margin-inline:auto;
+}
+.landing-blue .landing-feature-grid {
+  max-width:72rem;
+  margin-inline:auto;
+}
+.landing-blue #features > .landing-feature-grid + .grid {
+  margin-top:2rem;
+}
+.landing-blue #features > .landing-feature-grid + .grid > div > div {
+  border-color:rgba(147,197,253,.5);
+  border-radius:1.8rem;
+  box-shadow:0 30px 75px -50px rgba(37,99,235,.4);
+}
+.landing-blue #chain,
+.landing-blue #progress,
+.landing-blue #faq,
+.landing-blue #pricing {
+  background:linear-gradient(180deg, rgba(239,247,255,.88), rgba(248,251,255,.95));
+  border-color:rgba(147,197,253,.35);
+}
+.landing-blue #chain .rounded-\[1\.75rem\],
+.landing-blue #planning .rounded-\[1\.75rem\],
+.landing-blue #progress .rounded-\[1\.75rem\] {
+  border-color:rgba(147,197,253,.5);
+  box-shadow:0 30px 80px -48px rgba(37,99,235,.45);
+}
+.landing-blue #system {
+  background:linear-gradient(145deg,#06152f,#0b2b62 62%,#0d3d86);
+}
+.landing-blue #system .bg-white\/\[0\.045\],
+.landing-blue #system .bg-white\/\[0\.055\] {
+  background:rgba(255,255,255,.07);
+  border-color:rgba(147,197,253,.2);
+}
+.landing-blue #system .text-blue-300,
+.landing-blue #system .text-blue-200 {
+  color:#bfdbfe;
+}
+.landing-blue #pricing .md\:grid-cols-3 > div {
+  border-color:rgba(147,197,253,.45);
+  box-shadow:0 24px 65px -48px rgba(37,99,235,.4);
+}
+.landing-blue #pricing .md\:grid-cols-3 > div:nth-child(2) {
+  background:linear-gradient(180deg,#ffffff,#edf6ff);
+  border-color:#3b82f6;
+  box-shadow:0 30px 75px -42px rgba(37,99,235,.55);
+}
+.landing-blue .bg-blue-950 {
+  background:linear-gradient(135deg,#06152f,#0b2b62 60%,#0d3d86);
+}
+.landing-blue footer {
+  background:linear-gradient(145deg,#06152f,#081d43);
+  border-color:rgba(147,197,253,.2);
+}
+.landing-blue .text-emerald-500,
+.landing-blue .text-emerald-600,
+.landing-blue .text-emerald-700,
+.landing-blue .text-amber-500,
+.landing-blue .bg-emerald-50,
+.landing-blue .bg-emerald-500\/10 {
+  color:#2563eb !important;
+  background-color:rgba(59,130,246,.08) !important;
+}
+.landing-blue .bg-blue-500 {
+  background-color:#2563eb !important;
+}
+.landing-blue .text-blue-600 { color:#2563eb !important; }
+.landing-blue .text-blue-700 { color:#1d4ed8 !important; }
+.landing-blue .border-blue-200,
+.landing-blue .border-blue-100 { border-color:rgba(147,197,253,.6) !important; }
+
+@media (max-width: 767.98px) {
+  .landing-blue .landing-hero { padding-top:7.5rem; }
+  .landing-blue .landing-hero-grid { gap:2rem; }
+  .landing-blue .landing-feature-grid { grid-template-columns:1fr; }
+  .landing-blue #hero-product { border-radius:1.25rem; }
+  .landing-blue .landing-hero-cards { margin-top:2.25rem; }
+}
