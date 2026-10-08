@@ -13,11 +13,13 @@
  *   manager meetings  employee / manager / team commitments
  *   routines + habits their names, for traceability of linked blocks
  */
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useWorkspace } from "@/components/workspace/WorkspaceData";
+import { isTestMode } from "@/lib/personas";
+import { addTestTimelineBlock, deleteTestTimelineBlock, readTestTimelineBlocks, updateTestTimelineBlock } from "@/lib/timeline/test-timeline";
 import { useUserProfile } from "@/hooks/use-user-profile";
 import { useSchedulePrefs } from "@/lib/preferences";
 import { expandCommitments, normalizeBlock, type FixedCommitment } from "@/lib/scheduling";
@@ -132,6 +134,7 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
   const { tasks, projects } = useWorkspace();
   const { personaKey } = useUserProfile();
   const [prefs, savePrefs] = useSchedulePrefs();
+  const [testBlocks, setTestBlocks] = useState<TimelineBlockRow[]>(() => readTestTimelineBlocks());
 
   const dayKeys = useMemo(
     () => (view === "week" ? weekDayKeys(dayKey) : [dayKey]),
@@ -206,7 +209,7 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
 
   /* ---- one adapter pass per visible day ---- */
   const byDay = useMemo(() => {
-    const all = blocks ?? EMPTY_BLOCKS;
+    const all = [...(blocks ?? EMPTY_BLOCKS), ...(isTestMode() ? testBlocks : EMPTY_BLOCKS)];
     const rangeSet = new Set(dayKeys);
     const relevant = all.filter((b) => rangeSet.has(b.day));
     const map = new Map<string, ReturnType<typeof buildDayActivities>>();
@@ -227,7 +230,7 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
       );
     }
     return map;
-  }, [blocks, dayKeys, context, commitmentsByDay]);
+  }, [blocks, testBlocks, dayKeys, context, commitmentsByDay]);
 
   /* ---- controlled mutations: the ONLY write paths ---- */
   const createMut = useMutation(api.personal.createTimeBlock);
@@ -236,6 +239,30 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
 
   const createBlock = useCallback<UseTimelineResult["createBlock"]>(
     async (args) => {
+      if (isTestMode()) {
+        const id = `test-time-block:${crypto.randomUUID()}`;
+        const row: TimelineBlockRow = {
+          _id: id,
+          title: args.title,
+          day: args.day,
+          startTime: args.startTime,
+          endTime: args.endTime,
+          kind: args.kind,
+          status: "planned",
+          fixed: args.fixed ?? false,
+          source: "manual",
+          taskId: args.taskId,
+          projectId: args.projectId,
+          goalId: args.goalId,
+          notes: args.description,
+          color: args.color,
+          routineId: args.routineId,
+          habitId: args.habitId,
+        };
+        addTestTimelineBlock(row);
+        setTestBlocks(readTestTimelineBlocks());
+        return;
+      }
       await createMut({
         title: args.title,
         day: args.day,
@@ -263,6 +290,11 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
    */
   const updateBlock = useCallback<UseTimelineResult["updateBlock"]>(
     async (id, patch) => {
+      if (isTestMode() && String(id).startsWith("test-time-block:")) {
+        updateTestTimelineBlock(String(id), patch as Partial<TimelineBlockRow>);
+        setTestBlocks(readTestTimelineBlocks());
+        return;
+      }
       await updateMut({ id, ...patch });
     },
     [updateMut],
@@ -270,6 +302,11 @@ export function useTimeline({ dayKey, view }: UseTimelineArgs): UseTimelineResul
 
   const deleteBlock = useCallback<UseTimelineResult["deleteBlock"]>(
     async (id) => {
+      if (isTestMode() && String(id).startsWith("test-time-block:")) {
+        deleteTestTimelineBlock(String(id));
+        setTestBlocks(readTestTimelineBlocks());
+        return;
+      }
       await deleteMut({ id });
     },
     [deleteMut],
