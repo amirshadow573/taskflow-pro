@@ -15,10 +15,12 @@ import { todayKey } from "@/lib/task-utils";
 import { Button } from "@/components/ui/button";
 import { Pill } from "@/components/progress/progress-ui";
 import { AIAssistantPanel } from "@/components/ai/AIAssistantPanel";
+import { isTestMode } from "@/lib/personas";
 
 export function AIOverviewCard() {
   const [open, setOpen] = useState(false);
-  const status = useQuery(api.ai.status);
+  const guestMode = isTestMode();
+  const status = useQuery(api.ai.status, guestMode ? "skip" : {});
   const tasks = useQuery(api.tasks.list, {});
 
   const facts = useMemo(() => {
