@@ -142,20 +142,16 @@ export function TimelineGrid({
     return () => clearInterval(t);
   }, []);
 
-  /* ---- visible window: the user's own availability, widened to content --- */
+  /* ---- fixed 24-hour day cycle: 05:00 → 05:00 next day ------------- */
+  const TIMELINE_START = 5 * 60;
+  const TIMELINE_END = 29 * 60;
+
   const win = useMemo(() => {
-    const spans: { start: number; end: number }[] = [];
-    for (const day of dayKeys) {
-      for (const a of activitiesByDay.get(day) ?? []) spans.push({ start: a.start, end: a.end });
-    }
-    return visibleWindow(
-      {
-        start: minutesOf(prefs.dayStart) ?? 8 * 60,
-        end: minutesOf(prefs.dayEnd) ?? 22 * 60,
-      },
-      spans,
-    );
-  }, [dayKeys, activitiesByDay, prefs]);
+    // The visual day always spans a full 24 hours, starting at 05:00.
+    // Existing stored tasks remain in normal 00:00–24:00 minutes; tasks
+    // before 05:00 are rendered after midnight at the bottom of the cycle.
+    return { start: TIMELINE_START, end: TIMELINE_END };
+  }, []);
 
   const lines = useMemo(() => gridLines(win, TIMELINE_SNAP_MINUTES), [win]);
   const height = windowHeight(win);
@@ -163,7 +159,21 @@ export function TimelineGrid({
   const placedByDay = useMemo(() => {
     const map = new Map<string, ReturnType<typeof layoutDay>>();
     for (const day of dayKeys) {
-      map.set(day, layoutDay(activitiesByDay.get(day) ?? [], win));
+      const placed = layoutDay(activitiesByDay.get(day) ?? [], win);
+      // 00:00–05:00 belongs at the bottom of a 05:00-starting visual day.
+      // Keep the underlying activity times untouched so persistence stays
+      // compatible with the existing scheduling model.
+      map.set(
+        day,
+        placed.map((activity) =>
+          activity.start < TIMELINE_START
+            ? {
+                ...activity,
+                top: activity.top + minutesToY(24 * 60),
+              }
+            : activity,
+        ),
+      );
     }
     return map;
   }, [dayKeys, activitiesByDay, win]);
@@ -363,8 +373,10 @@ export function TimelineGrid({
     // sheet opens exactly once, with the dragged range already prefilled.
     if (createMovedRef.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const start = snapMinutes(win.start + (e.clientY - rect.top) / PX_PER_MINUTE);
-    onCreateAt(day, start, start + 60);
+    const visualStart = snapMinutes(win.start + (e.clientY - rect.top) / PX_PER_MINUTE);
+    const start = visualStart >= 24 * 60 ? visualStart - 24 * 60 : visualStart;
+    const end = Math.min(24 * 60, start + 60);
+    onCreateAt(day, start, end);
   };
 
   /**
@@ -498,7 +510,7 @@ export function TimelineGrid({
                 )}
                 style={{ top: `${l.y}px` }}
               >
-                {l.labelled ? toFa(timeFa(l.minutes)) : toFa(timeFa(l.minutes)).slice(3)}
+                {l.labelled ? toFa(timeFa(l.minutes % (24 * 60))) : toFa(timeFa(l.minutes % (24 * 60))).slice(3)}
               </div>
             ))}
           </div>
@@ -558,9 +570,11 @@ export function TimelineGrid({
                     <span className="size-1.5 shrink-0 rounded-full bg-rose-500 shadow-[0_0_0_3px_rgba(244,63,94,.12)]" />
                     <span className="h-px flex-1 bg-rose-400/50" />
                     <span className="shrink-0 rounded-md bg-rose-500 px-1 text-[9px] font-bold leading-4 text-white">
-                      {toFa(timeFa(now))}
+                      {toFa(timeFa(visualNow % (24 * 60)))}
                     </span>
                   </div>
+                    );
+                  })()
                 )}
 
                 {/* activities */}
@@ -578,7 +592,14 @@ export function TimelineGrid({
                       persona={context.persona}
                       isNow={isNowActivity}
                       isDragging={Boolean(preview)}
-                      preview={preview ? { start: preview.start, end: preview.end } : null}
+                      preview={
+                        preview
+                          ? {
+                              start: preview.start < TIMELINE_START ? preview.start + 24 * 60 : preview.start,
+                              end: preview.end <= TIMELINE_START ? preview.end + 24 * 60 : preview.end,
+                            }
+                          : null
+                      }
                       onOpen={openActivity}
                       onToggleTask={onToggleTask}
                       onPointerDownBody={(e) => beginDrag(activity, "move", e)}

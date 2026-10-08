@@ -193,9 +193,9 @@ export const TimelineActivityCard = forwardRef<
               onToggleTask(activity);
             }}
             aria-label={`علامت‌گذاری «${activity.title}» به عنوان انجام‌شده`}
-            className="absolute bottom-1.5 end-1.5 grid size-5 place-items-center rounded-md border border-current/25 bg-white/70 opacity-0 transition-opacity focus-visible:opacity-100 group-hover:opacity-100 dark:bg-black/30"
+            className="absolute bottom-1.5 end-1.5 z-10 grid size-6 place-items-center rounded-md border border-current/25 bg-white/85 shadow-sm transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-blue-500 dark:bg-black/35"
           >
-            <Check className="size-3" aria-hidden="true" />
+            <Check className="size-3.5" aria-hidden="true" />
           </button>
         )}
       {activity.taskId && activity.taskDone && density.showTime && (
